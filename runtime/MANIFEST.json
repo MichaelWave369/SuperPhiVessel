@@ -1,20 +1,27 @@
 {
   "schema": "superphivessel.runtime-manifest.v0.1",
   "runtime": {
-    "version": "v2.0-alpha.11.0.54.7",
-    "name": "Frozen Challenger Bench",
-    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html",
-    "size_bytes": 13325459,
-    "sha256": "8bb2848b9888422993e1e4e6236dd3f232602a3b48144291b0a347fc33896620",
-    "git_blob_sha1": "9465e023555bc6b33606f1e8f5f24dfb132a95c4"
+    "version": "v2.0-alpha.11.0.54.8",
+    "name": "Blank-State Release Hardening",
+    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html",
+    "size_bytes": 13328818,
+    "sha256": "3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d",
+    "git_blob_sha1": "6f070c8d9265ea2c79035ea88ee1544d4cd80568"
   },
   "canonical": true,
   "release_status": "ALPHA",
   "source_form": "standalone-html",
   "recorded_at": "2026-09-29",
+  "blank_state": {
+    "protocol": "PV-BLANK-STATE-0.1",
+    "public_data_epoch": "PV-PUBLIC-BLANK-2026-09-29-V1",
+    "contract": "docs/BLANK_STATE.md",
+    "ci_test": "tests/blank-state.test.js"
+  },
   "notes": [
     "The SHA-256 is over the canonical standalone HTML bytes.",
     "The git_blob_sha1 is GitHub's blob identity and is not a substitute for the SHA-256 release digest.",
+    "The public data epoch prevents pre-.54.8 Vessie-owned browser state from being restored into a fresh public runtime.",
     "Historical .51.x ZIP bundles are not current deployment truth."
   ]
 }
