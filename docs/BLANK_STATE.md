@@ -36,16 +36,17 @@ On first boot into that epoch, Vessie must clear or ignore legacy user-state nam
 
 The reset must be scoped to Vessie-owned keys/databases. It must not indiscriminately clear unrelated browser storage on the same origin.
 
-## Candidate implementation
+## Canonical implementation
 
-The audited candidate runtime is:
+The canonical runtime is:
 
 - version: `v2.0-alpha.11.0.54.8`
 - name: `Blank-State Release Hardening`
 - epoch protocol: `PV-BLANK-STATE-0.1`
 - public data epoch: `PV-PUBLIC-BLANK-2026-09-29-V1`
 - recovery DB: `parallax_vessel_recovery_public_epoch_1`
-- candidate SHA-256: `3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d`
+- SHA-256: `3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d`
+- Git blob: `6f070c8d9265ea2c79035ea88ee1544d4cd80568`
 
 The migration executes before device identity, Vessel-tab bootstrap, session recovery, PV-MEM, receipts, or WorkObject state is loaded.
 
@@ -63,20 +64,32 @@ The previous operator-specific Global Memory seed was replaced with the neutral 
 
 A project-specific memory self-test fixture was also replaced with synthetic generic content.
 
-## Verification requirement
+Creator/maintainer attribution may still identify the project creator. Attribution is provenance, not restored operator memory.
 
-A release is not marked blank-state verified until all of the following are true:
+## Verification status
 
-- [x] the candidate runtime bytes have been audited;
-- [x] known browser persistence namespaces have been enumerated;
+Source-level blank-state verification is complete:
+
+- [x] canonical runtime bytes audited;
+- [x] known browser persistence namespaces enumerated;
 - [x] shipped seed/default state contains no prior operator chat, dream, or committed Vessel-memory record;
 - [x] legacy-state migration simulation clears Vessie-owned state while preserving unrelated storage;
 - [x] legacy IndexedDB is ignored by namespace rotation and requested for deletion;
 - [x] same-epoch simulation proves new runtime-created state survives subsequent loads;
-- [x] a deterministic Node migration harness exists at `tests/blank-state.test.js`;
-- [ ] the .54.8 candidate is committed as the canonical runtime;
-- [ ] CI runs the blank-state harness against the committed canonical bytes;
-- [ ] a deployed fresh-browser smoke test confirms no prior user content renders.
+- [x] deterministic Node migration harness exists at `tests/blank-state.test.js`;
+- [x] .54.8 is committed as the sole canonical standalone runtime in `runtime/`;
+- [x] `runtime/MANIFEST.json` records the exact .54.8 bytes and digest;
+- [x] CI verifies the canonical SHA-256 and version marker;
+- [x] CI executes the blank-state migration harness against the committed runtime;
+- [x] CI executes the frozen SPD-W acceptance contract independently.
+
+Deployment-level verification remains separate:
+
+- [ ] the deployed public site has been upgraded to the .54.8 runtime;
+- [ ] a fresh-browser deployed smoke test confirms no prior user content renders;
+- [ ] an existing-browser deployed migration test confirms legacy Vessie state is cleared once and new epoch state persists afterward.
+
+A source artifact can be blank-state verified before deployment, but the **public deployment must not be called blank-state verified** until the deployment-level checks pass.
 
 ## Governance rule
 
