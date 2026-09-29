@@ -26,7 +26,7 @@ This roadmap describes normalization work for the public repository. It is not a
 - [ ] authority / lease primitives
 - [ ] memory admission rules
 - [ ] routing / Chamber Fitness primitives
-- [ ] SPD-W package as EXPERIMENTAL / UNWIRED until explicitly integrated
+- [x] SPD-W package imported as EXPERIMENTAL / UNWIRED until explicitly integrated
 
 ## Phase 3 — Deployment and integration
 
