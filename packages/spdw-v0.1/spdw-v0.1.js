@@ -22,7 +22,7 @@
   const SOURCE_CLASSES = Object.freeze([
     'SYMBOLIC',
     'AXIOMATIC',
-     'INTERPRETED',
+    'INTERPRETED',
     'DERIVED',
     'TEST_RESULT',
     'OBSERVED'
@@ -30,10 +30,10 @@
 
   const TARGET_STATES = Object.freeze([
     'SYMBOLIC',
-    'HYPOTHESIS',$
+    'HYPOTHESIS',
     'TESTABLE',
     'TESTED',
-   'SUPPORTED',
+    'SUPPORTED',
     'OBSERVED',
     'ACTIONABLE',
     'AUTHORIZED'
@@ -42,7 +42,7 @@
   const DISPOSITIONS = Object.freeze([
     'ALLOW',
     'WARN',
-   'REQUIRE_EVIDENCE',
+    'REQUIRE_EVIDENCE',
     'BLOCK'
   ]);
 
@@ -131,7 +131,7 @@
       if (!bool(i.claimExplicit)) missing.push('EXPLICIT_CLAIM');
       if (!bool(i.assumptionsDeclared)) missing.push('DECLARED_ASSUMPTIONS');
       if (missing.length){
-        disposition = 'REQUIRE_EVIDENCE';
+        disposition = 'REQUIRE_EVIDENCE'; // means requirements/evidence package incomplete; does not assert evidence is needed for truth.
         ruleId = 'HYPOTHESIS_FORMULATION_INCOMPLETE';
         reasons.push('HYPOTHESIS_REQUIRES_EXPLICIT_CLAIM_AND_ASSUMPTIONS');
       } else {
@@ -141,6 +141,7 @@
       }
     }
 
+    // TESTABLE is a structural status, not an evidence claim.
     if (targetState === 'TESTABLE' && disposition !== 'BLOCK'){
       if (!bool(i.hasTestContract)) missing.push('TEST_CONTRACT');
       if (!bool(i.negativePredictionDefined)) missing.push('NEGATIVE_PREDICTION');
@@ -155,6 +156,7 @@
       }
     }
 
+    // TESTED cannot be declared without an executed test result artifact.
     if (targetState === 'TESTED'){
       if (sourceClass !== 'TEST_RESULT' || !bool(i.testExecuted)){
         disposition = 'BLOCK';
@@ -168,6 +170,7 @@
       }
     }
 
+    // SUPPORTED requires actual empirical/test evidence plus independent confirmation.
     if (targetState === 'SUPPORTED'){
       const evidenceClassOk = ['TEST_RESULT','OBSERVED'].includes(sourceClass);
       const confirmations = Math.max(0, int(i.independentConfirmations,0));
@@ -187,6 +190,7 @@
       }
     }
 
+    // OBSERVED is direct-custody status. Derivation, interpretation, and test output do not silently become direct observation.
     if (targetState === 'OBSERVED'){
       if (sourceClass !== 'OBSERVED' || !bool(i.directObservation)){
         disposition = 'BLOCK';
@@ -200,6 +204,7 @@
       }
     }
 
+    // ACTIONABLE means evidence is sufficient to enter a bounded low-risk deployment/simulation path.
     if (targetState === 'ACTIONABLE'){
       const evidenceClassOk = ['TEST_RESULT','OBSERVED'].includes(sourceClass);
       if (!evidenceClassOk){
@@ -222,6 +227,7 @@
       }
     }
 
+    // AUTHORIZED is authority, not epistemic confidence. Human commitment is non-delegable here.
     if (targetState === 'AUTHORIZED'){
       if (norm(i.currentState) !== 'ACTIONABLE') missing.push('CURRENT_STATE_ACTIONABLE');
       if (norm(i.realityGateStatus) !== 'PASS') missing.push('REALITY_GATE_PASS');
@@ -237,6 +243,7 @@
       }
     }
 
+    // Never allow a high-gap base transition to look clean unless an explicit rule above justifies it.
     if (disposition === 'ALLOW' && weight >= 7 && !['HUMAN_AUTHORITY_COMMITTED'].includes(ruleId)){
       disposition = 'WARN';
       reasons.push('HIGH_PROVENANCE_DIFFERENTIAL');
@@ -299,7 +306,7 @@
       'FAIL_CLOSED='+(r.failClosed?'YES':'NO'),
       'EPSILON_PROVENANCE='+String(r.epsilon&&r.epsilon.provenance!=null?r.epsilon.provenance:1),
       'EPSILON_ONTOLOGY='+String(r.epsilon&&r.epsilon.ontology!=null?r.epsilon.ontology:0),
-      'MISSING='+(r(r.missing||[]).join(',')||'NONE'),
+      'MISSING='+((r.missing||[]).join(',')||'NONE'),
       'REASONS='+((r.reasons||[]).join('|')||'NONE'),
       'RECEIPT_HASH='+String(r.receiptHash||'none'),
       'HASH_ALGORITHM='+String(r.hashAlgorithm||'FNV1A32_IDENTITY_ONLY'),
