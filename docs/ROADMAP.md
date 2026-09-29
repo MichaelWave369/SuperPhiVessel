@@ -7,8 +7,8 @@ This roadmap describes normalization work for the public repository. It is not a
 - [x] Public repository
 - [x] MIT source license
 - [x] Repository skeleton
-- [ ] Add current standalone runtime under `runtime/`
-- [ ] Record runtime checksum/version metadata
+- [x] Add current standalone runtime under `runtime/`
+- [x] Record runtime checksum/version metadata
 - [ ] Verify visual asset provenance
 
 ## Phase 1 — Normalize the existing runtime
@@ -16,7 +16,7 @@ This roadmap describes normalization work for the public repository. It is not a
 - [ ] Extract deployable Netlify/server functions from historical bundles
 - [ ] Separate current deployment adapters from obsolete .51.x packaging
 - [ ] Extract deterministic tests and fixtures from historical runtime bundles
-- [ ] Establish machine-readable build/version manifest
+- [x] Establish machine-readable runtime/version manifest
 - [ ] Add automated secret scanning and basic repository CI
 
 ## Phase 2 — Extract reusable governed components
