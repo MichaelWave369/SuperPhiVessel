@@ -1,0 +1,20 @@
+{
+  "schema": "superphivessel.runtime-manifest.v0.1",
+  "runtime": {
+    "version": "v2.0-alpha.11.0.54.7",
+    "name": "Frozen Challenger Bench",
+    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html",
+    "size_bytes": 13325459,
+    "sha256": "8bb2848b9888422993e1e4e6236dd3f232602a3b48144291b0a347fc33896620",
+    "git_blob_sha1": "9465e023555bc6b33606f1e8f5f24dfb132a95c4"
+  },
+  "canonical": true,
+  "release_status": "ALPHA",
+  "source_form": "standalone-html",
+  "recorded_at": "2026-09-29",
+  "notes": [
+    "The SHA-256 is over the canonical standalone HTML bytes.",
+    "The git_blob_sha1 is GitHub's blob identity and is not a substitute for the SHA-256 release digest.",
+    "Historical .51.x ZIP bundles are not current deployment truth."
+  ]
+}
