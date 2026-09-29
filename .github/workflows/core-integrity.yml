@@ -1,0 +1,34 @@
+name: core-integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify canonical runtime SHA-256
+        shell: bash
+        run: |
+          echo "8bb2848b9888422993e1e4e6236dd3f232602a3b48144291b0a347fc33896620  runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html" | sha256sum --check -
+
+      - name: Verify runtime version marker
+        shell: bash
+        run: |
+          grep -Fq "v2.0-alpha.11.0.54.7 — Frozen Challenger Bench" runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html
+
+  spdw-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run SPD-W frozen acceptance contract
+        working-directory: packages/spdw-v0.1
+        run: node spdw-v0.1.acceptance.js
