@@ -1,0 +1,63 @@
+name: publish-canonical-release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "runtime/MANIFEST.json"
+      - "docs/releases/**"
+      - ".github/workflows/publish-canonical-release.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+
+      - name: Read and verify runtime manifest
+        id: manifest
+        shell: bash
+        run: |
+          VERSION="$(jq -r '.runtime.version' runtime/MANIFEST.json)"
+          NAME="$(jq -r '.runtime.name' runtime/MANIFEST.json)"
+          RUNTIME_PATH="$(jq -r '.runtime.path' runtime/MANIFEST.json)"
+          EXPECTED_SHA="$(jq -r '.runtime.sha256' runtime/MANIFEST.json)"
+          ACTUAL_SHA="$(sha256sum "$RUNTIME_PATH" | awk '{print $1}')"
+
+          test -n "$VERSION"
+          test -n "$NAME"
+          test -f "$RUNTIME_PATH"
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+
+          NOTES="docs/releases/$VERSION.md"
+          test -f "$NOTES"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "runtime_path=$RUNTIME_PATH" >> "$GITHUB_OUTPUT"
+          echo "sha256=$EXPECTED_SHA" >> "$GITHUB_OUTPUT"
+          echo "notes=$NOTES" >> "$GITHUB_OUTPUT"
+
+      - name: Publish alpha release if absent
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.manifest.outputs.version }}
+          NAME: ${{ steps.manifest.outputs.name }}
+          RUNTIME_PATH: ${{ steps.manifest.outputs.runtime_path }}
+          SHA256: ${{ steps.manifest.outputs.sha256 }}
+          NOTES: ${{ steps.manifest.outputs.notes }}
+        shell: bash
+        run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists; refusing to mutate a sealed release."
+            exit 0
+          fi
+
+          CHECKSUM_FILE="$RUNNER_TEMP/$(basename "$RUNTIME_PATH").sha256"
+          printf '%s  %s\n' "$SHA256" "$(basename "$RUNTIME_PATH")" > "$CHECKSUM_FILE"
+
+          gh release create "$VERSION"             "$RUNTIME_PATH#Standalone HTML runtime"             "$CHECKSUM_FILE#SHA-256 checksum"             --target "$GITHUB_SHA"             --title "Super Φ.Vessel $VERSION — $NAME"             --notes-file "$NOTES"             --prerelease
