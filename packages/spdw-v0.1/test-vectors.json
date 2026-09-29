@@ -1,0 +1,13 @@
+{
+  "schema": "superphivessel.spdw.test-vectors.v0.1",
+  "version": "0.1.0",
+  "notes": [
+    "Analogy may generate a hypothesis but is not evidence.",
+    "OBSERVED requires direct observed custody.",
+    "AUTHORIZED requires an explicit Human Commitment Write.",
+    "Unknown source/target classes fail closed."
+  ],
+  "frozen_case_count": 31,
+  "acceptance_command": "node spdw-v0.1.acceptance.js",
+  "expected_summary": "SUMMARY 31/31 PASS"
+}
