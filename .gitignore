@@ -1,0 +1,62 @@
+# Secrets and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+.credentials/
+
+# Runtime/operator state
+*.sqlite
+*.sqlite3
+*.db
+*.ldb
+*.log
+*.pid
+.vessel-state/
+.vessie-state/
+runtime-state/
+local-memory/
+exports/private/
+
+# Historical / deployment archives
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+.tmp/
+temp/
+tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Netlify state
+.netlify/
+
+# Keep canonical runtime HTML files tracked
+!runtime/*.html
