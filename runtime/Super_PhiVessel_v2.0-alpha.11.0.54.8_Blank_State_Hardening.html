@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+  v2.0-alpha.11.0.54.8 — Blank-State Release Hardening
+  PV-BLANK-STATE-0.1
+  - Establishes a one-time public data epoch before any Vessie identity, tab, session, memory, receipt, or recovery state is loaded.
+  - Clears only Vessie-owned localStorage/sessionStorage namespaces on epoch migration; unrelated origin storage is preserved.
+  - Rotates the IndexedDB recovery namespace and best-effort deletes the legacy recovery database so pre-release conversations, dreams, memory, receipts, work state, and credentials cannot resurrect.
+  - Replaces the operator-specific global-memory seed with a neutral current-operator authority statement; creator attribution remains project provenance, not recalled operator memory.
+  - Preserves the governed persistence machinery: new chats, dreams, memories, receipts, and work state may be created only after this blank epoch starts.
+-->
+<!--
   v2.0-alpha.11.0.54.7 — Frozen Challenger Bench
   PV-MCA-0.2 / PV-MCA-BENCH-0.1 / PV-MODEL-CHALLENGE-GRANT-0.1
   - Adds an operator-triggered frozen incumbent-vs-challenger contract bench for installed local Ollama models.
@@ -2854,6 +2863,48 @@ html,body,#root{width:100%;height:100%;margin:0;overflow:hidden!important;oversc
 <script type="text/javascript">
 const { useState, useRef, useEffect, useCallback, useMemo } = React;
 
+// BEGIN PV-BLANK-STATE-0.1
+// One-time public release data epoch. This runs before DEVICE_ID, Vessel tabs,
+// session recovery, PV-MEM, receipts, or WorkObject state can be read.
+const PUBLIC_DATA_EPOCH='PV-PUBLIC-BLANK-2026-09-29-V1';
+const PUBLIC_DATA_EPOCH_KEY='phivessel_public_data_epoch_v1';
+const PUBLIC_DATA_EPOCH_STORAGE_PREFIXES=Object.freeze(['vessel_','vessel-','phivessel:','parallax_vessel_','parallax-vessel-']);
+const PUBLIC_DATA_EPOCH_LEGACY_DATABASES=Object.freeze(['parallax_vessel_recovery_v1']);
+function publicDataEpochOwnsKey(key){
+  const k=String(key||'');
+  return PUBLIC_DATA_EPOCH_STORAGE_PREFIXES.some(function(prefix){return k.indexOf(prefix)===0;});
+}
+function publicDataEpochClearStorage(store){
+  if(!store)return 0;
+  const doomed=[];
+  try{
+    for(let i=0;i<store.length;i++){
+      const k=store.key(i);
+      if(k&&k!==PUBLIC_DATA_EPOCH_KEY&&publicDataEpochOwnsKey(k))doomed.push(k);
+    }
+  }catch(_e){return 0;}
+  doomed.forEach(function(k){try{store.removeItem(k);}catch(_e){}});
+  return doomed.length;
+}
+function runPublicDataEpochMigration(){
+  let prior=null;
+  try{prior=localStorage.getItem(PUBLIC_DATA_EPOCH_KEY);}catch(_e){}
+  if(prior===PUBLIC_DATA_EPOCH)return {version:'PV-BLANK-STATE-0.1',epoch:PUBLIC_DATA_EPOCH,status:'CURRENT',migrated:false,clearedLocal:0,clearedSession:0,legacyDatabasesRequested:0};
+  const clearedLocal=publicDataEpochClearStorage(typeof localStorage!=='undefined'?localStorage:null);
+  const clearedSession=publicDataEpochClearStorage(typeof sessionStorage!=='undefined'?sessionStorage:null);
+  let legacyDatabasesRequested=0;
+  try{
+    if(typeof indexedDB!=='undefined'&&indexedDB&&typeof indexedDB.deleteDatabase==='function'){
+      PUBLIC_DATA_EPOCH_LEGACY_DATABASES.forEach(function(name){try{indexedDB.deleteDatabase(name);legacyDatabasesRequested++;}catch(_e){}});
+    }
+  }catch(_e){}
+  try{localStorage.setItem(PUBLIC_DATA_EPOCH_KEY,PUBLIC_DATA_EPOCH);}catch(_e){}
+  return {version:'PV-BLANK-STATE-0.1',epoch:PUBLIC_DATA_EPOCH,status:'MIGRATED',migrated:true,clearedLocal:clearedLocal,clearedSession:clearedSession,legacyDatabasesRequested:legacyDatabasesRequested};
+}
+const PUBLIC_DATA_EPOCH_RESULT=runPublicDataEpochMigration();
+try{window.PhiBlankState=Object.freeze({version:'PV-BLANK-STATE-0.1',epoch:PUBLIC_DATA_EPOCH,snapshot:function(){return Object.assign({},PUBLIC_DATA_EPOCH_RESULT);}});}catch(_e){}
+// END PV-BLANK-STATE-0.1
+
 // ── Identity ──────────────────────────────────────────────────────────────────
 function makeDeviceId() {
   try {
@@ -3022,7 +3073,7 @@ const LS_WORKSPACE = 'vessel_workspace_v1';
 const LS_LOCAL_MEMORY = 'vessel_local_memory_v1';
 const LS_RECEIPTS = 'vessel_request_receipts_v1';
 const LS_ACTIVE_SESSION = 'vessel_active_session_v1';
-const RECOVERY_DB_NAME = 'parallax_vessel_recovery_v1';
+const RECOVERY_DB_NAME = 'parallax_vessel_recovery_public_epoch_1';
 const RECOVERY_DB_VERSION = 1;
 const RECOVERY_STORE = 'records';
 const ACTIVE_REQUEST_KEY = 'active_request';
@@ -4536,7 +4587,7 @@ function builderContextCompactionReceipt(packetInfo,historyContext){
 function requirementIds(text){return Array.from(new Set((String(text||'').match(/\bREQ-[A-Z0-9-]+\b/gi)||[]).map(function(x){return x.toUpperCase();})));}
 
 function loadWorkspace() { return Object.assign({name:'Enter the Field Workshop',objective:'',context:'',constraints:'',notes:''},readJSON(LS_WORKSPACE,{})); }
-function loadLocalMemory() { return Object.assign({core:['Reality is the customer.','Mikey retains final authority over goals and decisions.','Observed, derived, inferred, and symbolic material remain visibly separated.'],custom:[]},readJSON(LS_LOCAL_MEMORY,{})); }
+function loadLocalMemory() { return Object.assign({core:['Reality is the customer.','The current human operator retains final authority over goals and decisions.','Observed, derived, inferred, and symbolic material remain visibly separated.'],custom:[]},readJSON(LS_LOCAL_MEMORY,{})); }
 const RECEIPT_ARCHIVE_VERSION='PV-RECEIPT-ARCHIVE-0.1';
 const RECEIPT_ARCHIVE_SCHEMA='phivessel.receipt-archive.v1';
 const RECEIPT_RECENT_MAX=80;
@@ -4990,7 +5041,7 @@ function quickChatContextReceipt(ctx,allMessages){
 function persistentMemorySelfTest(){
   const checks=[];function add(name,pass){checks.push({name:name,pass:Boolean(pass)});}
   const ma=normalizeVesselMemory({records:[{id:'a1',type:'DECISION',content:'Use Linux until PhiKernel is ready.',pinned:true},{id:'a2',type:'DISCOVERY',content:'Acoustic gears may produce harmonics.'}]},'vsl_A');
-  const mb=normalizeVesselMemory({records:[{id:'b1',type:'FACT',content:'Cannabiverse uses molecular views.'}]},'vsl_B');
+  const mb=normalizeVesselMemory({records:[{id:'b1',type:'FACT',content:'Synthetic project B uses molecular views.'}]},'vsl_B');
   const recall=vesselMemoryRetrieve(ma,'What kernel should the operating system use?','builder',8);
   const continuity=buildQuickChatHistory([normalizeMessage({role:'user',content:'quick seed',stage:'quickchat'}),normalizeMessage({role:'vessel',content:'dream result',stage:'dreamer',executionStatus:'COMPLETED'}),normalizeMessage({role:'user',content:'build it',stage:'builder'})],2000);
   add('schema fixed',VESSEL_MEMORY_SCHEMA==='phivessel.memory.v3');
@@ -6009,7 +6060,7 @@ const PROFILES = [
 ];
 
 // ── Super PhiVessel / Crane Fly Router ─────────────────────────────────────────
-const SUPER_PHIVESSEL_VERSION='2.0-alpha.11.0.54.7';
+const SUPER_PHIVESSEL_VERSION='2.0-alpha.11.0.54.8';
 const BROWSALLAX_TRUSTED_PAGE_BRIDGE_VERSION='PV-PAGE-0.2';
 const BROWSER_CAPABILITY_AWARENESS_VERSION='PV-BCA-0.1';
 const BROWSER_CAPABILITY_STATE_GROUNDING_VERSION='PV-BCS-0.1';
@@ -9667,7 +9718,7 @@ const Onboard = function(p) {
       err&&React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:'.52rem',color:'#FF8A8A',marginTop:9,padding:'7px 9px',border:'1px solid rgba(239,68,68,.15)',borderRadius:4}},err),
       React.createElement('button',{className:'ob-btn',disabled:busy||(providerNeedsBrowserKey(provider)&&!key.trim()),onClick:testKey,style:{marginTop:12}},busy?'Testing connection...':'Test provider and continue')
     ),
-    step===2&&React.createElement('div',null,React.createElement('div',{style:{fontSize:'1rem',color:'var(--text2)',lineHeight:1.7,marginBottom:12,textAlign:'center'}},'The provider answered. What should Super Φ.Vessel call you?'),React.createElement('input',{className:'ki',value:name,onChange:function(e){setName(e.target.value);},placeholder:'Mikey',onKeyDown:function(e){if(e.key==='Enter')finish();},style:{fontSize:'.75rem',padding:'11px',marginBottom:12}}),React.createElement('button',{className:'ob-btn',onClick:finish},'Open the workbench →'))
+    step===2&&React.createElement('div',null,React.createElement('div',{style:{fontSize:'1rem',color:'var(--text2)',lineHeight:1.7,marginBottom:12,textAlign:'center'}},'The provider answered. What should Super Φ.Vessel call you?'),React.createElement('input',{className:'ki',value:name,onChange:function(e){setName(e.target.value);},placeholder:'Your name',onKeyDown:function(e){if(e.key==='Enter')finish();},style:{fontSize:'.75rem',padding:'11px',marginBottom:12}}),React.createElement('button',{className:'ob-btn',onClick:finish},'Open the workbench →'))
   ));
 };
 

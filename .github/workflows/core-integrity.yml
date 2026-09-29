@@ -17,12 +17,15 @@ jobs:
       - name: Verify canonical runtime SHA-256
         shell: bash
         run: |
-          echo "8bb2848b9888422993e1e4e6236dd3f232602a3b48144291b0a347fc33896620  runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html" | sha256sum --check -
+          echo "3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d  runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html" | sha256sum --check -
 
       - name: Verify runtime version marker
         shell: bash
         run: |
-          grep -Fq "v2.0-alpha.11.0.54.7 — Frozen Challenger Bench" runtime/Super_PhiVessel_v2.0-alpha.11.0.54.7_Frozen_Challenger_Bench.html
+          grep -Fq "v2.0-alpha.11.0.54.8 — Blank-State Release Hardening" runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html
+
+      - name: Verify blank-state public data epoch
+        run: node tests/blank-state.test.js
 
   spdw-acceptance:
     runs-on: ubuntu-latest
