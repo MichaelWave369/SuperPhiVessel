@@ -32,20 +32,51 @@ No build step may silently promote runtime-created state into shipped initial st
 
 Before the first public deployment is declared clean, the runtime must establish a new public data epoch.
 
-On first boot into that epoch, Vessie must clear or ignore legacy user-state namespaces owned by earlier Super Φ.Vessel builds before loading chat, dream, memory, pin, scratchpad, or session state.
+On first boot into that epoch, Vessie must clear or ignore legacy user-state namespaces owned by earlier Super Φ.Vessel builds before loading chat, dream, memory, pin, scratchpad, session, receipt, work-object, benchmark, or credential state.
 
 The reset must be scoped to Vessie-owned keys/databases. It must not indiscriminately clear unrelated browser storage on the same origin.
+
+## Candidate implementation
+
+The audited candidate runtime is:
+
+- version: `v2.0-alpha.11.0.54.8`
+- name: `Blank-State Release Hardening`
+- epoch protocol: `PV-BLANK-STATE-0.1`
+- public data epoch: `PV-PUBLIC-BLANK-2026-09-29-V1`
+- recovery DB: `parallax_vessel_recovery_public_epoch_1`
+- candidate SHA-256: `3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d`
+
+The migration executes before device identity, Vessel-tab bootstrap, session recovery, PV-MEM, receipts, or WorkObject state is loaded.
+
+On an epoch mismatch it:
+
+- removes Vessie-owned `localStorage` and `sessionStorage` keys;
+- includes persisted provider credentials and prior operator identity in the reset;
+- preserves storage keys that do not belong to Vessie;
+- requests deletion of the legacy `parallax_vessel_recovery_v1` IndexedDB;
+- rotates all new recovery writes to the new epoch database;
+- writes the new epoch marker only after the scoped reset;
+- does not repeat the reset after the current epoch is established.
+
+The previous operator-specific Global Memory seed was replaced with the neutral invariant: **“The current human operator retains final authority over goals and decisions.”**
+
+A project-specific memory self-test fixture was also replaced with synthetic generic content.
 
 ## Verification requirement
 
 A release is not marked blank-state verified until all of the following are true:
 
-- the canonical runtime bytes have been audited;
-- known Vessie persistence namespaces have been enumerated;
-- shipped seed/default state for operator-derived domains is empty;
-- a fresh-browser smoke test renders with no prior user content;
-- a legacy-state migration test proves the public data epoch does not resurrect pre-release state;
-- CI enforces the blank-state checks.
+- [x] the candidate runtime bytes have been audited;
+- [x] known browser persistence namespaces have been enumerated;
+- [x] shipped seed/default state contains no prior operator chat, dream, or committed Vessel-memory record;
+- [x] legacy-state migration simulation clears Vessie-owned state while preserving unrelated storage;
+- [x] legacy IndexedDB is ignored by namespace rotation and requested for deletion;
+- [x] same-epoch simulation proves new runtime-created state survives subsequent loads;
+- [x] a deterministic Node migration harness exists at `tests/blank-state.test.js`;
+- [ ] the .54.8 candidate is committed as the canonical runtime;
+- [ ] CI runs the blank-state harness against the committed canonical bytes;
+- [ ] a deployed fresh-browser smoke test confirms no prior user content renders.
 
 ## Governance rule
 
