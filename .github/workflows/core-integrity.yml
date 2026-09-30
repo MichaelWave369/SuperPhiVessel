@@ -14,18 +14,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify canonical runtime SHA-256
+      - name: Verify canonical runtime from manifest
         shell: bash
         run: |
-          echo "3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d  runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html" | sha256sum --check -
-
-      - name: Verify runtime version marker
-        shell: bash
-        run: |
-          grep -Fq "v2.0-alpha.11.0.54.8 — Blank-State Release Hardening" runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const m = JSON.parse(fs.readFileSync('runtime/MANIFEST.json', 'utf8'));
+          const bytes = fs.readFileSync(m.runtime.path);
+          const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+          if (digest !== m.runtime.sha256) throw new Error('canonical SHA-256 mismatch');
+          if (bytes.length !== m.runtime.size_bytes) throw new Error('canonical size mismatch');
+          const html = bytes.toString('utf8');
+          const version = String(m.runtime.version || '').replace(/^v/, '');
+          if (!html.includes("const SUPER_PHIVESSEL_VERSION='" + version + "';")) throw new Error('runtime version marker mismatch');
+          console.log('canonical-runtime: PASS · ' + m.runtime.version + ' · ' + digest);
+          NODE
 
       - name: Verify blank-state public data epoch
         run: node tests/blank-state.test.js
+
+      - name: Verify Service / Models render contract
+        run: node tests/service-models-render.test.js
 
   spdw-acceptance:
     runs-on: ubuntu-latest
