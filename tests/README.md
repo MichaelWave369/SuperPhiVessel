@@ -6,13 +6,17 @@ The goal is to preserve the project's preference for explicit receipts and machi
 
 ## Current release gates
 
-- `blank-state.test.js` verifies `PV-BLANK-STATE-0.1` against the canonical runtime:
+- `blank-state.test.js` reads the canonical runtime from `runtime/MANIFEST.json` and verifies `PV-BLANK-STATE-0.1`:
   - legacy Vessie-owned local/session state is removed on epoch migration;
   - unrelated browser storage is preserved;
   - the legacy recovery IndexedDB is retired;
-  - the new public data epoch is written;
+  - the public data epoch is written;
   - the reset does not repeat after the epoch is current;
   - operator-specific seeded memory is absent.
+- `service-models-render.test.js` verifies `PV-SERVICE-MODELS-REPAIR-0.2`:
+  - `exportKeyring`, `autoAssignOllama`, and `applyOllamaStabilityPreset` are each defined exactly once;
+  - each definition appears before its Service / Models UI binding;
+  - portable-keyring warning/import seams remain present.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
