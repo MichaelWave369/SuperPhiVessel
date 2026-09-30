@@ -2,8 +2,11 @@ const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
 
+const manifest = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'runtime', 'MANIFEST.json'), 'utf8')
+);
 const runtimePath = process.env.PV_RUNTIME_FILE ||
-  path.join(__dirname, '..', 'runtime', 'Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html');
+  path.join(__dirname, '..', manifest.runtime.path);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -19,7 +22,8 @@ class Store {
 }
 
 const html = fs.readFileSync(runtimePath, 'utf8');
-assert(html.includes("const SUPER_PHIVESSEL_VERSION='2.0-alpha.11.0.54.8';"), 'runtime version mismatch');
+const version = String(manifest.runtime.version || '').replace(/^v/, '');
+assert(html.includes("const SUPER_PHIVESSEL_VERSION='" + version + "';"), 'runtime version mismatch');
 assert(!html.includes('Mikey retains final authority over goals and decisions.'), 'operator-specific memory seed remains');
 assert(html.includes('The current human operator retains final authority over goals and decisions.'), 'neutral authority seed missing');
 assert(html.includes("const RECOVERY_DB_NAME = 'parallax_vessel_recovery_public_epoch_1';"), 'recovery DB epoch not rotated');
