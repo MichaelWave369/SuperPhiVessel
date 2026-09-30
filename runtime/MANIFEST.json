@@ -1,12 +1,12 @@
 {
   "schema": "superphivessel.runtime-manifest.v0.1",
   "runtime": {
-    "version": "v2.0-alpha.11.0.54.8",
-    "name": "Blank-State Release Hardening",
-    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.8_Blank_State_Hardening.html",
-    "size_bytes": 13328818,
-    "sha256": "3dbf3dc162196dfcb1561563f2b61c45ba5c4f88b5566844cdf75e8d16cfc81d",
-    "git_blob_sha1": "6f070c8d9265ea2c79035ea88ee1544d4cd80568"
+    "version": "v2.0-alpha.11.0.54.10",
+    "name": "Service Models Handler Restoration",
+    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.10_Service_Models_Handler_Restoration.html",
+    "size_bytes": 13332646,
+    "sha256": "96767c267b0d9ed20be9f4d182c30129944311096c0959d20b5d80c89fb2c09e",
+    "git_blob_sha1": "b44e0411f7477f2041cb3f130452a6d1f0410121"
   },
   "canonical": true,
   "release_status": "ALPHA",
@@ -18,10 +18,21 @@
     "contract": "docs/BLANK_STATE.md",
     "ci_test": "tests/blank-state.test.js"
   },
+  "hotfix": {
+    "protocol": "PV-SERVICE-MODELS-REPAIR-0.2",
+    "regression_test": "tests/service-models-render.test.js",
+    "inherited_public_data_epoch": "PV-PUBLIC-BLANK-2026-09-29-V1",
+    "restored_handlers": [
+      "exportKeyring",
+      "autoAssignOllama",
+      "applyOllamaStabilityPreset"
+    ]
+  },
   "notes": [
-    "The SHA-256 is over the canonical standalone HTML bytes.",
-    "The git_blob_sha1 is GitHub's blob identity and is not a substitute for the SHA-256 release digest.",
-    "The public data epoch prevents pre-.54.8 Vessie-owned browser state from being restored into a fresh public runtime.",
+    "The SHA-256 is over the exact production-tested standalone HTML bytes.",
+    "The git_blob_sha1 matches the uploaded GitHub blob and is not a substitute for the SHA-256 release digest.",
+    "The .54.10 hotfix inherits the .54.8 public data epoch and does not intentionally wipe state created after .54.8.",
+    "Service / Models handler restoration was verified in the live Netlify deployment before canonical promotion.",
     "Historical .51.x ZIP bundles are not current deployment truth."
   ]
 }
