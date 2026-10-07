@@ -67,6 +67,7 @@ B advances P2 peer epoch to 2
         ↓
 Porch retry => REFUSED by revoked provider grant
         ↓
+requester retires stale imported Porch grant copy
 fresh Porch message grant issued/imported
         ↓
 same old epoch-1 P2 envelope is transported
@@ -107,3 +108,23 @@ It does **not** establish:
 - production Internet transport.
 
 Those remain P6 / external field qualification work.
+
+
+## Porch imported-grant freshness note
+
+The live merged-main rerun exposed an important Infinite Porch 0.1.2 behavior:
+
+- provider-side `grant.revoke` correctly rejects use of the revoked grant;
+- the requester's previously imported copy is not automatically marked revoked;
+- `remote_grant()` chooses the first locally valid imported match, so an old cached grant can be retried even after a fresh grant is imported.
+
+The P2-C harness now models explicit authority refresh honestly:
+
+1. provider revokes the old grant;
+2. queued retry is refused by the provider;
+3. requester explicitly retires its stale imported copy;
+4. provider issues and requester imports fresh transport authority;
+5. the old P2 epoch-1 envelope is transported;
+6. PV-DLAM independently rejects that stale P2 authority epoch.
+
+The adapter itself still does not issue, import, or revoke Porch grants.
