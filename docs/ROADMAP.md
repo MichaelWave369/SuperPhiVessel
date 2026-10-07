@@ -55,6 +55,10 @@ This workstream is deliberately staged so learned routing and learned NBG views 
 - [x] Author the PV-DLAM ownership/migration crosswalk: SuperPhiVessel orchestration, PhiOS target governed-memory boundary, BrainC P1 reference service, NBG views, Infinite Porch transport.
 - [x] Export/freeze the canonical GA108 roster from `.54.10`: 108 stable source IDs, namespaced profile IDs, deterministic memory namespaces, no model binding.
 - [ ] P1 — prove one-node continuity: durable admitted ledger, context composition, static routing, model swap, forgetting, and recovery.
+  - [x] **P1-A** — extracted one-node exact ledger: WAL/FULL SQLite, FTS5 lexical recall, epistemic provenance, contradictions, tombstone/derived invalidation, idempotency, namespace isolation, deterministic event hashes, cold restart.
+  - [ ] **P1-B** — bounded context composer with exact packet manifest, purpose/target admission, token-budget seam, contradiction/provenance expansion, and INSUFFICIENT failure.
+  - [ ] **P1-C** — static Genius/model route receipts plus task checkpoint/model-swap continuity with changed-model cold statistics.
+  - [ ] **P1-D** — crash/disk-full/backup/restore and deletion-rebuild qualification; close the full P1 evidence gate.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
