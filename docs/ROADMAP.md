@@ -63,7 +63,7 @@ This workstream is deliberately staged so learned routing and learned NBG views 
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
   - [x] **P2-A extracted reference** — signed scoped memory/tombstone envelopes, Ed25519 identity seam, durable outbox/inbox receipts, replay protection, monotonic revocation epochs, tombstone precedence, no transitive forwarding, conflict preservation, and Porch-compatible transport adapter boundary.
   - [x] **P2-B adapter contract** — map signed P2 envelopes/receipts onto Infinite Porch 0.1.2 `message.send`, with explicit P2↔Porch identity/scope binding, loopback-only control, offline queue semantics, and no trust/grant minting. Deterministic adapter semantics are qualified; live Porch daemon/network evidence remains for P2-C.
-  - [ ] **P2-C live Porch + partition/revocation closeout** — run the adapter against real Porch nodes/transport and collect restart/partition/revocation/current-authority evidence; close P2.
+  - [ ] **P2-C live Porch + partition/revocation closeout** — candidate harness now pins/builds Infinite Porch 0.1.2 source and exercises real daemon TCP/Noise loopback, restart, outage queueing, Porch grant revocation, stale P2 epochs, and refreshed recovery. Mark complete only after the live CI gate passes.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
