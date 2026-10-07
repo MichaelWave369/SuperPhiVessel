@@ -114,6 +114,16 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - refreshing the P2 epoch restores synchronization;
   - Porch ledger chains remain verified;
   - evidence is explicitly native-hosted loopback, not physical-LAN/WAN qualification.
+- `packages/dlam-p3-v0.1/acceptance.py` verifies **P3-A full-roster routing observability**:
+  - all 108 canonical GA108 profiles remain represented, including dormant zero-evidence profiles;
+  - finalized observations bind exact P1-C route receipts and exact model identities;
+  - identical observations are idempotent while rewrites of finalized outcomes fail closed;
+  - quality, binary success, confidence calibration/Brier loss, evidence satisfaction, user correction, latency, token and cost metadata are inspectable;
+  - optional SFR outcomes join by exact task/decision identity and expose escalation usefulness without changing thresholds;
+  - model-swap observations remain separated by exact model identity;
+  - governance violations and critical misses remain non-tradable breach flags;
+  - scorecard snapshots pin exact source observation IDs and contain no raw memory/prompt text;
+  - shadow roster rankings stay dormant/non-authoritative and cannot alter P1-C live static routing.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
