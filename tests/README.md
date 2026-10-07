@@ -102,6 +102,18 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - revoked bindings block transport;
   - ordinary Porch chat is ignored;
   - the adapter never issues Porch trust or grants and never grants authority.
+- `packages/dlam-p2-v0.1/live_porch_acceptance.py` verifies **P2-C live Infinite Porch loopback integration** against pinned `Infinite-Porch@5e00f2d`:
+  - two real Porch daemon processes and actual TCP/Noise loopback transport;
+  - provider-issued bidirectional `message.direct / inbox / send` grants;
+  - P2 envelope transport and signed application receipt round trips over real Porch;
+  - Porch daemon restart preserves identity;
+  - P2 service restart preserves pairings, adapter bindings, and replicas;
+  - real transport outage queues at Porch while the P2 outbox remains unacknowledged;
+  - provider grant revocation before retry rejects the queued Porch message;
+  - fresh Porch transport authority cannot revive a stale P2 authority epoch;
+  - refreshing the P2 epoch restores synchronization;
+  - Porch ledger chains remain verified;
+  - evidence is explicitly native-hosted loopback, not physical-LAN/WAN qualification.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;

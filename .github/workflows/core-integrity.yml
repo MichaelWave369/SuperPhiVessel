@@ -123,6 +123,37 @@ jobs:
       - name: Run PV-DLAM P2-B Infinite Porch adapter acceptance
         run: python3 packages/dlam-p2-v0.1/porch_adapter_acceptance.py
 
+  dlam-p2c-live-porch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout pinned Infinite Porch source
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/Infinite-Porch
+          ref: 5e00f2dfa787331f1c6d03533db4bfd92c53536a
+          path: _porch
+
+      - name: Install pinned Porch Rust toolchain
+        uses: dtolnay/rust-toolchain@1.89.0
+
+      - name: Build pinned Infinite Porch daemon
+        run: cargo build --locked --manifest-path _porch/Cargo.toml -p porch-node
+
+      - name: Run PV-DLAM P2-C live Porch closeout
+        env:
+          PORCH_ROOT: ${{ github.workspace }}/_porch
+        run: python3 packages/dlam-p2-v0.1/live_porch_acceptance.py
+
   sparse-frontier-acceptance:
     runs-on: ubuntu-latest
     steps:
