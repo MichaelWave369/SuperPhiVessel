@@ -1,8 +1,8 @@
 # PV-DLAM P1 — Single-Node Continuity Package
 
-**Status:** CANDIDATE / EXTRACTED / UNWIRED  
+**Status:** P1 QUALIFIED / EXTRACTED / UNWIRED  
 **Protocol:** PV-DLAM-0.1  
-**Phase:** P1-A + P1-B + P1-C + P1-D candidate of P1 one-node continuity
+**Phase:** P1-A + P1-B + P1-C + P1-D complete for the extracted one-node reference
 
 P1-A is the first executable implementation rung after the P0 contract/inventory closure.
 
@@ -132,4 +132,4 @@ python3 packages/dlam-p1-v0.1/p1d_acceptance.py
 
 Expected: `SUMMARY 20/20 PASS`.
 
-P1 should be marked complete only after P1-A/B/C/D all pass together in CI.
+P1-A/B/C/D now pass together in CI. This closes the extracted one-node continuity evidence gate; live Vessie/BrainC/PhiOS wiring remains a separate integration task.
