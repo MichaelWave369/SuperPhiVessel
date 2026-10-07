@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/sparse-frontier-v0.1/escalation-context.schema.json",
+  "title": "Sparse Frontier Escalation Context v0.1",
+  "type": "object",
+  "required": [
+    "schema",
+    "task_id",
+    "candidate_id",
+    "trigger",
+    "bounded_region",
+    "cheap_layer_prediction",
+    "cheap_layer_confidence",
+    "signals",
+    "authority_decision_ref",
+    "authority_status",
+    "frontier_role",
+    "recommended_geniuses",
+    "token_budget",
+    "action_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.sfr.escalation-context.v0.1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trigger": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bounded_region": {
+      "type": "object"
+    },
+    "cheap_layer_prediction": {
+      "type": "object"
+    },
+    "cheap_layer_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "signals": {
+      "type": "object"
+    },
+    "authority_decision_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_status": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "DENIED"
+      ]
+    },
+    "frontier_role": {
+      "const": "INVESTIGATOR_ADVISOR"
+    },
+    "recommended_geniuses": {
+      "type": "array",
+      "maxItems": 8
+    },
+    "token_budget": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "action_authority": {
+      "const": "NONE"
+    }
+  }
+}
