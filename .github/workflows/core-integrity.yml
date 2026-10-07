@@ -178,6 +178,18 @@ jobs:
       - name: Run PV-DLAM P3-B held-out shadow replay acceptance
         run: python3 packages/dlam-p3-v0.1/shadow_replay_acceptance.py
 
+  dlam-p3c-qualification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run PV-DLAM P3-C qualification closeout
+        run: python3 packages/dlam-p3-v0.1/qualification_acceptance.py
+
   sparse-frontier-acceptance:
     runs-on: ubuntu-latest
     steps:
