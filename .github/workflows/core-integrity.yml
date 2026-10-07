@@ -55,6 +55,18 @@ jobs:
       - name: Run PV-DLAM P1-A single-node continuity acceptance
         run: python3 packages/dlam-p1-v0.1/acceptance.py
 
+  dlam-p1b-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run PV-DLAM P1-B governed context acceptance
+        run: python3 packages/dlam-p1-v0.1/context_acceptance.py
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:

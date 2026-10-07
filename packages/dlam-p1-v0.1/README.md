@@ -1,8 +1,8 @@
-# PV-DLAM P1-A — Single-Node Exact Ledger
+# PV-DLAM P1 — Single-Node Continuity Package
 
 **Status:** CANDIDATE / EXTRACTED / UNWIRED  
 **Protocol:** PV-DLAM-0.1  
-**Phase:** P1-A of P1 one-node continuity
+**Phase:** P1-A + P1-B of P1 one-node continuity
 
 P1-A is the first executable implementation rung after the P0 contract/inventory closure.
 
@@ -83,4 +83,20 @@ The source record remains auditable, while:
 - derived rows remain present for inspection/rebuild;
 - repeating the same tombstone is idempotent.
 
-P1-B will build the bounded context composer on this exact-history substrate.
+## P1-B — governed context composer
+
+P1-B is now present in this package:
+
+- `context_composer.py` — bounded model-specific packet composition over the exact P1-A substrate;
+- `context_acceptance.py` — deterministic acceptance harness;
+- `P1B_CONTEXT_COMPOSER.md` — admission, contradiction, provenance, tokenizer, and failure semantics.
+
+Run:
+
+```bash
+python3 packages/dlam-p1-v0.1/context_acceptance.py
+```
+
+Expected: `SUMMARY 17/17 PASS`.
+
+P1-C will add static Genius/model route receipts and task-checkpoint/model-swap continuity.
