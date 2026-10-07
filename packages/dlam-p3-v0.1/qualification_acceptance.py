@@ -142,9 +142,9 @@ def signals(kind):
         return {
             "novelty": 1.0,
             "state_change_magnitude": 1.0,
-            "consequence": 0.70,
+            "consequence": 0.69,
             "provenance_gap": 0.80,
-            "missing_evidence": 0.80,
+            "missing_evidence": 0.75,
             "irreversible_risk": 0.20,
             "disagreement": 1.0,
             "routing_confidence": 0.0,
