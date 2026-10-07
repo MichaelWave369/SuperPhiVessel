@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p4-v0.1/schemas/linear-ucb-snapshot.schema.json",
+  "title": "PV-DLAM P4-A Linear-UCB Snapshot",
+  "type": "object",
+  "required": [
+    "schema",
+    "policy_version",
+    "feature_schema",
+    "feature_names",
+    "status",
+    "source_qualification_id",
+    "source_qualification_hash",
+    "source_p4_packet_id",
+    "source_p4_packet_hash",
+    "source_evidence_class",
+    "training_observation_ids",
+    "parent_snapshot_ref",
+    "rollback_target_ref",
+    "hyperparameters",
+    "reward_weights",
+    "task_class_models",
+    "route_support",
+    "blocked_route_keys",
+    "empirical_source_gate_passed",
+    "evaluation_mode",
+    "activation_allowed",
+    "automatic_activation_forbidden",
+    "may_change_live_route",
+    "may_change_live_thresholds",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p4a.linear-ucb-snapshot.v0.1"
+    },
+    "feature_schema": {
+      "const": "p4a-pre-route-24-v0.1"
+    },
+    "feature_names": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 24,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "status": {
+      "enum": [
+        "STRUCTURAL_FIXTURE_CANDIDATE",
+        "EMPIRICAL_SHADOW_CANDIDATE"
+      ]
+    },
+    "training_observation_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evaluation_mode": {
+      "const": "SHADOW_ONLY"
+    },
+    "activation_allowed": {
+      "const": false
+    },
+    "automatic_activation_forbidden": {
+      "const": true
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "may_change_live_thresholds": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
