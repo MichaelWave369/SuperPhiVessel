@@ -42,6 +42,16 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - state survives cold restart;
   - Genius identity remains independent of model binding;
   - event hashes replay deterministically under pinned inputs.
+- `packages/dlam-p1-v0.1/context_acceptance.py` verifies **P1-B governed context composition**:
+  - current/stale/denied authority is consumed rather than minted;
+  - purpose/target/origin filters run before packet exposure;
+  - contradiction companions travel together or fail closed;
+  - provenance expansion is bounded and never leaks inaccessible source content;
+  - exact injected tokenizer accounting enforces the configured memory budget;
+  - required context fails as `INSUFFICIENT` rather than emitting a partial packet;
+  - empty retrieval never fabricates context;
+  - packet hashes are deterministic under pinned inputs and recompose across model swaps/restarts;
+  - every packet carries `action_authority=NONE`.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
