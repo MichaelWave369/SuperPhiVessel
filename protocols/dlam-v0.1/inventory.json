@@ -86,14 +86,6 @@
   ],
   "unresolved": [
     {
-      "id": "P0-OPEN-01",
-      "item": "Canonical full Genius roster count and stable-ID export",
-      "blocking": [
-        "P0_EXIT",
-        "P3_ROUTING_OBSERVABILITY"
-      ]
-    },
-    {
       "id": "P0-OPEN-02",
       "item": "Exact SCM v0.8 source artifact/repository mapping and migration crosswalk",
       "blocking": [
@@ -128,13 +120,36 @@
       "contract_frozen": true,
       "schemas_frozen": true,
       "ownership_crosswalk_authored": true,
-      "stable_genius_roster_ids": false,
-      "scm_v0_8_mapping": false
+      "stable_genius_roster_ids": true,
+      "scm_v0_8_mapping": false,
+      "ownership_crosswalk_reviewed": true
     }
   },
   "ownership_crosswalk": {
     "path": "protocols/dlam-v0.1/ownership-crosswalk.json",
     "status": "CANDIDATE_FOR_REVIEW",
+    "runtime_wiring": false
+  },
+  "resolved": [
+    {
+      "id": "P0-OPEN-01",
+      "item": "Canonical full Genius roster count and stable-ID export",
+      "resolution": "GA108 exported from canonical .54.10 runtime: 108 entries, gaId 001-108, namespaced profile IDs ga108:<gaId>, deterministic memory namespaces.",
+      "artifact": "protocols/dlam-v0.1/genius-roster.json",
+      "source_runtime": "v2.0-alpha.11.0.54.10",
+      "source_git_blob_sha1": "b44e0411f7477f2041cb3f130452a6d1f0410121"
+    }
+  ],
+  "genius_roster": {
+    "registry": "GA108",
+    "path": "protocols/dlam-v0.1/genius-roster.json",
+    "schema": "protocols/dlam-v0.1/schemas/genius-profile.schema.json",
+    "count": 108,
+    "id_range": [
+      "001",
+      "108"
+    ],
+    "stable_id_policy": "preserve gaId; namespaced profileId ga108:<gaId>; never renumber/reuse",
     "runtime_wiring": false
   }
 }

@@ -39,7 +39,10 @@ assert(inventory.schema === 'superphivessel.dlam.inventory.v0.1', 'inventory sch
 assert(inventory.protocol === 'PV-DLAM-0.1', 'inventory protocol mismatch');
 assert(inventory.runtime_wiring === false, 'P0 must remain unwired');
 assert(inventory.p0_exit && inventory.p0_exit.complete === false, 'P0 exit must remain explicitly incomplete until roster/crosswalk work is done');
-assert(inventory.unresolved.some((x) => x.id === 'P0-OPEN-01' && /Genius roster/i.test(x.item)), 'full Genius roster unresolved item missing');
+assert(!inventory.unresolved.some((x) => x.id === 'P0-OPEN-01'), 'resolved Genius roster blocker must not remain unresolved');
+assert(Array.isArray(inventory.resolved) && inventory.resolved.some((x) => x.id === 'P0-OPEN-01' && /108/.test(x.resolution || '')), 'resolved Genius roster receipt missing');
+assert(inventory.genius_roster && inventory.genius_roster.count === 108, 'canonical GA108 inventory binding missing');
+assert(inventory.p0_exit && inventory.p0_exit.progress && inventory.p0_exit.progress.stable_genius_roster_ids === true, 'stable Genius roster progress not recorded');
 
 assert(crosswalk.schema === 'superphivessel.dlam.ownership-crosswalk.v0.1', 'ownership crosswalk schema mismatch');
 assert(crosswalk.protocol === 'PV-DLAM-0.1', 'ownership crosswalk protocol mismatch');

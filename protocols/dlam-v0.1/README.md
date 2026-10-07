@@ -164,7 +164,9 @@ A tombstone MUST beat stale relevance and stale peer replay.
 
 `inventory.json` records currently identified donor systems and unresolved ownership questions. `ownership-crosswalk.json` and `OWNERSHIP_CROSSWALK.md` freeze the candidate division of responsibility across SuperPhiVessel, PhiOS, BrainC, NBG, Infinite Porch, and related donor work.
 
-P0 is not complete until the canonical Genius roster has stable IDs and the current memory/runtime ownership crosswalk is reviewed. The present contract intentionally records those items as unresolved rather than inventing a count or mapping.
+The canonical GA108 roster is now exported in `genius-roster.json`: 108 entries with source `gaId` values 001–108, collision-safe `ga108:<gaId>` profile IDs, and deterministic `genius.ga108.<gaId>` memory namespaces. The export is pinned to the canonical `.54.10` runtime blob and does not bind any profile to a model or grant authority.
+
+P0 remains incomplete until the remaining SCM v0.8 source-artifact mapping is resolved. Bridge authentication/origin ownership and hardware model qualification remain later implementation gates.
 
 ## Failure semantics
 
@@ -193,7 +195,8 @@ The deterministic P0 harness verifies:
 - inventory states runtime wiring as false;
 - ownership crosswalk remains unwired and forbids duplicate canonical memory authority;
 - transport, view, donor, and implementation-host roles do not inherit memory/action authority;
-- unresolved Genius roster mapping remains explicit until completed.
+- the GA108 roster remains exactly 108 unique source IDs with no fixed model binding or authority;
+- the remaining SCM v0.8 mapping stays explicit until P0 completion.
 
 Run:
 

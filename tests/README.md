@@ -23,7 +23,13 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - context packets grant no action authority;
   - route receipts cannot grant authority;
   - runtime wiring remains false;
-  - unresolved full-roster stable-ID work remains explicit until P0 exit.
+  - ownership/migration boundaries remain explicit and unwired.
+- `ga108-roster.test.js` verifies the canonical GA108 P0 export:
+  - exactly 108 profiles remain present as gaId 001–108;
+  - profile IDs and memory namespaces are deterministic and unique;
+  - the frozen 18-category structure remains six entries per category;
+  - every profile carries `authority=NONE` and `modelBinding=null`;
+  - the export remains pinned to the canonical `.54.10` runtime identity.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
