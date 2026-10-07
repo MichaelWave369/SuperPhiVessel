@@ -33,6 +33,9 @@ class PorchApiClient:
             raise PorchAdapterError("Porch control API URL contains forbidden components")
         self.token = token
         self.base = base_url.rstrip("/")
+        # Never let environment proxy settings intercept the privileged local
+        # Porch control plane.
+        self.http = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def _request(self, path: str, body: dict[str, Any] | None = None) -> Any:
         url = self.base + path
@@ -48,7 +51,7 @@ class PorchApiClient:
             data = canonical(body).encode("utf-8")
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with self.http.open(req, timeout=30) as resp:
                 payload = resp.read(32 * 1024 * 1024 + 1)
                 if len(payload) > 32 * 1024 * 1024:
                     raise PorchAdapterError("Porch API response too large")
