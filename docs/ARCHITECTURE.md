@@ -121,3 +121,33 @@ The boundary is intentionally narrow:
 - signed receipts are evidence, never authority.
 
 The extracted package lives at `packages/dlam-p2-v0.1/`. It is not yet live-wired to Infinite Porch or the canonical runtime.
+
+
+## P3 Routing Observatory
+
+P3 begins with an extracted observability layer over the qualified P1/P2 substrate.
+
+The observatory records immutable finalized outcomes anchored to exact P1-C route receipts and optional Sparse Frontier decisions. It creates scorecards across the complete GA108 roster while preserving dormant identities with zero evidence.
+
+The observatory may summarize:
+
+- per-Genius task-class outcomes;
+- exact model usage;
+- quality/success history;
+- confidence calibration;
+- evidence satisfaction;
+- corrections;
+- latency/tokens/cost;
+- SFR escalation usefulness;
+- governance violations and critical misses.
+
+It deliberately does not store raw prompt/memory text and does not activate learned routing.
+
+P3 shadow rankings carry:
+
+- `activation_status=SHADOW_ONLY_DORMANT`
+- `ranking_is_live=false`
+- `may_change_live_route=false`
+- `authority_granted=false`
+
+Live dispatch remains P1-C static policy until a later P4 qualification explicitly activates a bounded learner.
