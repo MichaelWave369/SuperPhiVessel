@@ -58,6 +58,30 @@
         "role_cognition"
       ],
       "boundary": "related donor only; not asserted to be identical to the SCM v0.8 artifact named in PHI369-DLAM-ARCH"
+    },
+    {
+      "system": "PhiOS",
+      "repository": "MichaelWave369/PhiOS",
+      "observed_commit": "1ddc0ab0ad20f46254891bad3fd1424425cc90d8",
+      "role": [
+        "target_integrated_governed_memory",
+        "memory_admission",
+        "authority_execution_boundary",
+        "Reality_Ledger"
+      ],
+      "boundary": "target ownership contract only; PV-DLAM is not wired into PhiOS by this P0 work"
+    },
+    {
+      "system": "Infinite-Porch",
+      "repository": "MichaelWave369/Infinite-Porch",
+      "observed_commit": "5e00f2dfa787331f1c6d03533db4bfd92c53536a",
+      "role": [
+        "candidate_peer_transport",
+        "peer_identity_pairing",
+        "scoped_event_object_transfer",
+        "network_receipts"
+      ],
+      "boundary": "transport only; evidence transport does not transport PV-DLAM/PhiOS authority"
     }
   ],
   "unresolved": [
@@ -99,6 +123,18 @@
       "memory/runtime ownership crosswalk reviewed",
       "schema/policy/test fixture identities frozen",
       "no frozen NBG experiment altered"
-    ]
+    ],
+    "progress": {
+      "contract_frozen": true,
+      "schemas_frozen": true,
+      "ownership_crosswalk_authored": true,
+      "stable_genius_roster_ids": false,
+      "scm_v0_8_mapping": false
+    }
+  },
+  "ownership_crosswalk": {
+    "path": "protocols/dlam-v0.1/ownership-crosswalk.json",
+    "status": "CANDIDATE_FOR_REVIEW",
+    "runtime_wiring": false
   }
 }
