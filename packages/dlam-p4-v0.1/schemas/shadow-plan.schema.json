@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p4-v0.1/schemas/shadow-plan.schema.json",
+  "title": "PV-DLAM P4-A Shadow Plan",
+  "type": "object",
+  "required": [
+    "schema",
+    "disposition",
+    "snapshot_id",
+    "task_class",
+    "profile_shortlist",
+    "route_candidates",
+    "shadow_selected_route",
+    "selection_is_live",
+    "may_activate_genius",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p4a.shadow-plan.v0.1"
+    },
+    "disposition": {
+      "enum": [
+        "SHADOW_RECOMMENDATION",
+        "NO_SUPPORTED_LEARNED_ROUTE",
+        "HELD",
+        "DENIED"
+      ]
+    },
+    "profile_shortlist": {
+      "type": "array",
+      "maxItems": 8
+    },
+    "route_candidates": {
+      "type": "array",
+      "maxItems": 8
+    },
+    "selection_is_live": {
+      "const": false
+    },
+    "may_activate_genius": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
