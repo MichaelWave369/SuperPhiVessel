@@ -118,3 +118,22 @@ The DLAM routing workstream can now proceed to:
 2. **P4** — bounded learned routing with explicit operator activation and rollback;
 3. **P5** — matched-baseline learned NBG evaluation;
 4. **P6** — real-machine field pilot and external review.
+
+
+## Post-merge live rerun correction
+
+A merged-main live rerun exposed a Porch 0.1.2 requester-cache detail that the
+original P2-C harness had assumed away. Provider-side grant revocation does not
+automatically mark the requester's imported grant copy revoked. Because Porch
+selects the first locally valid matching imported grant, the requester can keep
+offering that stale grant until it explicitly retires the local copy.
+
+The qualification harness now requires that explicit requester-side retirement
+after the provider's refusal and before importing fresh transport authority.
+
+This does not weaken the P2 claim. It sharpens the boundary:
+
+- provider revocation is authoritative at the provider;
+- requester cache state is local and must be refreshed explicitly;
+- the P2 adapter remains unable to manage Porch grants;
+- fresh Porch transport authority still cannot revive a stale PV-DLAM epoch.
