@@ -581,6 +581,91 @@ class DlamStore:
         ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_admissible_memory(
+        self,
+        memory_id: str,
+        *,
+        namespace_id: str,
+        purpose: str,
+        target: str,
+        allowed_origins: set[str] | None = None,
+    ) -> dict[str, Any] | None:
+        row = self.conn.execute(
+            """
+            SELECT DISTINCT m.*
+            FROM memory_records m
+            JOIN memory_targets t ON t.memory_id=m.memory_id AND t.target=?
+            JOIN memory_purposes p ON p.memory_id=m.memory_id AND p.purpose=?
+            WHERE m.memory_id=?
+              AND m.namespace_id=?
+              AND m.tombstoned=0
+              AND m.blocked=0
+            """,
+            (target, purpose, memory_id, namespace_id),
+        ).fetchone()
+        if row is None:
+            return None
+        if allowed_origins is not None and row["origin"] not in allowed_origins:
+            return None
+        return dict(row)
+
+    def relation_refs(self, memory_id: str, relation: str) -> list[str]:
+        refs = {
+            r[0]
+            for r in self.conn.execute(
+                "SELECT to_memory_id FROM relations WHERE from_memory_id=? AND relation=?",
+                (memory_id, relation),
+            ).fetchall()
+        }
+        if relation == "CONTRADICTS":
+            refs.update(
+                r[0]
+                for r in self.conn.execute(
+                    "SELECT from_memory_id FROM relations WHERE to_memory_id=? AND relation='CONTRADICTS'",
+                    (memory_id,),
+                ).fetchall()
+            )
+        return sorted(refs)
+
+    def derivation_parent_refs(self, memory_id: str) -> list[str]:
+        return [
+            r[0]
+            for r in self.conn.execute(
+                """
+                SELECT parent_memory_id
+                FROM derivation_edges
+                WHERE child_memory_id=?
+                ORDER BY parent_memory_id
+                """,
+                (memory_id,),
+            ).fetchall()
+        ]
+
+    def ledger_frontier(self, namespace_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            """
+            SELECT sequence,event_id,event_hash
+            FROM ledger_events
+            WHERE namespace_id=?
+            ORDER BY sequence DESC
+            LIMIT 1
+            """,
+            (namespace_id,),
+        ).fetchone()
+        if row is None:
+            return {
+                "sequence": 0,
+                "event_id": None,
+                "event_hash": "GENESIS",
+                "ref": f"ledger:{namespace_id}:0:GENESIS",
+            }
+        return {
+            "sequence": int(row["sequence"]),
+            "event_id": row["event_id"],
+            "event_hash": row["event_hash"],
+            "ref": f"ledger:{namespace_id}:{int(row['sequence'])}:{row['event_hash']}",
+        }
+
     def relation_exists(self, from_memory_id: str, relation: str, to_memory_id: str) -> bool:
         return self.conn.execute(
             """
