@@ -1,6 +1,6 @@
 # PV-DLAM P2 v0.1 — Scoped Signed Peer Synchronization
 
-**Status:** CANDIDATE / EXTRACTED / UNWIRED
+**Status:** P2 QUALIFIED / EXTRACTED + LIVE LOOPBACK INTEGRATION / CANONICAL RUNTIME UNWIRED
 **Protocol:** PV-DLAM-P2-0.1
 **Transport owner:** future Infinite Porch adapter
 **Memory admission owner:** PV-DLAM local memory service
@@ -128,3 +128,22 @@ The closeout exercises:
 
 This is a **native-hosted loopback** qualification only. Physical LAN, WAN/NAT,
 native multi-machine, and independent security evidence remain outside the P2 claim.
+
+
+## P2 qualification boundary
+
+P2-A, P2-B, and P2-C now pass together in CI.
+
+The qualified claim is intentionally narrow:
+
+> PV-DLAM P2 is qualified for the extracted synchronization reference plus live
+> native-hosted loopback integration against pinned Infinite Porch
+> `5e00f2dfa787331f1c6d03533db4bfd92c53536a`.
+
+This includes real daemon processes, encrypted/authenticated TCP/Noise loopback,
+restart persistence, offline queueing, provider grant revocation, stale P2 epoch
+rejection, rejected-carrier quarantine, signed application receipts, and
+bidirectional recovery.
+
+It does not establish physical LAN/WAN behavior, separate-machine qualification,
+native Windows/macOS field evidence, or independent security review.
