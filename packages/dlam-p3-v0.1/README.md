@@ -197,3 +197,24 @@ unsupported unless both paths were actually observed.
 
 All P3-B policies and reports remain shadow-only, non-authoritative, and
 ineligible for promotion. P3-C still owns dataset/evidence-floor closeout.
+
+
+## P3-C — qualification dataset closeout
+
+P3-C adds `qualification.py` and `qualification_acceptance.py`.
+
+The closeout defines explicit evidence floors across paired replay coverage, task
+classes, GA108/model diversity, five deterministic held-out seeds, and Sparse
+Frontier calibration evidence.
+
+CI deliberately uses `SYNTHETIC_QUALIFICATION_FIXTURE` data. Synthetic data may
+prove the qualification machinery, but can never yield empirical P4 readiness:
+`STRUCTURAL_PASS_SYNTHETIC_ONLY` keeps `p4_evaluation_allowed=false`.
+
+A future non-fixture `REPLAY_BENCHMARK` or `FIELD_OBSERVED` corpus must carry
+explicit evidence-manifest refs and pass every technical gate before P4 may even
+evaluate a learner.
+
+P3-C also emits a deterministic P4 evaluation packet that freezes later minimum
+held-out task/seed/utility/confidence/governance/latency/rollback/operator
+requirements. The packet cannot activate routing or grant authority.
