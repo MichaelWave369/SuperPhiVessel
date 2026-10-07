@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -21,6 +22,20 @@ function ok(id, name) {
   passed += 1;
   console.log(`PASS ${id} ${name}`);
 }
+
+const manifest = JSON.parse(readFileSync("runtime/MANIFEST.json", "utf8"));
+const runtimeSource = readFileSync(manifest.runtime.path, "utf8");
+for (const marker of [
+  "const BUDGET_COMPUTE_VERSION='1.0';",
+  "function computeBrokerRoute(opts)",
+  "function creditSnapshot()",
+  "function gpuRuntimeState()",
+  "function frozenRunCapsule(opts)",
+  "function executorAuthorizationDecision(capsule,req)"
+]) {
+  assert.ok(runtimeSource.includes(marker), `canonical runtime seam missing: ${marker}`);
+}
+ok("C00", "canonical-runtime-exposes-pinned-economic-and-authorization-seams");
 
 const runCapsule = {
   receiptType: "PhiRunCapsule",
@@ -258,4 +273,4 @@ assert.equal(receipt.actionAuthority, "NONE");
 assert.equal(receipt.executorAuthorizationRequired, true);
 ok("C08", "shadow-economic-receipt-cannot-change-live-route");
 
-console.log(`BudgetGenius runtime bridge v0.2: PASS (${passed}/8)`);
+console.log(`BudgetGenius runtime bridge v0.2: PASS (${passed}/9)`);
