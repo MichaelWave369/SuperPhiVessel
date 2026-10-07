@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p3-v0.1/schemas/routing-observation.schema.json",
+  "title": "PV-DLAM P3-A Routing Observation",
+  "type": "object",
+  "required": [
+    "schema",
+    "route_decision_id",
+    "task_id",
+    "task_class",
+    "profile_ref",
+    "model_ref",
+    "success",
+    "quality_score",
+    "predicted_confidence",
+    "brier_score",
+    "evidence_satisfied",
+    "governance_violation",
+    "critical_miss",
+    "outcome_source_refs",
+    "learning_mode",
+    "may_change_live_route",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p3a.v0.1"
+    },
+    "route_decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_class": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "profile_ref": {
+      "type": "string",
+      "pattern": "^ga108:[0-9]{3}$"
+    },
+    "model_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "quality_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "predicted_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "brier_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_satisfied": {
+      "type": "boolean"
+    },
+    "governance_violation": {
+      "type": "boolean"
+    },
+    "critical_miss": {
+      "type": "boolean"
+    },
+    "outcome_source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "learning_mode": {
+      "const": "SHADOW_OBSERVATION_ONLY"
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
