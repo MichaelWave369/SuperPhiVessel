@@ -79,3 +79,24 @@ The presence of a subsystem in source or documentation must never be interpreted
 Until the runtime is modularized, the current standalone HTML artifact is the source of truth for shipped behavior. It belongs under `runtime/`.
 
 This document is architectural orientation, not an executable specification. Protocol-specific invariants belong under `protocols/`.
+
+
+## Sparse Frontier Routing
+
+An extracted **Sparse Frontier Routing (SFR)** candidate now explores a bounded escalation layer between cheap/local decision work and specialist/frontier investigation.
+
+Its purpose is not to choose the “best big model” for every task. It asks first whether deeper reasoning is warranted at all.
+
+Current extracted status: **EXPERIMENTAL / UNWIRED**.
+
+Key boundaries:
+
+- local/deterministic work remains preferred when adequate;
+- frontier escalation receives only a bounded evidence-linked region;
+- GA108 specialists remain persistent dormant identities and only a small subset may be recommended;
+- SFR recommendations do not activate a model or grant authority;
+- learned NBG signals remain log-only in v0.1;
+- routing usefulness is recorded in shadow mode and cannot change live thresholds yet;
+- Reality Gate / existing authorization remains the action boundary.
+
+See `packages/sparse-frontier-v0.1/README.md`.
