@@ -1,7 +1,7 @@
 # PV-DLAM P3-A — Routing Observatory
 
-**Status:** CANDIDATE / EXTRACTED / UNWIRED  
-**Phase:** P3-A  
+**Status:** P3 STRUCTURALLY QUALIFIED / EXTRACTED / LIVE ROUTING UNCHANGED  
+**Phase:** P3-A + P3-B + P3-C complete as the extracted shadow-qualification framework  
 **Depends on:** qualified P1-C route receipts; optional Sparse Frontier v0.1 decisions/outcomes
 
 P3-A starts the observability phase without giving a learner control of routing.
@@ -197,3 +197,42 @@ unsupported unless both paths were actually observed.
 
 All P3-B policies and reports remain shadow-only, non-authoritative, and
 ineligible for promotion. P3-C still owns dataset/evidence-floor closeout.
+
+
+## P3-C — qualification dataset closeout
+
+P3-C adds `qualification.py` and `qualification_acceptance.py`.
+
+The closeout defines explicit evidence floors across paired replay coverage, task
+classes, GA108/model diversity, five deterministic held-out seeds, and Sparse
+Frontier calibration evidence.
+
+CI deliberately uses `SYNTHETIC_QUALIFICATION_FIXTURE` data. Synthetic data may
+prove the qualification machinery, but can never yield empirical P4 readiness:
+`STRUCTURAL_PASS_SYNTHETIC_ONLY` keeps `p4_evaluation_allowed=false`.
+
+A future non-fixture `REPLAY_BENCHMARK` or `FIELD_OBSERVED` corpus must carry
+explicit evidence-manifest refs and pass every technical gate before P4 may even
+evaluate a learner.
+
+P3-C also emits a deterministic P4 evaluation packet that freezes later minimum
+held-out task/seed/utility/confidence/governance/latency/rollback/operator
+requirements. The packet cannot activate routing or grant authority.
+
+
+## P3 qualification boundary
+
+P3-A, P3-B, and P3-C now pass together in CI.
+
+The qualified claim is intentionally structural:
+
+> PV-DLAM P3 provides an extracted, deterministic framework for recording,
+> replaying, and qualifying routing evidence before any learned routing is
+> allowed to become live.
+
+The CI closeout proves the machinery with a labelled synthetic corpus. That
+corpus cannot become empirical evidence and cannot make
+`p4_evaluation_allowed=true`.
+
+Real P4 evaluation still requires a non-fixture benchmark/field corpus with
+explicit evidence manifests that meets the P3-C floors.
