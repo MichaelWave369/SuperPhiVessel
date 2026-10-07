@@ -16,6 +16,7 @@ Historical standalone packages must not be represented as integrated merely beca
 - `budgetgenius-bridge-v0.1` — **EXPERIMENTAL / UNWIRED** protocol compatibility bridge pinned to BudgetGenius commit `44ffc8ccd0f8eafb7130a3051215e536daaa4dce`.
 - `budgetgenius-bridge-v0.2` — **EXPERIMENTAL / SHADOW ECONOMICS / UNWIRED** runtime-economic mirror for BudgetCompute, Credit Governor, PV-GPU, Run Capsule, and P4-A shadow evidence.
 - `budgetgenius-bridge-v0.3` — **EXPERIMENTAL / SHADOW QUALIFICATION / UNWIRED** held-out economic evidence gate; may request a bounded canary lease only after empirical qualification.
+- `budgetgenius-bridge-v0.4` — **EXPERIMENTAL / BOUNDED CANARY LEASE / UNWIRED** operator/steward/board-approved route-influence envelope with hard expiry, spend/decision caps, revocation, and automatic rollback.
 - `spdw-v0.1` — frozen experimental SPD-W acceptance contract.
 
 Presence here is not runtime activation.
