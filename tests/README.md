@@ -145,6 +145,19 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - synthetic CI data can pass structural gates but is permanently barred from empirical P4 readiness;
   - P4 evaluation packets freeze later utility/confidence/governance/latency/rollback/operator requirements while remaining non-activating;
   - evidence manifests are mandatory, raw memory text never enters qualification artifacts, and qualification/packet hashes are deterministic.
+- `packages/dlam-p4-v0.1/acceptance.py` verifies **P4-A bounded learned-routing candidate**:
+  - exactly 24 pre-route metadata features and no raw task/memory text;
+  - synthetic P3-C evidence can train a structural shadow candidate but can never activate it;
+  - exact training observation frontier and rollback parent are pinned;
+  - governance/critical breaches become non-tradable route blocks;
+  - a better observed route can win the learned shadow score even when static priority prefers another route;
+  - P1-C hard eligibility still runs before the learner and excludes unqualified models;
+  - changed exact model artifacts start with zero route support and cannot inherit learned eligibility;
+  - stale/denied authority stops before scoring;
+  - unseen task classes abstain;
+  - snapshots are deterministic/versioned with explicit rollback lineage;
+  - source qualification/packet mismatches and out-of-frontier training fail closed;
+  - learned planning never mutates the P1-C static live router and exposes no activation method.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
