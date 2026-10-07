@@ -61,6 +61,9 @@ This workstream is deliberately staged so learned routing and learned NBG views 
   - [x] **P1-D** — abrupt committed/uncommitted crash boundaries, real SQLite `SQLITE_FULL` fail-closed behavior, WAL-safe backup/restore, corrupt-backup rejection, and deletion-safe projection rebuild.
 - [x] **Sparse Frontier Routing v0.1 precursor** — extracted deterministic “when is deeper reasoning worth calling?” gate with bounded escalation envelopes, sparse GA108 recommendations, Frontier Duty Cycle + usefulness/critical-miss metrics, shadow-only routing knowledge, and disciplined NBG signal classes. **UNWIRED**; does not replace P1-D or activate learned thresholds.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
+  - [x] **P2-A extracted reference** — signed scoped memory/tombstone envelopes, Ed25519 identity seam, durable outbox/inbox receipts, replay protection, monotonic revocation epochs, tombstone precedence, no transitive forwarding, conflict preservation, and Porch-compatible transport adapter boundary.
+  - [ ] **P2-B transport qualification** — bind the interface to a qualified Infinite Porch adapter and collect physical/loopback transport evidence without moving memory authority into Porch.
+  - [ ] **P2-C partition/revocation closeout** — multi-node restart/partition/revocation evidence with current-authority freshness and bounded stale-access policy; close P2.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
