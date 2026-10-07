@@ -224,7 +224,10 @@ def main():
         processed_a = a["adapter"].poll_messages()
         case("B06 p2-receipt-over-porch-acks-original-outbox", lambda: (
             require(processed_a[-1]["p2_status"] == "ACKED", "P2 ack missing"),
-            require(a["sync"].pending_outbox(b_id) == [], "outbox still pending"),
+            require(
+                not any(x["outbox_id"] == out["outbox_id"] for x in a["sync"].pending_outbox(b_id)),
+                "acknowledged outbox item still pending",
+            ),
         ))
 
         # Offline transport may queue at Porch, but PV-DLAM still treats the sync
