@@ -74,6 +74,21 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - damaged FTS/active projections are detectable and rebuildable;
   - tombstoned sources and derived descendants cannot resurrect during rebuild;
   - verification/backup/restore/rebuild receipts grant no authority.
+- `packages/dlam-p2-v0.1/acceptance.py` verifies **P2 scoped signed peer synchronization**:
+  - real Ed25519 signatures through Node 22's built-in crypto;
+  - explicit pairing, scopes, recipients, and monotonic authority epochs;
+  - signed two-node import and signed acknowledgement receipts;
+  - tampering, wrong recipients, and unauthorized scopes fail closed;
+  - local capture/outbox continue during partitions and catch up after delivery resumes;
+  - replay is idempotent;
+  - revocation invalidates queued old-epoch envelopes;
+  - tombstones beat stale out-of-order admits;
+  - three-node tests prove no transitive forwarding/authority;
+  - incompatible peer claims remain separate rather than timestamp-LWW merged;
+  - same-peer source-ID rewrites are quarantined;
+  - valid signatures cannot transport authority or promote DREAMED content;
+  - vector/cache objects and SEALED memory export fail closed;
+  - remote contradiction relations resolve only when both signed endpoints exist.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
