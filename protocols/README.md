@@ -17,4 +17,4 @@ A protocol document does not imply the protocol is wired into the current runtim
 
 ## Current candidates
 
-- `dlam-v0.1/` — **PV-DLAM-0.1**, an UNWIRED P0 contract for model-independent agent/Genius continuity, governed context composition, attributable learned routing, model/embedding swap survival, forgetting/invalidation, and local-first scoped peer synchronization.
+- `dlam-v0.1/` — **PV-DLAM-0.1**, a **P0-complete / runtime-unwired** contract for model-independent agent/Genius continuity, governed context composition, attributable routing, model/embedding swap survival, forgetting/invalidation, and local-first scoped peer synchronization. Executable P1 work lives under `packages/dlam-p1-v0.1/`.
