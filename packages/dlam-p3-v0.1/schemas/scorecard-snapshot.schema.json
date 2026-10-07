@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p3-v0.1/schemas/scorecard-snapshot.schema.json",
+  "title": "PV-DLAM P3-A Scorecard Snapshot",
+  "type": "object",
+  "required": [
+    "schema",
+    "policy",
+    "roster_size",
+    "observation_count",
+    "geniuses",
+    "models",
+    "task_classes",
+    "source_observation_ids",
+    "learning_mode",
+    "learned_weights",
+    "may_change_live_route",
+    "may_change_live_thresholds",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p3a.scorecards.v0.1"
+    },
+    "policy": {
+      "const": "p3a-descriptive-shadow-v0.1"
+    },
+    "roster_size": {
+      "const": 108
+    },
+    "observation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "geniuses": {
+      "type": "object",
+      "minProperties": 108,
+      "maxProperties": 108
+    },
+    "models": {
+      "type": "object"
+    },
+    "task_classes": {
+      "type": "object"
+    },
+    "source_observation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "learning_mode": {
+      "const": "SHADOW_OBSERVATION_ONLY"
+    },
+    "learned_weights": {
+      "type": "null"
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "may_change_live_thresholds": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
