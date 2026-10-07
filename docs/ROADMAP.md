@@ -67,7 +67,7 @@ This workstream is deliberately staged so learned routing and learned NBG views 
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
   - [x] **P3-A Routing Observatory candidate** — immutable route-outcome observations anchored to P1-C receipts, full 108-profile scorecards including dormant identities, exact-model/task-class/calibration history, optional SFR usefulness joins, provenance-pinned snapshots, and shadow-only dormant roster ranking. Live dispatch/thresholds remain unchanged.
   - [x] **P3-B held-out shadow replay candidate** — deterministic group-held-out datasets, paired observed route alternatives, training-only shadow policy fit, unsupported-counterfactual abstention, paired held-out deltas, and SFR threshold replay with no causal/promotion claim. Live routing remains static.
-  - [ ] **P3-C qualification dataset closeout** — task-class coverage, held-out partitions, minimum evidence floors, SFR trigger calibration, and P4 promotion packet.
+  - [ ] **P3-C qualification dataset closeout** — candidate gate now defines task-class/route/SFR evidence floors, five deterministic held-out seeds, synthetic-fixture guard, and a non-activating P4 evaluation packet. Mark P3 structurally complete only after CI passes.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
 - [ ] P6 — run a bounded real-machine pilot with hardware profiling, recovery drill, and independent peer/security review.
