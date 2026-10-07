@@ -2,7 +2,7 @@
 
 **Status:** CANDIDATE / EXTRACTED / UNWIRED  
 **Protocol:** PV-DLAM-0.1  
-**Phase:** P1-A + P1-B of P1 one-node continuity
+**Phase:** P1-A + P1-B + P1-C of P1 one-node continuity
 
 P1-A is the first executable implementation rung after the P0 contract/inventory closure.
 
@@ -99,4 +99,20 @@ python3 packages/dlam-p1-v0.1/context_acceptance.py
 
 Expected: `SUMMARY 17/17 PASS`.
 
-P1-C will add static Genius/model route receipts and task-checkpoint/model-swap continuity.
+## P1-C — static routing and model-swap continuity
+
+P1-C is now present:
+
+- `p1c_runtime.py` — exact model-artifact registry, deterministic static router, route receipts, attributable outcome identity, structured checkpoints, and governed swap/resume;
+- `p1c_acceptance.py` — deterministic acceptance harness;
+- `P1C_MODEL_SWAP.md` — exact identity, routing, checkpoint, and swap contract.
+
+Run:
+
+```bash
+python3 packages/dlam-p1-v0.1/p1c_acceptance.py
+```
+
+Expected: `SUMMARY 22/22 PASS`.
+
+P1-D remains the final one-node qualification rung: crash/write-failure, backup/restore, and deletion/rebuild evidence.
