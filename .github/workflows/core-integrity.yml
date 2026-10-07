@@ -154,6 +154,18 @@ jobs:
           PORCH_ROOT: ${{ github.workspace }}/_porch
         run: python3 packages/dlam-p2-v0.1/live_porch_acceptance.py
 
+  dlam-p3a-observatory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run PV-DLAM P3-A routing observatory acceptance
+        run: python3 packages/dlam-p3-v0.1/acceptance.py
+
   sparse-frontier-acceptance:
     runs-on: ubuntu-latest
     steps:
