@@ -69,6 +69,9 @@ This workstream is deliberately staged so learned routing and learned NBG views 
   - [x] **P3-B held-out shadow replay candidate** — deterministic group-held-out datasets, paired observed route alternatives, training-only shadow policy fit, unsupported-counterfactual abstention, paired held-out deltas, and SFR threshold replay with no causal/promotion claim. Live routing remains static.
   - [x] **P3-C qualification dataset closeout** — task-class/route/SFR evidence floors, five deterministic held-out seeds, synthetic-fixture guard, deterministic qualification hashes, and a non-activating P4 evaluation packet; CI structural fixture 22/22 PASS.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
+  - [x] **P4-A bounded learner candidate** — pure-Python 24-feature batch ridge + UCB shadow scorer, P1-C hard eligibility first, sparse GA108/model shortlist, exact-route support floors, non-tradable breach blocking, source-evidence pinning, immutable learned snapshots, and explicit rollback lineage. No activation method; synthetic evidence remains structural only.
+  - [ ] **P4-B empirical held-out evaluation** — evaluate learned candidate against frozen P3-C empirical packets across >=400 held-out tasks and >=5 seeds; require >=5% relative utility improvement with positive 95% lower bound, no governance/critical-miss regression, and declared latency thresholds.
+  - [ ] **P4-C operator activation + rollback** — activation lease, explicit operator approval, live canary bounds, rollback snapshot, automatic demotion on gate breach; close P4 only after empirical evidence and rollback drill.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
 - [ ] P6 — run a bounded real-machine pilot with hardware profiling, recovery drill, and independent peer/security review.
 
