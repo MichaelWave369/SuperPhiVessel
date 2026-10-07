@@ -79,6 +79,18 @@ jobs:
       - name: Run PV-DLAM P1-C routing and model-swap acceptance
         run: python3 packages/dlam-p1-v0.1/p1c_acceptance.py
 
+  sparse-frontier-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Sparse Frontier Routing v0.1 acceptance
+        run: python3 packages/sparse-frontier-v0.1/acceptance.py
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:
