@@ -65,6 +65,9 @@ This workstream is deliberately staged so learned routing and learned NBG views 
   - [x] **P2-B adapter contract** — map signed P2 envelopes/receipts onto Infinite Porch 0.1.2 `message.send`, with explicit P2↔Porch identity/scope binding, loopback-only control, offline queue semantics, and no trust/grant minting. Deterministic adapter semantics are qualified; live Porch daemon/network evidence remains for P2-C.
   - [x] **P2-C live Porch + partition/revocation closeout** — pinned/builds Infinite Porch `5e00f2d`, runs real daemon TCP/Noise loopback, restart, outage queueing, Porch grant revocation, stale P2 epoch rejection, quarantine of rejected carriers, and refreshed bidirectional recovery.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
+  - [x] **P3-A Routing Observatory candidate** — immutable route-outcome observations anchored to P1-C receipts, full 108-profile scorecards including dormant identities, exact-model/task-class/calibration history, optional SFR usefulness joins, provenance-pinned snapshots, and shadow-only dormant roster ranking. Live dispatch/thresholds remain unchanged.
+  - [ ] **P3-B held-out shadow replay** — compare candidate routing/escalation policies offline against frozen observations without activation.
+  - [ ] **P3-C qualification dataset closeout** — task-class coverage, held-out partitions, minimum evidence floors, SFR trigger calibration, and P4 promotion packet.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
 - [ ] P6 — run a bounded real-machine pilot with hardware profiling, recovery drill, and independent peer/security review.
