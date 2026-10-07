@@ -1,0 +1,104 @@
+{
+  "schema": "superphivessel.dlam.inventory.v0.1",
+  "protocol": "PV-DLAM-0.1",
+  "recorded_at": "2026-10-07",
+  "runtime_wiring": false,
+  "status": "P0_CONTRACT_INVENTORY",
+  "design_basis": {
+    "document_id": "PHI369-DLAM-ARCH",
+    "version": "v0.1 Draft",
+    "sha256": "9d93490e07bc1d44d694c32f10990aff4f358761b777ace97cae7bc4bbafa412"
+  },
+  "donors": [
+    {
+      "system": "SuperPhiVessel",
+      "repository": "MichaelWave369/SuperPhiVessel",
+      "observed_commit": "aaaafcefa595bf05f292acc9d00eba42ef56821f",
+      "role": [
+        "operator_governance",
+        "Genius_Atlas",
+        "Crane_Fly_routing",
+        "runtime_surfaces",
+        "receipts"
+      ],
+      "boundary": "CAPABILITY != AUTHORITY; runtime remains unchanged by P0"
+    },
+    {
+      "system": "BrainC",
+      "repository": "MichaelWave369/BrainC",
+      "observed_commit": "c4bd1e83dfa36d39de884fed5f9824ebc3878634",
+      "role": [
+        "FastAPI_local_service_donor",
+        "Ollama_adapter_donor",
+        "SQLite_memory_donor",
+        "auth_audit_queue_model_switching"
+      ],
+      "boundary": "donor implementation; not automatically the production authority"
+    },
+    {
+      "system": "NestedBubbleGear",
+      "repository": "MichaelWave369/NestedBubbleGear",
+      "observed_commit": "cceec6cbeb68ad2e49c549c298e1474aebc8f42c",
+      "role": [
+        "epistemic_provenance",
+        "temporal_lineage",
+        "L_Theta_Mt_decomposition",
+        "optional_learned_views"
+      ],
+      "boundary": "learned Theta/residue remains experimental; exact ledger path cannot depend on it"
+    },
+    {
+      "system": "sovereign-memory-lattice",
+      "repository": "MichaelWave369/sovereign-memory-lattice",
+      "observed_commit": "43f7513c46529167d842a7c195029b03574dc393",
+      "role": [
+        "related_packet_persistence",
+        "local_runtime",
+        "council_adjudication",
+        "role_cognition"
+      ],
+      "boundary": "related donor only; not asserted to be identical to the SCM v0.8 artifact named in PHI369-DLAM-ARCH"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "P0-OPEN-01",
+      "item": "Canonical full Genius roster count and stable-ID export",
+      "blocking": [
+        "P0_EXIT",
+        "P3_ROUTING_OBSERVABILITY"
+      ]
+    },
+    {
+      "id": "P0-OPEN-02",
+      "item": "Exact SCM v0.8 source artifact/repository mapping and migration crosswalk",
+      "blocking": [
+        "P0_EXIT"
+      ]
+    },
+    {
+      "id": "P0-OPEN-03",
+      "item": "Current BrainC/Vessie local bridge authentication and origin-policy ownership",
+      "blocking": [
+        "P1_LOCAL_CONTINUITY"
+      ]
+    },
+    {
+      "id": "P0-OPEN-04",
+      "item": "Exact approved model and embedding artifact qualification matrix for local hardware",
+      "blocking": [
+        "P1_MODEL_SWAP",
+        "P4_LEARNED_ROUTING"
+      ]
+    }
+  ],
+  "p0_exit": {
+    "complete": false,
+    "requires": [
+      "stable Genius roster IDs exported and reviewed",
+      "memory/runtime ownership crosswalk reviewed",
+      "schema/policy/test fixture identities frozen",
+      "no frozen NBG experiment altered"
+    ]
+  }
+}
