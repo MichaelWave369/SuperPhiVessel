@@ -369,6 +369,50 @@ class PorchP2Adapter:
         self.conn.commit()
         return result
 
+    def _quarantine_rejected_message(
+        self,
+        message: dict[str, Any],
+        *,
+        carrier_hash: str,
+        reason_code: str,
+    ) -> dict[str, Any]:
+        sender = message.get("sender")
+        message_id = message.get("id")
+        if not all(isinstance(x, str) and x for x in (sender, message_id)):
+            raise PorchAdapterError("cannot quarantine malformed Porch message")
+        result = {
+            "kind": "REJECTED",
+            "p2_status": "QUARANTINED",
+            "reason": reason_code,
+            "authority_granted": False,
+        }
+        existing = self.conn.execute(
+            "SELECT carrier_hash,result_json FROM p2b_seen_messages WHERE porch_peer_id=? AND message_id=?",
+            (sender, message_id),
+        ).fetchone()
+        if existing is not None:
+            if existing["carrier_hash"] != carrier_hash:
+                raise SyncDenied("Porch message ID reused with different carrier")
+            return json.loads(existing["result_json"])
+        self.conn.execute(
+            """
+            INSERT INTO p2b_seen_messages(
+              porch_peer_id,message_id,carrier_hash,result_json
+            ) VALUES(?,?,?,?)
+            """,
+            (sender, message_id, carrier_hash, canonical(result)),
+        )
+        self.conn.execute(
+            """
+            INSERT OR REPLACE INTO p2b_transport_receipts(
+              message_id,porch_peer_id,direction,carrier_hash,transport_status,receipt_json
+            ) VALUES(?,?,'INBOUND',?,'QUARANTINED',?)
+            """,
+            (message_id, sender, carrier_hash, canonical(result)),
+        )
+        self.conn.commit()
+        return result
+
     def poll_messages(self) -> list[dict[str, Any]]:
         records = self.porch.read("messages")
         if not isinstance(records, list):
@@ -383,7 +427,27 @@ class PorchP2Adapter:
                 continue
             if not isinstance(carrier, dict) or carrier.get("schema") != self.CARRIER_SCHEMA:
                 continue
-            results.append(self.process_message(message))
+            carrier_hash = self._carrier_hash(carrier)
+            try:
+                results.append(self.process_message(message))
+            except SignatureError:
+                results.append(self._quarantine_rejected_message(
+                    message,
+                    carrier_hash=carrier_hash,
+                    reason_code="SIGNATURE_ERROR",
+                ))
+            except SyncDenied:
+                results.append(self._quarantine_rejected_message(
+                    message,
+                    carrier_hash=carrier_hash,
+                    reason_code="SYNC_DENIED",
+                ))
+            except PorchAdapterError:
+                results.append(self._quarantine_rejected_message(
+                    message,
+                    carrier_hash=carrier_hash,
+                    reason_code="ADAPTER_ERROR",
+                ))
         return results
 
     def status(self) -> dict[str, Any]:
