@@ -2,7 +2,7 @@
 
 **Status:** CANDIDATE / EXTRACTED / UNWIRED  
 **Protocol:** PV-DLAM-0.1  
-**Phase:** P1-A + P1-B + P1-C of P1 one-node continuity
+**Phase:** P1-A + P1-B + P1-C + P1-D candidate of P1 one-node continuity
 
 P1-A is the first executable implementation rung after the P0 contract/inventory closure.
 
@@ -115,4 +115,21 @@ python3 packages/dlam-p1-v0.1/p1c_acceptance.py
 
 Expected: `SUMMARY 22/22 PASS`.
 
-P1-D remains the final one-node qualification rung: crash/write-failure, backup/restore, and deletion/rebuild evidence.
+## P1-D — durability and recovery qualification
+
+P1-D candidate files are now present:
+
+- `p1d_recovery.py` — integrity verification, SQLite backup/restore, logical manifests, and deletion-safe active-projection rebuild;
+- `p1d_crash_worker.py` — abrupt committed/uncommitted crash boundary worker;
+- `p1d_acceptance.py` — deterministic qualification harness;
+- `P1D_DURABILITY.md` — bounded claims and failure semantics.
+
+Run:
+
+```bash
+python3 packages/dlam-p1-v0.1/p1d_acceptance.py
+```
+
+Expected: `SUMMARY 20/20 PASS`.
+
+P1 should be marked complete only after P1-A/B/C/D all pass together in CI.
