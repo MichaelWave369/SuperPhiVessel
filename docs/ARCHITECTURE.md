@@ -100,3 +100,24 @@ Key boundaries:
 - Reality Gate / existing authorization remains the action boundary.
 
 See `packages/sparse-frontier-v0.1/README.md`.
+
+
+## PV-DLAM P2 peer synchronization
+
+An extracted P2 reference now defines the application-level synchronization seam above the qualified P1 local store.
+
+The boundary is intentionally narrow:
+
+- the local PV-DLAM service decides memory admission;
+- peer identity/signing and network transport remain replaceable dependencies;
+- Infinite Porch is the intended transport/identity donor, not the memory source of truth;
+- only signed scoped MEMORY_ADMIT and MEMORY_TOMBSTONE objects are accepted;
+- SQLite/WAL files, vectors, context packets, opaque routing state, and action authority are not synchronized as canonical objects;
+- remote claims receive collision-safe local replica identities;
+- concurrent incompatible claims remain visible;
+- same-peer source rewrites quarantine rather than overwrite;
+- tombstone frontiers suppress stale replay;
+- revocation epochs invalidate queued old-authority envelopes;
+- signed receipts are evidence, never authority.
+
+The extracted package lives at `packages/dlam-p2-v0.1/`. It is not yet live-wired to Infinite Porch or the canonical runtime.
