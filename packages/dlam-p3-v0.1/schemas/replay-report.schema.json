@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p3-v0.1/schemas/replay-report.schema.json",
+  "title": "PV-DLAM P3-B Held-Out Replay Report",
+  "type": "object",
+  "required": [
+    "schema",
+    "policy_id",
+    "dataset_hash",
+    "test_cases",
+    "supported_paired_cases",
+    "unsupported_counterfactual_cases",
+    "paired_support_coverage",
+    "causal_claim",
+    "promotion_eligible",
+    "learning_mode",
+    "may_change_live_route",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p3b.replay-report.v0.1"
+    },
+    "policy_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "test_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "supported_paired_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unsupported_counterfactual_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "paired_support_coverage": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "causal_claim": {
+      "const": "NONE"
+    },
+    "promotion_eligible": {
+      "const": false
+    },
+    "learning_mode": {
+      "const": "SHADOW_REPLAY_ONLY"
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}

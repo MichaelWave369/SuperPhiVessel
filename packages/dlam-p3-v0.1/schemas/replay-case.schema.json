@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p3-v0.1/schemas/replay-case.schema.json",
+  "title": "PV-DLAM P3-B Paired Replay Case",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_ref",
+    "partition_group_ref",
+    "task_id",
+    "task_class",
+    "baseline_observation_id",
+    "alternative_observation_ids",
+    "observation_ids",
+    "route_signatures",
+    "raw_task_text_stored",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p3b.replay-case.v0.1"
+    },
+    "case_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "partition_group_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline_observation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "alternative_observation_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "observation_ids": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "route_signatures": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "raw_task_text_stored": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}

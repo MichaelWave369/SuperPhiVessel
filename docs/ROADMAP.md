@@ -66,7 +66,7 @@ This workstream is deliberately staged so learned routing and learned NBG views 
   - [x] **P2-C live Porch + partition/revocation closeout** — pinned/builds Infinite Porch `5e00f2d`, runs real daemon TCP/Noise loopback, restart, outage queueing, Porch grant revocation, stale P2 epoch rejection, quarantine of rejected carriers, and refreshed bidirectional recovery.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
   - [x] **P3-A Routing Observatory candidate** — immutable route-outcome observations anchored to P1-C receipts, full 108-profile scorecards including dormant identities, exact-model/task-class/calibration history, optional SFR usefulness joins, provenance-pinned snapshots, and shadow-only dormant roster ranking. Live dispatch/thresholds remain unchanged.
-  - [ ] **P3-B held-out shadow replay** — compare candidate routing/escalation policies offline against frozen observations without activation.
+  - [x] **P3-B held-out shadow replay candidate** — deterministic group-held-out datasets, paired observed route alternatives, training-only shadow policy fit, unsupported-counterfactual abstention, paired held-out deltas, and SFR threshold replay with no causal/promotion claim. Live routing remains static.
   - [ ] **P3-C qualification dataset closeout** — task-class coverage, held-out partitions, minimum evidence floors, SFR trigger calibration, and P4 promotion packet.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
 - [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.

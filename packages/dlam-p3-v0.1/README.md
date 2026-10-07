@@ -173,3 +173,27 @@ Later P3 rungs should add:
 - candidate learner reports for P4.
 
 No learner should become live merely because P3 collected enough rows to make a chart look persuasive.
+
+
+## P3-B — held-out paired shadow replay
+
+P3-B adds `shadow_replay.py` and `shadow_replay_acceptance.py`.
+
+The core rule is:
+
+> **Unobserved counterfactuals are unsupported.**
+
+A route-vs-route held-out comparison is scored only when the baseline and candidate
+route were both actually run on the same benchmark task. If the shadow policy
+selects an alternative that was not observed for that case, the result is
+`UNSUPPORTED_COUNTERFACTUAL` and is excluded from paired performance deltas.
+
+Train/test assignment is deterministic from a seed plus a partition-group ref,
+so related cases cannot quietly leak across the split.
+
+P3-B also replays alternate Sparse Frontier soft thresholds. If a candidate
+threshold would flip the logged local/frontier decision, that outcome is likewise
+unsupported unless both paths were actually observed.
+
+All P3-B policies and reports remain shadow-only, non-authoritative, and
+ineligible for promotion. P3-C still owns dataset/evidence-floor closeout.
