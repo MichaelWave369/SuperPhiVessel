@@ -104,3 +104,27 @@ Key properties:
 - all adapter receipts remain non-authoritative.
 
 The deterministic adapter harness uses a contract double for the documented Porch 0.1.2 message API. Live Porch daemon/network qualification remains P2-C.
+
+
+## P2-C — live Infinite Porch closeout
+
+P2-C adds `live_porch_acceptance.py`.
+
+CI checks out the exact Infinite Porch source revision
+`5e00f2dfa787331f1c6d03533db4bfd92c53536a`, builds the real `porch-node`
+daemon, starts two independent daemon processes, and runs P2 traffic through
+actual encrypted TCP/Noise loopback transport.
+
+The closeout exercises:
+
+- live Porch identities and provider-issued message grants;
+- real P2 envelope + signed receipt round trips;
+- Porch and PV-DLAM restart continuity;
+- offline Porch queueing without false P2 acknowledgement;
+- grant revocation before reconnect/retry;
+- independent P2 authority-epoch advancement;
+- stale P2 rejection even after fresh Porch transport authority;
+- successful synchronization after both authority layers are refreshed.
+
+This is a **native-hosted loopback** qualification only. Physical LAN, WAN/NAT,
+native multi-machine, and independent security evidence remain outside the P2 claim.
