@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/protocols/dlam-v0.1/route-decision.schema.json",
+  "title": "PV-DLAM-0.1 Route Decision Receipt",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "task_id",
+    "profile_ref",
+    "model_ref",
+    "recipe_ref",
+    "eligible_candidates",
+    "excluded_candidates",
+    "feature_schema_version",
+    "router_snapshot_ref",
+    "selection_probability",
+    "resource_state",
+    "context_manifest_ref",
+    "policy_frontier_ref",
+    "index_manifest_ref",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recipe_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "eligible_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "excluded_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "feature_schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "router_snapshot_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selection_probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "resource_state": {
+      "type": "object"
+    },
+    "context_manifest_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_frontier_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "index_manifest_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
