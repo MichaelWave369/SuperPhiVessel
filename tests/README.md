@@ -89,6 +89,19 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - valid signatures cannot transport authority or promote DREAMED content;
   - vector/cache objects and SEALED memory export fail closed;
   - remote contradiction relations resolve only when both signed endpoints exist.
+- `packages/dlam-p2-v0.1/porch_adapter_acceptance.py` verifies **P2-B Infinite Porch carrier adaptation**:
+  - Porch control endpoints are loopback-only;
+  - P2↔Porch identity/scope binding is explicit and non-authoritative;
+  - only Porch `message.send` is used for sync transport;
+  - transport `DELIVERED/QUEUED` never counts as PV-DLAM acknowledgment;
+  - inbound carriers pass back through the P2-A signature/admission gate;
+  - signed P2 receipts return over Porch before the original outbox becomes ACKED;
+  - offline Porch queueing leaves the application outbox pending;
+  - duplicate Porch message IDs are idempotent, while same-ID/different-carrier reuse fails closed;
+  - unbound Porch identities cannot impersonate a P2 peer;
+  - revoked bindings block transport;
+  - ordinary Porch chat is ignored;
+  - the adapter never issues Porch trust or grants and never grants authority.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
