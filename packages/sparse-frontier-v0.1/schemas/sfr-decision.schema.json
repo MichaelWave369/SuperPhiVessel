@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/sparse-frontier-v0.1/sfr-decision.schema.json",
+  "title": "Sparse Frontier Decision Receipt v0.1",
+  "type": "object",
+  "required": [
+    "schema",
+    "policy_version",
+    "candidate_id",
+    "task_id",
+    "disposition",
+    "escalated",
+    "frontier_score",
+    "features",
+    "authority_decision_ref",
+    "authority_status",
+    "authority_granted",
+    "threshold_learning_active"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.sparse-frontier.v0.1"
+    },
+    "policy_version": {
+      "const": "sfr-static-policy-v0.1"
+    },
+    "candidate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disposition": {
+      "enum": [
+        "LOCAL_RESOLVE",
+        "ESCALATE_INVESTIGATION",
+        "HELD",
+        "DENIED"
+      ]
+    },
+    "escalated": {
+      "type": "boolean"
+    },
+    "frontier_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "features": {
+      "type": "object"
+    },
+    "authority_decision_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_status": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "DENIED"
+      ]
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "threshold_learning_active": {
+      "const": false
+    }
+  }
+}
