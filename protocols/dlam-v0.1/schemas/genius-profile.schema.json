@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/protocols/dlam-v0.1/genius-profile.schema.json",
+  "title": "PV-DLAM-0.1 GA108 Genius Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profileId",
+    "gaId",
+    "memoryNamespace",
+    "label",
+    "nodeType",
+    "lineage",
+    "category",
+    "routingEmphasis",
+    "authority",
+    "modelBinding"
+  ],
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "pattern": "^ga108:[0-9]{3}$"
+    },
+    "gaId": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$"
+    },
+    "memoryNamespace": {
+      "type": "string",
+      "pattern": "^genius\\.ga108\\.[0-9]{3}$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodeType": {
+      "enum": [
+        "PERSON",
+        "SCHOOL",
+        "KNOWLEDGE_TRADITION"
+      ]
+    },
+    "lineage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1
+    },
+    "routingEmphasis": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "const": "NONE"
+    },
+    "modelBinding": {
+      "type": "null"
+    }
+  }
+}
