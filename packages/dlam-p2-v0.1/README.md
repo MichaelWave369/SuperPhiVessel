@@ -86,3 +86,21 @@ P2 intentionally does not copy Porch networking into SuperPhiVessel. The eventua
 The acceptance harness requires Python 3.12+ and Node 22+.
 
 Passing this extracted harness does not prove physical-LAN, WAN-off, independent security review, or production network behavior. Those remain later qualification evidence.
+
+
+## P2-B — Infinite Porch carrier adapter
+
+P2-B now adds `porch_adapter.py`, which maps P2-A signed envelopes and receipts onto Infinite Porch 0.1.2's existing governed `message.send` surface.
+
+Key properties:
+
+- the Porch control API must be loopback HTTP;
+- P2 peer IDs are explicitly bound to Porch peer IDs and a shared scope;
+- the adapter never approves peers or issues/imports Porch grants;
+- Porch `DELIVERED` or `QUEUED` is transport state only;
+- the P2 outbox is ACKED only after a valid signed remote P2 receipt returns;
+- ordinary Porch chat is ignored;
+- a revoked adapter binding blocks send/receive;
+- all adapter receipts remain non-authoritative.
+
+The deterministic adapter harness uses a contract double for the documented Porch 0.1.2 message API. Live Porch daemon/network qualification remains P2-C.
