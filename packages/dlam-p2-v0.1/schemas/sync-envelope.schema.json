@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p2-v0.1/schemas/sync-envelope.schema.json",
+  "title": "PV-DLAM P2 Sync Envelope",
+  "type": "object",
+  "required": [
+    "envelope_id",
+    "envelope_hash",
+    "body",
+    "signature_b64"
+  ],
+  "properties": {
+    "envelope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "envelope_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "signature_b64": {
+      "type": "string",
+      "minLength": 1
+    },
+    "body": {
+      "type": "object",
+      "required": [
+        "schema",
+        "protocol",
+        "source_peer_id",
+        "recipient_peer_id",
+        "authority_epoch",
+        "scope",
+        "sequence",
+        "created_at",
+        "object",
+        "authority_granted"
+      ],
+      "properties": {
+        "schema": {
+          "const": "superphivessel.dlam.p2.envelope.v0.1"
+        },
+        "protocol": {
+          "const": "PV-DLAM-P2-0.1"
+        },
+        "source_peer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recipient_peer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "object": {
+          "type": "object"
+        },
+        "authority_granted": {
+          "const": false
+        }
+      }
+    }
+  }
+}
