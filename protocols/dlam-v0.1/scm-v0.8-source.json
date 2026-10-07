@@ -1,0 +1,46 @@
+{
+  "schema": "superphivessel.dlam.source-map.v0.1",
+  "protocol": "PV-DLAM-0.1",
+  "source_id": "scm-v0.8-master-spec",
+  "title": "Sovereign Continuity Memory Master Spec v0.8 - Retrieval, Compression & Resonance Routing",
+  "filename": "Sovereign_Continuity_Memory_Master_Spec_v0_8.docx",
+  "status": "INTERNAL_MASTER_SPEC_ARCHITECTURAL_MAPPING",
+  "modified_date": "2026-05-14",
+  "size_bytes": 597280,
+  "sha256": "cf55a10e16772e302464b7d9a4630c7d2d795bb48e727f59cea06543d6b7a7d3",
+  "canonical_repository": {
+    "established": false,
+    "repository": null,
+    "note": "No canonical GitHub repository identity is established by the source document or current source inventory. sovereign-memory-lattice remains a related donor only."
+  },
+  "source_scope": [
+    "retrieval",
+    "resonance routing",
+    "policy-first candidate filtering",
+    "provenance-safe compression",
+    "context packet composition",
+    "retrieval/compression receipts",
+    "Memory Atlas index topology",
+    "bridge-safe context surfaces",
+    "forgetting/exclusion rules"
+  ],
+  "bridge_targets": [
+    "PhiOS",
+    "SCE",
+    "EVIE",
+    "Vessel",
+    "BrainC",
+    "PhiCompute"
+  ],
+  "inherited_boundaries": [
+    "policy denial and forgetting are gates, not ranking penalties",
+    "context packets are task- and surface-specific temporary activation views",
+    "compression must preserve provenance and claim class",
+    "bridge targets receive filtered context packets rather than raw memory",
+    "resonance/ranking is not a truth score"
+  ],
+  "public_repository_policy": {
+    "source_bytes_committed": false,
+    "reason": "The source is an internal architecture document. P0 records identity, hash, scope, and mapping only; it does not publish or mirror the source bytes."
+  }
+}
