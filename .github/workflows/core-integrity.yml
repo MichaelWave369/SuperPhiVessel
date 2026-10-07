@@ -238,6 +238,30 @@ jobs:
           BUDGETGENIUS_ROOT: ${{ github.workspace }}/_budgetgenius
         run: node packages/budgetgenius-bridge-v0.1/acceptance.mjs
 
+  budgetgenius-bridge-v0_2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout pinned BudgetGenius source
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/BudgetGenius
+          ref: 44ffc8ccd0f8eafb7130a3051215e536daaa4dce
+          path: _budgetgenius
+
+      - name: Verify pinned BudgetGenius reference core
+        run: npm test --prefix _budgetgenius
+
+      - name: Run BudgetGenius runtime bridge v0.2 shadow-economic acceptance
+        env:
+          BUDGETGENIUS_ROOT: ${{ github.workspace }}/_budgetgenius
+        run: node packages/budgetgenius-bridge-v0.2/acceptance.mjs
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:
