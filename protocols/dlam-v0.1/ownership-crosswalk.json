@@ -1,0 +1,148 @@
+{
+  "schema": "superphivessel.dlam.ownership-crosswalk.v0.1",
+  "protocol": "PV-DLAM-0.1",
+  "recorded_at": "2026-10-07",
+  "status": "CANDIDATE_FOR_REVIEW",
+  "runtime_wiring": false,
+  "rule": "One integrated concern has one declared authority owner; donor, adapter, transport, view, and UI roles do not inherit that authority.",
+  "target_stack": {
+    "orchestration": {
+      "owner_system": "SuperPhiVessel",
+      "responsibility": [
+        "operator-facing orchestration",
+        "canonical Genius profile registry",
+        "Crane Fly / BrainC route request surfaces",
+        "context request surfaces",
+        "operator-visible receipts and inspection"
+      ],
+      "explicitly_not": [
+        "canonical local memory database authority",
+        "peer transport authority",
+        "automatic model installation or activation",
+        "action execution authority"
+      ]
+    },
+    "governed_memory_and_execution_boundary": {
+      "owner_system": "PhiOS",
+      "responsibility": [
+        "target integrated canonical governed-memory contract",
+        "memory admission / current read admissibility",
+        "evidence and authority separation",
+        "target integrated action/execution revalidation boundary",
+        "Reality Ledger integration"
+      ],
+      "explicitly_not": [
+        "Genius identity definition",
+        "peer networking transport",
+        "NBG research result ownership",
+        "automatic learned-router activation"
+      ],
+      "note": "This is the target integrated ownership boundary. It does not claim that PV-DLAM-0.1 is currently wired into PhiOS."
+    },
+    "p1_reference_service": {
+      "owner_system": "BrainC",
+      "responsibility": [
+        "candidate P1 FastAPI memory-service implementation host",
+        "Ollama/model adapter donor",
+        "SQLite/service/migration/backup donor",
+        "local queue and model-switching donor"
+      ],
+      "explicitly_not": [
+        "final integrated policy authority by inheritance",
+        "Genius roster authority",
+        "peer transport authority"
+      ],
+      "note": "BrainC may host the first P1 service while preserving schemas and receipts that can later integrate with the PhiOS governed-memory boundary without creating a second source of truth."
+    },
+    "epistemic_and_relational_views": {
+      "owner_system": "NestedBubbleGear",
+      "responsibility": [
+        "epistemic-origin vocabulary",
+        "temporal lineage / Keyhole projections",
+        "relational NBG views over admitted history",
+        "optional learned Theta/residue research sidecar"
+      ],
+      "explicitly_not": [
+        "canonical source-of-truth ledger",
+        "permission authority",
+        "required dependency for baseline recall",
+        "automatic factual promotion"
+      ]
+    },
+    "peer_transport": {
+      "owner_system": "Infinite-Porch",
+      "responsibility": [
+        "candidate scoped peer transport",
+        "peer identity / pairing substrate",
+        "bounded message/object transfer",
+        "transport receipts and network qualification"
+      ],
+      "explicitly_not": [
+        "memory truth authority",
+        "application factual authority",
+        "automatic import of remote permissions",
+        "shared SQLite/WAL storage"
+      ],
+      "note": "A Porch grant may authorize Porch transport/provider behavior under its own contract; importing evidence through Porch does not mint PV-DLAM or PhiOS authority."
+    },
+    "related_reference_donor": {
+      "owner_system": "sovereign-memory-lattice",
+      "responsibility": [
+        "reference packet persistence patterns",
+        "role cognition patterns",
+        "council/adjudication patterns"
+      ],
+      "explicitly_not": [
+        "production PV-DLAM memory authority",
+        "assumed identity with the unresolved SCM v0.8 source artifact"
+      ]
+    }
+  },
+  "invariants": [
+    "SuperPhiVessel orchestration does not become memory or execution authority.",
+    "BrainC implementation hosting does not become policy authority by inheritance.",
+    "PhiOS governed-memory ownership does not make retrieved memory factual or currently admissible.",
+    "NBG views remain derived from admitted history; learned Theta remains optional.",
+    "Infinite Porch transports scoped bytes/events; evidence transport does not transport authority.",
+    "No integration may create two writable canonical memory truths for the same namespace/frontier."
+  ],
+  "migration_rules": [
+    {
+      "id": "MIG-01",
+      "rule": "P1 may begin beside BrainC FastAPI using PV-DLAM schemas and receipts, but must expose an explicit adapter boundary so later PhiOS integration does not require rewriting canonical memory identities."
+    },
+    {
+      "id": "MIG-02",
+      "rule": "Existing Vessie browser memory, BrainC conversation memory, PhiOS governed memory, NBG experimental memory, and related lattice stores are donor/source systems until explicitly imported through a versioned migration manifest."
+    },
+    {
+      "id": "MIG-03",
+      "rule": "An import preserves source system, source record identity when available, epistemic origin, lineage, restrictions, and import receipt. Import does not promote truth or authority."
+    },
+    {
+      "id": "MIG-04",
+      "rule": "During migration there may be multiple readable legacy sources, but only one writable PV-DLAM canonical target per namespace/frontier."
+    },
+    {
+      "id": "MIG-05",
+      "rule": "Infinite Porch may later carry scoped sync only after adapter/security qualification; the memory service remains responsible for admission and current authority checks."
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "XW-OPEN-01",
+      "item": "Exact SCM v0.8 source artifact/repository mapping",
+      "effect": "Keep sovereign-memory-lattice classified as a related donor only."
+    },
+    {
+      "id": "XW-OPEN-02",
+      "item": "Exact current Vessie ↔ BrainC ↔ PhiOS local bridge authentication/origin policy",
+      "effect": "P1 bridge wiring remains blocked until explicit contract and tests exist."
+    },
+    {
+      "id": "XW-OPEN-03",
+      "item": "Canonical full Genius roster stable-ID export",
+      "effect": "P0 cannot exit and P3 full-roster routing cannot begin."
+    }
+  ]
+}
