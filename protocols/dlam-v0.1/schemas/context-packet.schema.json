@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/protocols/dlam-v0.1/context-packet.schema.json",
+  "title": "PV-DLAM-0.1 Context Packet",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "packet_id",
+    "task_id",
+    "namespace_id",
+    "agent_id",
+    "model_ref",
+    "purpose",
+    "target_surface",
+    "policy_epoch",
+    "authority_decision_ref",
+    "ledger_frontier_ref",
+    "memory_budget_tokens",
+    "items",
+    "action_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "namespace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "genius_profile_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_surface": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "authority_decision_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ledger_frontier_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "index_manifest_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "router_snapshot_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "memory_budget_tokens": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "action_authority": {
+      "const": "NONE"
+    }
+  }
+}
