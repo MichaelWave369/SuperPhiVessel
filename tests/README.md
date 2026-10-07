@@ -137,6 +137,14 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - alternate SFR thresholds are only scored on-policy; threshold flips become unsupported counterfactuals;
   - hard SFR escalation reasons cannot be overridden by soft-threshold experiments;
   - replay artifacts contain no raw benchmark memory text and hash deterministically.
+- `packages/dlam-p3-v0.1/qualification_acceptance.py` verifies **P3-C qualification closeout**:
+  - undersized corpora remain blocked;
+  - 400+ paired cases, task-class floors, GA108/model coverage and five deterministic held-out seeds are measured;
+  - every seed must retain held-out evidence, paired support, no leakage and no non-tradable candidate breach;
+  - SFR linked/frontier/critical floors, critical-miss rate, usefulness precision, governance and current-threshold support are gated;
+  - synthetic CI data can pass structural gates but is permanently barred from empirical P4 readiness;
+  - P4 evaluation packets freeze later utility/confidence/governance/latency/rollback/operator requirements while remaining non-activating;
+  - evidence manifests are mandatory, raw memory text never enters qualification artifacts, and qualification/packet hashes are deterministic.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
