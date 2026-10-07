@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/protocols/dlam-v0.1/memory-capsule.schema.json",
+  "title": "PV-DLAM-0.1 Memory Capsule",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "memory_id",
+    "namespace_id",
+    "agent_id",
+    "kind",
+    "origin",
+    "source_status",
+    "content_ref",
+    "sensitivity",
+    "allowed_targets",
+    "allowed_purposes",
+    "retention_rule"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "memory_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "namespace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "genius_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin": {
+      "enum": [
+        "OBSERVED",
+        "VERIFIED",
+        "INFERRED",
+        "DREAMED",
+        "SIMULATED",
+        "UNKNOWN"
+      ]
+    },
+    "source_status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "derivation_parents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "conflict_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "supersedes_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "valid_time": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "origin_known_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "recipient_admission_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sensitivity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowed_targets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "allowed_purposes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "retention_rule": {
+      "type": "string",
+      "minLength": 1
+    },
+    "historical_policy_receipt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

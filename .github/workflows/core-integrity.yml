@@ -37,6 +37,9 @@ jobs:
       - name: Verify Service / Models render contract
         run: node tests/service-models-render.test.js
 
+      - name: Verify PV-DLAM-0.1 contract
+        run: node tests/dlam-v0.1.contract.test.js
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:

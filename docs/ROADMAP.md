@@ -45,3 +45,19 @@ This roadmap describes normalization work for the public repository. It is not a
 ## Non-goals
 
 The roadmap does not grant autonomous authority, automatic model installation, automatic paid routing, self-modification authority, or automatic evidence promotion.
+
+## Distributed Local-Agent Memory workstream — PV-DLAM-0.1
+
+This workstream is deliberately staged so learned routing and learned NBG views cannot become dependencies before exact continuity and governance are qualified.
+
+- [x] Freeze the initial `PV-DLAM-0.1` contract, schemas, donor inventory, and deterministic contract harness.
+- [ ] Complete P0 by exporting/reviewing canonical stable IDs for the full Genius roster and resolving the current memory/runtime ownership crosswalk.
+- [ ] P1 — prove one-node continuity: durable admitted ledger, context composition, static routing, model swap, forgetting, and recovery.
+- [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
+- [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
+- [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
+- [ ] P5 — evaluate optional NBG learned views against capacity-matched baselines; base memory must remain operational when the sidecar is disabled.
+- [ ] P6 — run a bounded real-machine pilot with hardware profiling, recovery drill, and independent peer/security review.
+
+The canonical standalone runtime remains unchanged until a later phase explicitly satisfies its integration gate.
+

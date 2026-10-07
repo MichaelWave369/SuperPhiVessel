@@ -17,6 +17,13 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - `exportKeyring`, `autoAssignOllama`, and `applyOllamaStabilityPreset` are each defined exactly once;
   - each definition appears before its Service / Models UI binding;
   - portable-keyring warning/import seams remain present.
+- `dlam-v0.1.contract.test.js` verifies the unwired `PV-DLAM-0.1` P0 contract:
+  - core capability/memory/authority invariants remain frozen;
+  - memory, context-packet, and route-receipt schemas remain parseable and retain required governance fields;
+  - context packets grant no action authority;
+  - route receipts cannot grant authority;
+  - runtime wiring remains false;
+  - unresolved full-roster stable-ID work remains explicit until P0 exit.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
