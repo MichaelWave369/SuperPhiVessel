@@ -323,6 +323,19 @@ def main():
                 )) == 0, "revoked transport delivered memory"),
             ))
 
+            # Porch provider revocation does not automatically mutate the
+            # requester's imported grant row. After the refusal is observed,
+            # explicitly retire that stale local copy before importing fresh
+            # transport authority. The adapter itself still owns no grant powers.
+            retired = porch_a.call(
+                "grant.revoke",
+                {"nonce": grant_b_to_a["payload"]["nonce"]},
+            )
+            require(
+                retired["revoked"] == grant_b_to_a["payload"]["nonce"],
+                "requester stale imported grant was not retired",
+            )
+
             # Fresh Porch transport authority is issued, but the old signed P2
             # envelope remains epoch 1. Transport can carry it; PV-DLAM must reject it.
             fresh_grant_b_to_a = message_grant(porch_b, porch_a)
