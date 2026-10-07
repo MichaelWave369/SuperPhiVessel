@@ -51,7 +51,8 @@ The roadmap does not grant autonomous authority, automatic model installation, a
 This workstream is deliberately staged so learned routing and learned NBG views cannot become dependencies before exact continuity and governance are qualified.
 
 - [x] Freeze the initial `PV-DLAM-0.1` contract, schemas, donor inventory, and deterministic contract harness.
-- [ ] Complete P0 by exporting/reviewing canonical stable IDs for the full Genius roster and resolving the current memory/runtime ownership crosswalk.
+- [ ] Complete P0 by exporting/reviewing canonical stable IDs for the full Genius roster and resolving the remaining SCM v0.8 source mapping.
+- [x] Author the PV-DLAM ownership/migration crosswalk: SuperPhiVessel orchestration, PhiOS target governed-memory boundary, BrainC P1 reference service, NBG views, Infinite Porch transport.
 - [ ] P1 — prove one-node continuity: durable admitted ledger, context composition, static routing, model swap, forgetting, and recovery.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
