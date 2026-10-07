@@ -162,7 +162,7 @@ A tombstone MUST beat stale relevance and stale peer replay.
 
 ## P0 inventory boundary
 
-`inventory.json` records currently identified donor systems and unresolved ownership questions.
+`inventory.json` records currently identified donor systems and unresolved ownership questions. `ownership-crosswalk.json` and `OWNERSHIP_CROSSWALK.md` freeze the candidate division of responsibility across SuperPhiVessel, PhiOS, BrainC, NBG, Infinite Porch, and related donor work.
 
 P0 is not complete until the canonical Genius roster has stable IDs and the current memory/runtime ownership crosswalk is reviewed. The present contract intentionally records those items as unresolved rather than inventing a count or mapping.
 
@@ -191,6 +191,8 @@ The deterministic P0 harness verifies:
 - route receipts cannot grant authority;
 - context packets carry no action authority;
 - inventory states runtime wiring as false;
+- ownership crosswalk remains unwired and forbids duplicate canonical memory authority;
+- transport, view, donor, and implementation-host roles do not inherit memory/action authority;
 - unresolved Genius roster mapping remains explicit until completed.
 
 Run:
