@@ -1,6 +1,6 @@
 # PV-DLAM-0.1 — Distributed Local-Agent Memory Contract
 
-**Status:** CANDIDATE / P0 CONTRACT  
+**Status:** P0 COMPLETE / UNWIRED CONTRACT  
 **Runtime wiring:** UNWIRED  
 **Date:** 2026-10-07
 
@@ -166,7 +166,7 @@ A tombstone MUST beat stale relevance and stale peer replay.
 
 The canonical GA108 roster is now exported in `genius-roster.json`: 108 entries with source `gaId` values 001–108, collision-safe `ga108:<gaId>` profile IDs, and deterministic `genius.ga108.<gaId>` memory namespaces. The export is pinned to the canonical `.54.10` runtime blob and does not bind any profile to a model or grant authority.
 
-P0 remains incomplete until the remaining SCM v0.8 source-artifact mapping is resolved. Bridge authentication/origin ownership and hardware model qualification remain later implementation gates.
+The exact SCM v0.8 source artifact is now pinned in `scm-v0.8-source.json` by SHA-256. No canonical repository implementation is established for that internal master spec, so related repositories remain donors unless separately proven. With the GA108 roster and ownership crosswalk already frozen, **P0 is complete**. Bridge authentication/origin ownership and hardware model qualification remain P1/P4 implementation gates.
 
 ## Failure semantics
 
@@ -196,7 +196,8 @@ The deterministic P0 harness verifies:
 - ownership crosswalk remains unwired and forbids duplicate canonical memory authority;
 - transport, view, donor, and implementation-host roles do not inherit memory/action authority;
 - the GA108 roster remains exactly 108 unique source IDs with no fixed model binding or authority;
-- the remaining SCM v0.8 mapping stays explicit until P0 completion.
+- the SCM v0.8 source mapping stays pinned to its exact artifact hash without inventing a repository implementation;
+- P0 completion remains explicit while runtime wiring stays false.
 
 Run:
 

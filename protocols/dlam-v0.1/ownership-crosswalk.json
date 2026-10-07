@@ -2,7 +2,7 @@
   "schema": "superphivessel.dlam.ownership-crosswalk.v0.1",
   "protocol": "PV-DLAM-0.1",
   "recorded_at": "2026-10-07",
-  "status": "CANDIDATE_FOR_REVIEW",
+  "status": "P0_FROZEN_BASELINE",
   "runtime_wiring": false,
   "rule": "One integrated concern has one declared authority owner; donor, adapter, transport, view, and UI roles do not inherit that authority.",
   "target_stack": {
@@ -130,19 +130,25 @@
   ],
   "unresolved": [
     {
-      "id": "XW-OPEN-01",
-      "item": "Exact SCM v0.8 source artifact/repository mapping",
-      "effect": "Keep sovereign-memory-lattice classified as a related donor only."
-    },
-    {
       "id": "XW-OPEN-02",
       "item": "Exact current Vessie ↔ BrainC ↔ PhiOS local bridge authentication/origin policy",
       "effect": "P1 bridge wiring remains blocked until explicit contract and tests exist."
+    }
+  ],
+  "operator_acceptance": {
+    "evidence": "SuperPhiVessel PR #7 merged",
+    "independent_review": false
+  },
+  "resolved": [
+    {
+      "id": "XW-OPEN-01",
+      "item": "Exact SCM v0.8 source artifact/repository mapping",
+      "resolution": "Exact v0.8 DOCX source artifact pinned by SHA-256; no canonical repo established."
     },
     {
       "id": "XW-OPEN-03",
       "item": "Canonical full Genius roster stable-ID export",
-      "effect": "P0 cannot exit and P3 full-roster routing cannot begin."
+      "resolution": "Canonical GA108 roster frozen from .54.10 runtime in PR #8."
     }
   ]
 }
