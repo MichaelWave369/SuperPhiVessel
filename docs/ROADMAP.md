@@ -59,6 +59,7 @@ This workstream is deliberately staged so learned routing and learned NBG views 
   - [x] **P1-B** — bounded context composer with deterministic packet manifest, purpose/target/origin admission, exact injected tokenizer-budget seam, strict contradiction pairing, bounded provenance expansion, and INSUFFICIENT/HELD/DENIED failure.
   - [x] **P1-C** — exact model-artifact registry, deterministic GA108/static routing receipts, attributable outcome identity, structured task checkpoints, replacement-tokenizer context recomposition, and changed-model cold statistics.
   - [ ] **P1-D** — crash/disk-full/backup/restore and deletion-rebuild qualification; close the full P1 evidence gate.
+- [x] **Sparse Frontier Routing v0.1 precursor** — extracted deterministic “when is deeper reasoning worth calling?” gate with bounded escalation envelopes, sparse GA108 recommendations, Frontier Duty Cycle + usefulness/critical-miss metrics, shadow-only routing knowledge, and disciplined NBG signal classes. **UNWIRED**; does not replace P1-D or activate learned thresholds.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
 - [ ] P4 — qualify bounded learned routing with rollback and operator-owned activation.
