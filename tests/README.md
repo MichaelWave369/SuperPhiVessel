@@ -124,6 +124,19 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - governance violations and critical misses remain non-tradable breach flags;
   - scorecard snapshots pin exact source observation IDs and contain no raw memory/prompt text;
   - shadow roster rankings stay dormant/non-authoritative and cannot alter P1-C live static routing.
+- `packages/dlam-p3-v0.1/shadow_replay_acceptance.py` verifies **P3-B held-out paired shadow replay**:
+  - deterministic group-level train/test partitioning with no group leakage;
+  - replay cases require same-task, same-class, distinct actually observed route signatures;
+  - finalized replay cases are immutable/idempotent;
+  - policy fitting sees training observations only;
+  - routes with governance/critical breaches cannot buy selection with high quality;
+  - held-out route comparisons are scored only when the preferred route was actually observed on that same case;
+  - unobserved route outcomes are marked `UNSUPPORTED_COUNTERFACTUAL`, never fabricated;
+  - train/test observation IDs remain disjoint;
+  - replay reports make no causal or promotion claim and cannot alter live routing;
+  - alternate SFR thresholds are only scored on-policy; threshold flips become unsupported counterfactuals;
+  - hard SFR escalation reasons cannot be overridden by soft-threshold experiments;
+  - replay artifacts contain no raw benchmark memory text and hash deterministically.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
