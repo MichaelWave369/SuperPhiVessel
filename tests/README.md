@@ -30,6 +30,18 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - the frozen 18-category structure remains six entries per category;
   - every profile carries `authority=NONE` and `modelBinding=null`;
   - the export remains pinned to the canonical `.54.10` runtime identity.
+- `packages/dlam-p1-v0.1/acceptance.py` verifies **P1-A single-node exact-ledger continuity**:
+  - SQLite WAL + FULL durability mode and FTS5 lexical floor;
+  - durable local admission receipts never grant authority;
+  - epistemic origins such as DREAMED remain unchanged;
+  - contradictory memories remain separate and linked;
+  - namespace/purpose/target filtering prevents forbidden recall output;
+  - tombstones block transitive derived memory without hard deletion;
+  - admission and tombstone mutations are idempotent;
+  - conflicting reuse of a stable memory ID fails closed;
+  - state survives cold restart;
+  - Genius identity remains independent of model binding;
+  - event hashes replay deterministically under pinned inputs.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
