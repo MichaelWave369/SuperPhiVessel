@@ -40,6 +40,9 @@ jobs:
       - name: Verify PV-DLAM-0.1 contract
         run: node tests/dlam-v0.1.contract.test.js
 
+      - name: Verify GA108 stable roster
+        run: node tests/ga108-roster.test.js
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:
