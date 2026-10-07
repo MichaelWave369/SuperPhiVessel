@@ -63,6 +63,16 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - replacement models start with fresh empirical statistics;
   - model swaps preserve task/Genius/memory identity while recomposing context under the replacement tokenizer;
   - checkpoints and route receipts survive restart deterministically.
+- `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
+  - easy/high-confidence local cases do not wake the frontier tier or any Genius;
+  - contradiction + irreversible-risk cases escalate deterministically;
+  - only a small GA108 subset is recommended and remains dormant/non-authoritative;
+  - learned/experimental NBG anomaly signals are log-only and cannot escalate by themselves;
+  - deterministic projected NBG signals are bounded features rather than authority;
+  - stale/denied authority blocks frontier exposure;
+  - routing usefulness updates shadow knowledge without changing live thresholds or granting authority;
+  - Frontier Duty Cycle is measured alongside critical misses, escalation usefulness, governance violations, latency/cost, and Genius activation count;
+  - escalation envelopes contain bounded references rather than raw memory text.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
