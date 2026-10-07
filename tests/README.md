@@ -52,6 +52,17 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - empty retrieval never fabricates context;
   - packet hashes are deterministic under pinned inputs and recompose across model swaps/restarts;
   - every packet carries `action_authority=NONE`.
+- `packages/dlam-p1-v0.1/p1c_acceptance.py` verifies **P1-C static routing and model-swap continuity**:
+  - GA108 identity remains authority-free and unbound to a model;
+  - exact model identity changes when quantization or prompt-template identity changes;
+  - unqualified/remote/capability-missing/over-budget models are hard-excluded;
+  - routing remains static and deterministic with selection probability 1.0;
+  - route receipts bind exact model, context packet, policy/index frontiers, and never grant authority;
+  - task checkpoints preserve structured work while rejecting opaque model state;
+  - route outcomes are attributable observations only;
+  - replacement models start with fresh empirical statistics;
+  - model swaps preserve task/Genius/memory identity while recomposing context under the replacement tokenizer;
+  - checkpoints and route receipts survive restart deterministically.
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.

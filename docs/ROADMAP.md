@@ -57,7 +57,7 @@ This workstream is deliberately staged so learned routing and learned NBG views 
 - [ ] P1 — prove one-node continuity: durable admitted ledger, context composition, static routing, model swap, forgetting, and recovery.
   - [x] **P1-A** — extracted one-node exact ledger: WAL/FULL SQLite, FTS5 lexical recall, epistemic provenance, contradictions, tombstone/derived invalidation, idempotency, namespace isolation, deterministic event hashes, cold restart.
   - [x] **P1-B** — bounded context composer with deterministic packet manifest, purpose/target/origin admission, exact injected tokenizer-budget seam, strict contradiction pairing, bounded provenance expansion, and INSUFFICIENT/HELD/DENIED failure.
-  - [ ] **P1-C** — static Genius/model route receipts plus task checkpoint/model-swap continuity with changed-model cold statistics.
+  - [x] **P1-C** — exact model-artifact registry, deterministic GA108/static routing receipts, attributable outcome identity, structured task checkpoints, replacement-tokenizer context recomposition, and changed-model cold statistics.
   - [ ] **P1-D** — crash/disk-full/backup/restore and deletion-rebuild qualification; close the full P1 evidence gate.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
