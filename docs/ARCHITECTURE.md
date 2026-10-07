@@ -151,3 +151,28 @@ P3 shadow rankings carry:
 - `authority_granted=false`
 
 Live dispatch remains P1-C static policy until a later P4 qualification explicitly activates a bounded learner.
+
+
+## P4 bounded learned routing
+
+P4 begins with an extracted shadow-only learner. P4-A does not replace P1-C.
+
+The routing order remains:
+
+1. current authority must be valid;
+2. GA108 candidates are sparsely shortlisted;
+3. P1-C hard model eligibility is evaluated;
+4. only hard-eligible exact Genius/model routes reach the learned scorer;
+5. exact-route support floors and non-tradable breach blocks apply;
+6. the learned candidate may emit a shadow recommendation;
+7. the live router remains P1-C static.
+
+P4-A uses a fixed 24-feature pre-route schema and task-class-specific batch
+ridge parameters with a UCB uncertainty term. Features contain no raw memory,
+prompt text, hidden model state, policy secret, or post-outcome information.
+
+Changed exact model artifacts begin with zero exact-route support, so a model
+swap cannot silently inherit the prior artifact's learned eligibility.
+
+P4-A learned snapshots are immutable and pin source P3-C evidence plus an
+explicit rollback parent. There is intentionally no activation method.
