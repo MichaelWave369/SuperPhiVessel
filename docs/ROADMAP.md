@@ -54,11 +54,11 @@ This workstream is deliberately staged so learned routing and learned NBG views 
 - [x] Complete P0: exact SCM v0.8 internal master-spec artifact pinned by SHA-256; no canonical repository implementation invented.
 - [x] Author the PV-DLAM ownership/migration crosswalk: SuperPhiVessel orchestration, PhiOS target governed-memory boundary, BrainC P1 reference service, NBG views, Infinite Porch transport.
 - [x] Export/freeze the canonical GA108 roster from `.54.10`: 108 stable source IDs, namespaced profile IDs, deterministic memory namespaces, no model binding.
-- [ ] P1 — prove one-node continuity: durable admitted ledger, context composition, static routing, model swap, forgetting, and recovery.
+- [x] P1 — **qualified extracted one-node reference**: durable admitted ledger, governed context composition, static routing, model swap, forgetting, crash/write-failure recovery, backup/restore, and projection rebuild. Live runtime wiring remains separate.
   - [x] **P1-A** — extracted one-node exact ledger: WAL/FULL SQLite, FTS5 lexical recall, epistemic provenance, contradictions, tombstone/derived invalidation, idempotency, namespace isolation, deterministic event hashes, cold restart.
   - [x] **P1-B** — bounded context composer with deterministic packet manifest, purpose/target/origin admission, exact injected tokenizer-budget seam, strict contradiction pairing, bounded provenance expansion, and INSUFFICIENT/HELD/DENIED failure.
   - [x] **P1-C** — exact model-artifact registry, deterministic GA108/static routing receipts, attributable outcome identity, structured task checkpoints, replacement-tokenizer context recomposition, and changed-model cold statistics.
-  - [ ] **P1-D** — crash/disk-full/backup/restore and deletion-rebuild qualification; close the full P1 evidence gate.
+  - [x] **P1-D** — abrupt committed/uncommitted crash boundaries, real SQLite `SQLITE_FULL` fail-closed behavior, WAL-safe backup/restore, corrupt-backup rejection, and deletion-safe projection rebuild.
 - [x] **Sparse Frontier Routing v0.1 precursor** — extracted deterministic “when is deeper reasoning worth calling?” gate with bounded escalation envelopes, sparse GA108 recommendations, Frontier Duty Cycle + usefulness/critical-miss metrics, shadow-only routing knowledge, and disciplined NBG signal classes. **UNWIRED**; does not replace P1-D or activate learned thresholds.
 - [ ] P2 — qualify scoped signed two/three-node synchronization and partition/revocation behavior.
 - [ ] P3 — collect inspectable routing outcomes for the full logical roster; keep dispatch static while the learner runs in shadow mode.
