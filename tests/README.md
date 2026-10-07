@@ -63,6 +63,17 @@ The goal is to preserve the project's preference for explicit receipts and machi
   - replacement models start with fresh empirical statistics;
   - model swaps preserve task/Genius/memory identity while recomposing context under the replacement tokenizer;
   - checkpoints and route receipts survive restart deterministically.
+- `packages/dlam-p1-v0.1/p1d_acceptance.py` verifies **P1-D durability and recovery**:
+  - abrupt process loss after commit preserves memory even if the caller cannot rely on receiving the receipt;
+  - retry after that ambiguous commit boundary is idempotent;
+  - abrupt process loss inside an uncommitted transaction leaves no partial ledger/projection state;
+  - a deterministic real SQLite `SQLITE_FULL` condition fails closed with no partial memory;
+  - SQLite backup/restore preserves logical manifests, current ledger frontiers, P1-C registry/routes/checkpoints, and latest committed WAL-visible state;
+  - restored state recomposes the same governed P1-B context under identical inputs;
+  - corrupt backups fail closed;
+  - damaged FTS/active projections are detectable and rebuildable;
+  - tombstoned sources and derived descendants cannot resurrect during rebuild;
+  - verification/backup/restore/rebuild receipts grant no authority.
 - `packages/sparse-frontier-v0.1/acceptance.py` verifies **Sparse Frontier Routing v0.1**:
   - easy/high-confidence local cases do not wake the frontier tier or any Genius;
   - contradiction + irreversible-risk cases escalate deterministically;
