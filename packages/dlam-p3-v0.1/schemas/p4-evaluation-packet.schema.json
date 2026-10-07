@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/dlam-p3-v0.1/schemas/p4-evaluation-packet.schema.json",
+  "title": "PV-DLAM P4 Evaluation Packet",
+  "type": "object",
+  "required": [
+    "schema",
+    "source_qualification_id",
+    "source_qualification_hash",
+    "status",
+    "p4_evaluation_allowed",
+    "eligible_task_classes",
+    "source_observation_ids",
+    "source_seed_report_hashes",
+    "sfr_threshold_report_hash",
+    "evidence_class",
+    "evidence_manifest_refs",
+    "p4_required_evaluation",
+    "candidate_learning_mode",
+    "activation_allowed",
+    "operator_activation_required",
+    "rollback_required",
+    "learned_weights",
+    "may_change_live_route",
+    "may_change_live_thresholds",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.dlam.p4.evaluation-packet.v0.1"
+    },
+    "p4_evaluation_allowed": {
+      "type": "boolean"
+    },
+    "candidate_learning_mode": {
+      "const": "P4_SHADOW_CANDIDATE_ONLY"
+    },
+    "activation_allowed": {
+      "const": false
+    },
+    "operator_activation_required": {
+      "const": true
+    },
+    "rollback_required": {
+      "const": true
+    },
+    "learned_weights": {
+      "type": "null"
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "may_change_live_thresholds": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
