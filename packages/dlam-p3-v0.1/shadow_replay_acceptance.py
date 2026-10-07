@@ -226,8 +226,6 @@ def main():
         )
 
         created_cases = []
-        first_train_obs = None
-
         def build_route(case_no, profile, model_ref, label, quality, *,
                         governance=False, critical=False, sfr_id=None):
             mid = f"mem-{case_no}-{label}"
@@ -270,9 +268,6 @@ def main():
                 alternative_observation_ids=[b_o["observation_id"], c_o["observation_id"]],
             )
             created_cases.append(registered)
-            if first_train_obs is None:
-                first_train_obs = (a_p, a_o)
-
         # Supported held-out case includes the route preferred from training.
         supported_no = 100
         a_p, a_o = build_route(supported_no, "ga108:032", ma["model_ref"], "a", 0.73)
@@ -408,48 +403,6 @@ def main():
 
         # Add two SFR-linked P3 observations: one composite-only escalation and
         # one hard irreversible-risk escalation.
-        base_prepared, _ = first_train_obs
-        composite = sfr.assess({
-            "candidate_id": "p3b-sfr-composite",
-            "task_id": base_prepared["route_receipt"]["task_id"],
-            "cheap_prediction": {"decision": "local"},
-            "cheap_confidence": 0.20,
-            "cheap_model_ref": ma["model_ref"],
-            "cheap_route_decision_id": base_prepared["route_receipt"]["decision_id"],
-            "memory_refs": [base_prepared["request"]["required_memory_ids"][0]],
-            "evidence_refs": ["evidence:sfr:composite"],
-            "state_changes": [{"kind": "novel"}],
-            "task_tags": ["routing", "uncertainty"],
-            "signals": sfr_signals(
-                novelty=1.0,
-                state_change_magnitude=1.0,
-                consequence=0.60,
-                provenance_gap=0.80,
-                missing_evidence=0.70,
-                disagreement=1.0,
-                routing_confidence=0.0,
-            ),
-            "authority_decision_ref": "auth:p3b:31",
-            "authority_status": "CURRENT",
-            "frontier_token_budget": 1000,
-        })
-        require(composite["escalated"] is True and not composite["hard_reasons"], "composite fixture did not soft-escalate")
-        sfr.record_outcome(
-            composite["decision_id"],
-            frontier_model_ref=mb["model_ref"],
-            genius_profile_refs=["ga108:104"],
-            frontier_conclusion_ref="evidence:sfr:composite:outcome",
-            changed_decision=True,
-            discovered_missing_evidence=True,
-            caught_critical_issue=False,
-            critical_issue_present=False,
-            eventual_success=True,
-            governance_violation=False,
-            latency_ms=500,
-            context_tokens=500,
-        )
-
-        # P3-A observations are immutable; create a fresh route to join the SFR record.
         store.admit(capsule("sfr-composite-mem", "ga108:032", "soft escalation sentinel"))
         composite_p = prepare(
             rt,
@@ -558,7 +511,7 @@ def main():
             latency_ms=400,
             context_tokens=450,
         )
-        observer.record_observation(
+        hard_obs = observer.record_observation(
             route_decision_id=hard_p["route_receipt"]["decision_id"],
             task_class="sfr.calibration",
             success=True,
@@ -592,7 +545,7 @@ def main():
 
         hard_row = next(
             r for r in high_threshold["results"]
-            if r["observation_id"] == observer._rows()[-1]["observation_id"]
+            if r["observation_id"] == hard_obs["observation_id"]
         )
         case("B15 hard-escalation-survives-high-soft-threshold", lambda:
             require(hard_row["candidate_escalated"] is True and hard_row["supported"] is True, "hard reason overridden"))
