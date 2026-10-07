@@ -262,6 +262,18 @@ jobs:
           BUDGETGENIUS_ROOT: ${{ github.workspace }}/_budgetgenius
         run: node packages/budgetgenius-bridge-v0.2/acceptance.mjs
 
+  budgetgenius-bridge-v0_3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run BudgetGenius shadow-economic qualification v0.3 acceptance
+        run: node packages/budgetgenius-bridge-v0.3/acceptance.mjs
+
   spdw-acceptance:
     runs-on: ubuntu-latest
     steps:
