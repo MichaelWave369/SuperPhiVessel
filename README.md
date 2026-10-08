@@ -89,6 +89,16 @@ the process and restart the default launcher to restore read-only mode.
 
 See [local Windows operator instructions](windows-local/START_HERE.txt)
 and [trial source](packages/vessie-local-console/trial-runner.mjs).
+
+After a **future** completed local one-shot trial, the operator may
+record a separate, categorical **human answer review** in the active
+browser session and explicitly export a small, redacted JSON review.
+The review references the generated answer only by its SHA-256 digest
+and never includes the prompt or the answer itself. Operator ratings
+are self-reports, not independently verified quality or a BrainC route
+approval. See [Human Review Guide](packages/vessie-local-console/HUMAN_REVIEW_GUIDE.md).
+Previously exported timing receipts cannot be given retroactive answer
+quality ratings unless the human also retained the actual answer.
 New optional receipt timing fields and careful interpretation of cold load
 versus prompt processing and generation are documented in
 [performance receipt guide](packages/vessie-local-console/PERFORMANCE_RECEIPT_GUIDE.md).
