@@ -317,6 +317,32 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## Windows Starter · no local checkout needed
+
+If this is your first time using SuperPhiVessel on a Windows PC,
+**nothing is installed by merging GitHub pull requests**. Use the
+[Windows starter page](https://michaelwave369.github.io/SuperPhiVessel/starter/)
+and download the portable `SuperPhiVessel-Windows-Starter.zip`
+built and hosted automatically by the GitHub Pages workflow.
+
+Extract the ZIP and double-click `Start-Vessie.cmd` (no administrator
+rights required). The read-only launcher checks optional local Ollama
+at `127.0.0.1:11434` and opens the hosted React cockpit. No Node.js,
+Git clone, gateway credentials, TLS certificate or private key are
+required for this first step.
+
+**This is a first-run starter, not a full local SuperPhiVessel
+installation.** It does not install a model, execute inference, import
+private memory, or make the hosted cockpit read your local models. The
+secure browser pairing gateway remains a separate optional R2 field
+pilot requiring Windows trust/browser qualification.
+
+The package is built from three allowlisted files in
+[`windows-starter/`](windows-starter/) with
+[`build-package.py`](windows-starter/build-package.py). No download
+scripts, package-manager installs, self-updaters, server exposure,
+certificate bypasses or privileged actions are included.
+
 ## R2 guided Windows physical pairing pilot
 
 The [R2 field-pilot guide](packages/vessie-gateway-v0.1/pilots/README.md)
