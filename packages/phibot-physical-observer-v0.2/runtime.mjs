@@ -1,5 +1,3 @@
-import crypto from "node:crypto";
-
 import {
   receivePhysicalExperienceHandoff,
   verifyPhysicalObserverReceipt
@@ -35,14 +33,18 @@ function stableStringify(value) {
   return JSON.stringify(stable(value));
 }
 
-function sha256(value) {
-  return crypto
-    .createHash("sha256")
-    .update(stableStringify(value))
-    .digest("hex");
+async function sha256(value) {
+  if (!globalThis.crypto?.subtle) {
+    throw new Error("WEB_CRYPTO_REQUIRED");
+  }
+  const bytes = new TextEncoder().encode(stableStringify(value));
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-function runtimeReceipt({
+async function runtimeReceipt({
   status,
   handoffId,
   handoffFingerprint,
@@ -70,16 +72,16 @@ function runtimeReceipt({
 
   return {
     ...body,
-    receiptSha256: sha256(body)
+    receiptSha256: await sha256(body)
   };
 }
 
-export function verifyRuntimeReceipt(receipt) {
+export async function verifyRuntimeReceipt(receipt) {
   if (!receipt || typeof receipt !== "object") return false;
   const { receiptSha256, ...body } = receipt;
   return (
     typeof receiptSha256 === "string" &&
-    receiptSha256 === sha256(body) &&
+    receiptSha256 === await sha256(body) &&
     receipt.authorityGranted === false &&
     receipt.actionAuthorized === false &&
     receipt.toolInvocationAllowed === false &&
@@ -103,7 +105,7 @@ export function createPhysicalObserverRuntime({
   const seen = new Map();
   let latest = null;
 
-  function receive(packet) {
+  async function receive(packet) {
     const accepted = receivePhysicalExperienceHandoff(packet);
 
     if (accepted.receiveStatus !== "ACCEPTED_ADVISORY_ONLY") {
@@ -132,7 +134,7 @@ export function createPhysicalObserverRuntime({
     const priorFingerprint = seen.get(handoffId);
 
     if (priorFingerprint && priorFingerprint !== packet.handoffFingerprint) {
-      const receipt = runtimeReceipt({
+      const receipt = await runtimeReceipt({
         status: "REFUSED_CONFLICT",
         handoffId,
         handoffFingerprint: packet.handoffFingerprint,
@@ -162,8 +164,8 @@ export function createPhysicalObserverRuntime({
     }
 
     const view = clone(accepted.view);
-    const viewFingerprint = sha256(view);
-    const receipt = runtimeReceipt({
+    const viewFingerprint = await sha256(view);
+    const receipt = await runtimeReceipt({
       status: "DISPLAYED_ADVISORY_ONLY",
       handoffId,
       handoffFingerprint: packet.handoffFingerprint,
