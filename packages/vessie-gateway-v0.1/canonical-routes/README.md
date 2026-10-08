@@ -137,6 +137,21 @@ P4 learning or authority. A valid operator signature only says a given key
 signed this packet. See [R3-E implementation](operator-envelope.mjs) and
 [negative controls](tests/operator-envelope.test.mjs).
 
+## R3-F offline signed-custody batch audit
+
+See the [R3-F operator guide](CUSTODY_BATCH_R3F.md). R3-F checks up to
+32 already-redacted R3-E operator-signed packets **offline** with one
+caller-supplied public key. It detects duplicate signed packet IDs,
+ambiguous repeated redacted projections, reported mixed terminal states,
+and operator timestamp regressions, all **within one provided batch**.
+A matching redacted projection does not prove that two source runs were
+the same. The public key's independent trust is NOT attested by code.
+
+R3-F is not a live canonical source exporter, replay registry, R2 field
+qualification, proof of executed inference, or authority to change
+GA108/P4 routing weights. No private ledger scan, action endpoint, model
+execution, server listener, or canonical runtime mutation is introduced.
+
 ## Integration boundary
 
 Every exported result includes:
