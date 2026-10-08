@@ -3,6 +3,7 @@ import roster from '../../../protocols/dlam-v0.1/genius-roster.json';
 import runtimeManifest from '../../../runtime/MANIFEST.json';
 import catalog from '../../../protocols/routing-v2/model-candidates.json';
 import { inspectReceipt } from './inspector.mjs';
+import PairingPanel from './PairingPanel';
 
 type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence';
 type Inspection = ReturnType<typeof inspectReceipt>;
@@ -66,7 +67,7 @@ function App() {
         </a>
         <div className="headright">
           <span className="statusDot" aria-hidden="true"/>
-          <span>COCKPIT PREVIEW · NO MODEL CONNECTION</span>
+          <span>COCKPIT PREVIEW · OPTIONAL LOCAL READ-ONLY PAIRING</span>
           <a href="https://superphivessel.netlify.app/" target="_blank" rel="noopener noreferrer">LAUNCH CLASSIC ↗</a>
         </div>
       </header>
@@ -85,7 +86,7 @@ function App() {
             <small>Legacy production baseline, preserved byte-for-byte.</small>
             <div className="rule"/>
             <strong>CAPABILITY ≠ AUTHORITY</strong>
-            <small>The UI cannot grant permissions, execute tools, or contact a model.</small>
+            <small>The UI cannot grant permissions or execute tools. Optional discovery is read-only.</small>
           </div>
         </aside>
         <main className="main">
@@ -154,8 +155,9 @@ function App() {
           {view==='models'&&<section>
             <div className="eyebrow">LOCAL FIRST / DISCOVERY BEFORE ADOPTION</div>
             <h1>Model <em>Fabric.</em></h1>
-            <p className="lede">A routing shortlist for benchmarking, not an installed-model list. No live hardware discovery or cloud provider keys are available to this static site.</p>
-            <div className="notice"><strong>Gateway unavailable</strong><p>Local Ollama discovery, credentials, provider quota checks, private memory consent and connection health must be provided by a separately authenticated gateway. No secrets belong in GitHub Pages, browser storage or the repository.</p></div>
+            <p className="lede">A routing shortlist for benchmarking, not an installed-model list. The candidate catalog stays independent of your installed models. Optional local HTTPS pairing can read the actual Ollama inventory without approving or executing a model.</p>
+            <div className="notice"><strong>Discovery is not model approval</strong><p>Only a separately started, operator-controlled HTTPS gateway can report live Ollama model metadata. BrainC, memory access, execution and remote provider keys remain disconnected. Pairing never grants any of those permissions.</p></div>
+            <PairingPanel />
             <div className="modelTableWrap"><table className="modelTable"><thead><tr><th>Candidate</th><th>Responsibility</th><th>Tier</th><th>Constraint</th><th>Status</th></tr></thead>
               <tbody>{MODELS.map(m=><tr key={m.model}><td><strong>{m.model}</strong></td><td>{m.role}</td><td>{m.tier}</td><td>{m.fit}</td><td><span className="smallPill">{m.state}</span></td></tr>)}</tbody></table></div>
             <p className="smallNote">Cloud free tiers are conditional and can change. Provider access requires account verification, acceptable data-sharing policy, remaining quota and explicit operator approval.</p>
@@ -182,7 +184,7 @@ function App() {
           </section>}
         </main>
       </div>
-      <footer className="footer"><span>SUPER Φ.VESSEL / VESSIE WEB v0.1 · REVIEW-ONLY</span><span>NO REMOTE CALLS · NO SECRETS · LEDGER ABOVE EGO</span></footer>
+      <footer className="footer"><span>SUPER Φ.VESSEL / VESSIE WEB v0.1 · REVIEW-ONLY</span><span>OPTIONAL READ-ONLY LOCAL DISCOVERY · NO MODEL EXECUTION · LEDGER ABOVE EGO</span></footer>
     </div>
   );
 }
