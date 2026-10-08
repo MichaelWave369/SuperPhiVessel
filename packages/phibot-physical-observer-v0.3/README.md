@@ -110,3 +110,7 @@ evidence reference != verified source
 observer view != diagnosis
 advisory != hardware permission
 ```
+
+## Next gate: real-browser qualification
+
+The successor `phibot-physical-observer-v0.4` runs the actual candidate in headless Chromium and publishes desktop/mobile screenshots. It uses an **open** Shadow DOM for style encapsulation, automation, and accessibility. The shadow mode is not a security boundary; imported content is still rendered only with `textContent`. Headless CI green does not imply operator screenshot approval or canonical promotion.
