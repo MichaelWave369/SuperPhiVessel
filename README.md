@@ -53,6 +53,43 @@ See [local console source](packages/vessie-local-console/),
 [operator notes](windows-local/START_HERE.txt). Windows source/packaging
 CI cannot replace the operator's actual machine test.
 
+## Optional one-shot local inference pilot · OFF by default
+
+Starting from the portable Windows Local Console, you can now choose
+between two separate double-click entrypoints:
+
+- `Start-Local-Vessie.cmd`: **default read-only** discovery and metadata
+  only; this mode never calls Ollama's generate endpoint.
+- `Start-Local-Trial.cmd`: requires you to type `ENABLE` at startup.
+  This explicitly enables **individual, operator-approved** text-generation
+  experiments against the fixed local Ollama `/api/generate` endpoint.
+
+For each trial, select a `LOCAL_WEIGHTS_REPORTED` entry, supply a prompt
+of up to 2,000 characters, select 64 or 128 maximum output tokens, check
+the approval box, then confirm the separate browser dialog. The server
+re-probes Ollama immediately before running and refuses cloud references,
+unknown origins, stale lists, extra request fields, and missing approval.
+Maximum 6 attempts per process per hour, one active trial at a time,
+90-second Ollama timeout, bounded model response and no automatic retry.
+
+The local browser displays the generated text and an **ephemeral redacted
+receipt** with model name, wall time, Ollama-reported token timings and a
+response hash. The receipt excludes the prompt and generated text; exporting
+a JSON receipt is a separate human action. Neither the prompt nor reply is
+stored by this console, but Ollama itself may have runtime logs or
+implementation-specific behavior.
+
+No BrainC/Crane Fly automatic model routing, agent execution, cloud-model
+invocation, training, background tasks, governance promotion, memory access
+or paid API calls are enabled. Location classification and Ollama timing
+metadata are only source-reported observations, not proof of GPU placement,
+security isolation, successful training or independent attestation. For
+best first results use a **small local model** such as `qwen3:4b`. Close
+the process and restart the default launcher to restore read-only mode.
+
+See [local Windows operator instructions](windows-local/START_HERE.txt)
+and [trial source](packages/vessie-local-console/trial-runner.mjs).
+
 ## Current canonical runtime
 
 **Version:** v2.0-alpha.11.0.54.12 — BudgetGenius Canonical Outcome Handoff

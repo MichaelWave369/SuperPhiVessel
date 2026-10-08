@@ -13,7 +13,7 @@
 <div class="shell">
   <header class="topbar">
     <div class="brand"><span class="symbol" aria-hidden="true">Φ</span><span>SUPER Φ.VESSEL <small>LOCAL CONSOLE</small></span></div>
-    <span class="mode"><span class="dot" aria-hidden="true"></span>READ-ONLY · LOCALHOST</span>
+    <span class="mode" id="mode-badge"><span class="dot" aria-hidden="true"></span>READ-ONLY · LOCALHOST</span>
   </header>
   <main>
     <section class="hero">
@@ -32,12 +32,37 @@
       <div class="empty" id="empty">Nothing has been probed yet. Your installed Ollama models will appear here after you request a scan.</div>
       <div id="models" class="models" hidden></div>
     </section>
+    <section class="panel" aria-labelledby="trial-heading">
+      <div class="panel-top"><h2 id="trial-heading">One-shot local inference trial</h2><span class="tiny">OFF by default</span></div>
+      <p id="trial-help" class="classification-note">To run a single local model with explicit approval, stop the read-only console and launch <code>Start-Local-Trial.cmd</code>. No cloud references are eligible.</p>
+      <div id="trial-controls" hidden>
+        <label class="trial-label" for="trial-model">Locally size-reported model</label>
+        <select id="trial-model" class="trial-field"><option value="">Choose a model after discovery</option></select>
+        <label class="trial-label" for="trial-prompt">Prompt (max 2,000 characters, never saved by this console)</label>
+        <textarea id="trial-prompt" class="trial-field" rows="4" maxlength="2000" placeholder="Ask one short question. Avoid personal or sensitive data."></textarea>
+        <label class="trial-label" for="trial-limit">Maximum generated tokens</label>
+        <select id="trial-limit" class="trial-field">
+          <option value="64">64 tokens</option><option value="128">128 tokens</option>
+        </select>
+        <label class="trial-confirm"><input type="checkbox" id="trial-approve" /> I approve this one prompt being sent to this locally reported Ollama model. I understand that model runtime observations are not security attestations.</label>
+        <div class="actions">
+          <button id="trial-run" type="button">Run one approved local prompt →</button>
+          <button id="trial-export" type="button" class="secondary" disabled>Export redacted trial receipt</button>
+        </div>
+        <div id="trial-status" role="status" aria-live="polite" class="status">Ready for a selected local model and explicit confirmation.</div>
+        <h3>Model response</h3>
+        <pre id="trial-output" class="trial-data">No trial has run.</pre>
+        <h3>Ephemeral evidence receipt (prompt and response excluded)</h3>
+        <pre id="trial-receipt" class="trial-data">No receipt available.</pre>
+        <p class="footnote">The receipt is shown in memory only. Exporting it is your explicit choice. No background jobs, history, automatic retries, training, model admission or learned routing are started.</p>
+      </div>
+    </section>
     <section class="scope">
       <h2>Connected, but governed</h2>
       <div class="scope-grid">
         <div><strong>LOCAL ONLY</strong><span>HTTP server bound to 127.0.0.1. No LAN or Internet listener.</span></div>
         <div><strong>DISCOVERY ONLY</strong><span>Local-weight size reports and cloud references shown separately. No prompts sent.</span></div>
-        <div><strong>NO EXECUTION GRANT</strong><span>Models discovered here are not automatically approved for BrainC or Crane Fly.</span></div>
+        <div><strong>NO AUTOMATIC ROUTING</strong><span>Model discovery cannot authorize BrainC or Crane Fly. Manual trial mode is separate and off by default.</span></div>
       </div>
       <p class="footnote">This local dashboard is a standalone companion. It does not claim the hosted React cockpit can automatically access your local models. To stop this local server, return to the command window and press Ctrl+C.</p>
     </section>
