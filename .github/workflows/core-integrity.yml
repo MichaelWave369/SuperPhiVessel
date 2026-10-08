@@ -9,6 +9,29 @@ permissions:
   contents: read
 
 jobs:
+  vessie-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install React cockpit dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-audit --no-fund
+      - name: Test local-only evidence inspector
+        working-directory: apps/vessie-web
+        run: npm test
+      - name: Build Vessie GitHub Pages cockpit
+        working-directory: apps/vessie-web
+        run: npm run build
+      - name: Confirm canonical runtime untouched and site output isolated
+        shell: bash
+        run: |
+          test -f site/vessie/index.html
+          test -f site/index.html
+          test -f site/manual/index.html
+          node -e "const x=require('./runtime/MANIFEST.json'); if(x.runtime.version !== 'v2.0-alpha.11.0.54.12') process.exit(1)"
   runtime-integrity:
     runs-on: ubuntu-latest
     steps:
