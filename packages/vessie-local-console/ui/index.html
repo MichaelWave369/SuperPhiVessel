@@ -7,7 +7,7 @@
 <meta name="vessie-readonly-token" content="__LOCAL_SESSION_TOKEN__">
 <title>Vessie · Local Model Console</title>
 <link rel="stylesheet" href="/style.css">
-<script src="/app.js" defer></script>
+<script type="module" src="/app.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -19,7 +19,7 @@
     <section class="hero">
       <p class="eyebrow">YOUR WINDOWS MACHINE · 127.0.0.1</p>
       <h1>Welcome to your local Vessel.</h1>
-      <p>Real Ollama inventory, read locally. Nothing uploaded. No model execution or routing approval is available in this build.</p>
+      <p>Real Ollama inventory on your machine. Read-only by default; one-shot local inference is separately opt-in. No model is automatically approved for routing.</p>
       <div class="actions">
         <button id="scan" type="button">Discover my local models <span aria-hidden="true">→</span></button>
         <a class="secondary" href="https://michaelwave369.github.io/SuperPhiVessel/vessie/" target="_blank" rel="noopener noreferrer">Open hosted Vessie ↗</a>
@@ -56,6 +56,41 @@
         <pre id="trial-timing" class="trial-data">No timing observation available.</pre>
         <h3>Ephemeral evidence receipt (prompt and response excluded)</h3>
         <pre id="trial-receipt" class="trial-data">No receipt available.</pre>
+        <section id="human-review" class="review-panel" aria-labelledby="human-review-heading" hidden>
+          <h3 id="human-review-heading">Human answer review</h3>
+          <p class="classification-note">Rate the answer you just saw. This is your subjective assessment, not an automatic quality score. The model response and prompt will never be included in this review export.</p>
+          <label class="trial-label" for="review-helpfulness">Usefulness for the task</label>
+          <select class="trial-field" id="review-helpfulness">
+            <option value="">Select your assessment</option>
+            <option value="1">1 · Not useful</option>
+            <option value="2">2 · Mostly unhelpful</option>
+            <option value="3">3 · Mixed / partly useful</option>
+            <option value="4">4 · Mostly useful</option>
+            <option value="5">5 · Very useful</option>
+            <option value="NOT_ASSESSED">Not assessed</option>
+          </select>
+          <label class="trial-label" for="review-completeness">Did the answer appear complete?</label>
+          <select class="trial-field" id="review-completeness">
+            <option value="">Select your assessment</option>
+            <option value="APPEARS_COMPLETE">Appears complete</option>
+            <option value="POSSIBLY_CUT_OFF">Possibly cut off</option>
+            <option value="UNSURE">Unsure</option>
+          </select>
+          <label class="trial-label" for="review-verification">Did you independently check the factual claims?</label>
+          <select class="trial-field" id="review-verification">
+            <option value="">Select what you checked</option>
+            <option value="NOT_CHECKED">Not independently checked</option>
+            <option value="OPERATOR_CHECKED_SUPPORTED">I checked and found supporting evidence</option>
+            <option value="OPERATOR_CHECKED_CONTRADICTED">I checked and found contradictory evidence</option>
+          </select>
+          <div class="actions">
+            <button id="review-submit" type="button">Record my assessment</button>
+            <button id="review-export" type="button" class="secondary" disabled>Export redacted human review</button>
+          </div>
+          <div id="review-status" role="status" aria-live="polite" class="status">No assessment recorded.</div>
+          <pre class="trial-data" id="review-receipt">No human review recorded.</pre>
+          <p class="footnote">This review remains in your browser session unless you explicitly export it. Human ratings never grant model admission, self-training, automation, or routing authority. This does not run another model prompt.</p>
+        </section>
         <p class="footnote">The receipt is shown in memory only. Exporting it is your explicit choice. No background jobs, history, automatic retries, training, model admission or learned routing are started.</p>
       </div>
     </section>

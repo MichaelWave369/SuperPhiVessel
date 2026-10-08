@@ -434,3 +434,38 @@ test('L28 local trial UI shows measured phase breakdown without interpreting mod
     assert.ok(js.includes('Not an independent GPU or routing benchmark.'));
   });
 });
+
+
+test('L29 human-review helper is served only as explicitly allowlisted same-origin JS',async()=>{
+  await withServer(async g=>{
+    const local=await request(g.port,'/review-evidence.mjs');
+    assert.equal(local.code,200);
+    assert.match(local.headers['content-type'],/javascript/);
+    assert.match(local.headers['content-security-policy'],/default-src 'none'/);
+    assert.equal(local.headers['access-control-allow-origin'],undefined);
+    assert.ok(local.text.includes('makeHumanReview'));
+    assert.equal((await request(g.port,'/ui/review-evidence.mjs')).code,404);
+    assert.equal((await request(g.port,'/review-evidence.mjs',{headers:{
+      Host:'untrusted.example'
+    }})).code,403);
+  });
+});
+test('L30 review requires a completed live trial and explicitly clicked export',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.match(html,/<script type="module" src="\/app\.js"><\/script>/);
+    assert.ok(html.includes('id="human-review"'));
+    assert.ok(html.includes('id="review-helpfulness"'));
+    assert.ok(html.includes('id="review-verification"'));
+    assert.ok(html.includes('id="review-export"'));
+    assert.ok(js.includes('makeHumanReview('));
+    assert.ok(js.includes("reviewSubmit.addEventListener('click'"));
+    assert.ok(js.includes("reviewExport.addEventListener('click'"));
+    assert.ok(js.includes('resetHumanReview();'));
+    assert.ok(js.includes("field.addEventListener('change'"));
+    assert.ok(js.includes('humanReviewReceipt=null;'));
+    assert.ok(js.includes('reviewExport.disabled=true;'));
+    assert.ok(!js.includes('innerHTML'));
+  });
+});
