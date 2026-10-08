@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { request as rawRequest } from 'node:http';
 import { discoverOllama, OLLAMA_ORIGIN } from '../ollama-probe.mjs';
 import { startGateway } from '../server.mjs';
 
@@ -149,9 +150,20 @@ test('G11 unavailable probe returns bounded 503, no faked models',async()=>{
 test('G12 proxy/DNS-rebinding host headers fail closed',async()=>{
   const s=await startGateway({token:TOKEN,probe:fixture});
   try{
-    const r=await request(s,'/v1/models',{headers:{Host:'evil.example.org'}});
-    assert.equal(r.status,403);
-    const r2=await request(s,'/v1/models',{headers:{'X-Forwarded-Host':'evil.example.org'}});
-    assert.equal(r2.status,403);
+    const rawGet = (headers) => new Promise((resolve,reject)=>{
+      const req=rawRequest({
+        hostname:'127.0.0.1',port:s.address().port,path:'/v1/models',
+        method:'GET',headers:{Authorization:'Bearer '+TOKEN,...headers}
+      },res=>{
+        res.resume();
+        res.on('end',()=>resolve(res.statusCode));
+      });
+      req.on('error',reject);
+      req.end();
+    });
+    const rebindingStatus=await rawGet({Host:'evil.example.org'});
+    assert.equal(rebindingStatus,403);
+    const forwardStatus=await rawGet({'X-Forwarded-Host':'evil.example.org'});
+    assert.equal(forwardStatus,403);
   }finally{await new Promise(resolve=>s.close(resolve));}
 });
