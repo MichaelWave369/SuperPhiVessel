@@ -4,6 +4,7 @@ const KNOWN = new Set([
   'superphivessel.gateway.r3a.routing-trace.v0.1',
   'superphivessel.gateway.r3b.brainc-configuration.v0.1',
   'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
+  'superphivessel.gateway.r3e.operator-envelope.v0.1',
   'superphivessel.dlam.p3a.v0.1',
   'superphivessel.dlam.p3a.scorecards.v0.1',
   'superphivessel.dlam.p3b.replay-report.v0.1',
@@ -35,6 +36,20 @@ export function inspectReceipt(input) {
       (obj.terminal_outcomes_conflict === true ||
        obj.execution_record_status === 'MIXED_TERMINAL_RECORDS_UNRESOLVED')) {
     issues.push('Mixed terminal records require operator review; final outcome is unresolved');
+  }
+  if (schema === 'superphivessel.gateway.r3e.operator-envelope.v0.1') {
+    issues.push('Signature NOT verified in browser; use offline verifier with independently trusted operator public key');
+    // A signed operator projection is not runtime attestation, even after a
+    // native signature check. Do not display nested arbitrary imported data.
+    if (obj.packet?.authority_granted === true ||
+        obj.packet?.can_execute === true ||
+        obj.packet?.may_change_live_route === true) {
+      issues.push('An imported record claims authority or live mutation privileges');
+    }
+    if (obj.packet?.projection?.terminal_outcomes_conflict === true ||
+        obj.packet?.projection?.execution_record_status === 'MIXED_TERMINAL_RECORDS_UNRESOLVED') {
+      issues.push('Mixed terminal records require operator review; final outcome is unresolved');
+    }
   }
   const fields = {};
   for (const key of ['decision_id','route_decision_id','observation_id','snapshot_id','qualification_id','packet_id',
