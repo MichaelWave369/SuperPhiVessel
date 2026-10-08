@@ -11,11 +11,41 @@ Vessie explores how capable AI models, local compute, hosted inference, memory, 
 | Surface | Purpose |
 | --- | --- |
 | **[Project site](https://michaelwave369.github.io/SuperPhiVessel/)** | Public front door, architecture, release status, and project orientation |
+| **[Portable Windows Local Console](https://michaelwave369.github.io/SuperPhiVessel/local/)** | New portable, self-contained read-only local Ollama inventory dashboard; bundled Node runtime, no Git checkout or separate Node installation |
 | **[React Vessie Cockpit](https://michaelwave369.github.io/SuperPhiVessel/vessie/)** | New modular review-only React shell, full GA108 explorer, candidate models and local evidence inspector. No model gateway connected. |
 | **[Searchable User Manual](https://michaelwave369.github.io/SuperPhiVessel/manual/)** | Live searchable operator guide for chambers, models, memory, SOMA, browser tools, governance, bridges, output, and troubleshooting |
 | **[Launch Vessie](https://superphivessel.netlify.app/)** | Current live Netlify deployment |
 | **[GitHub Releases](https://github.com/MichaelWave369/SuperPhiVessel/releases)** | Frozen standalone runtime downloads and checksums |
 | **[Current release](https://github.com/MichaelWave369/SuperPhiVessel/releases/tag/v2.0-alpha.11.0.54.10)** | v2.0-alpha.11.0.54.10 — Service Models Handler Restoration |
+
+## Portable local Vessie console (Windows R2-LC)
+
+The portable [Windows local console](https://michaelwave369.github.io/SuperPhiVessel/local/)
+is a separately scoped **read-only localhost application**. It ships as a
+self-contained ZIP containing a Node 22 executable, its redistribution
+license, a fixed loopback-only HTTP server, the existing bounded Ollama
+probe, and an offline dashboard. Extract and double-click
+`Start-Local-Vessie.cmd`. No Git clone, developer setup, TLS certificate,
+Node installation, firewall changes, admin rights or cloud API keys needed.
+
+- Bind address: `127.0.0.1:8791` only, no LAN or public listener.
+- The dashboard is served from the same loopback origin as its local API.
+- API requires a random in-memory session bearer and rejects cross-site
+  origins, forwarded hosts, foreign Host values, cookies, writes and
+  unknown routes; no CORS allowlist for remote sites.
+- Real Ollama inspection queries fixed `127.0.0.1:11434` read-only endpoints.
+- Only explicit operator-triggered inventory reads are shown. **No
+  model execution, agent action, private memory, writeback or model
+  approval.**
+- The hosted React `/vessie/` and classic Netlify runtime remain separate;
+  the portable local console does **not** magically connect those sites.
+- Windows package is assembled from an exact allowlist during the
+  GitHub Pages workflow and redistributed with the Node runtime license.
+
+See [local console source](packages/vessie-local-console/),
+[Windows portable packager](windows-local/build-portable.ps1), and
+[operator notes](windows-local/START_HERE.txt). Windows source/packaging
+CI cannot replace the operator's actual machine test.
 
 ## Current canonical runtime
 

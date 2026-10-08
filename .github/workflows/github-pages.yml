@@ -7,6 +7,9 @@ on:
       - "site/**"
       - "apps/vessie-web/**"
       - "windows-starter/**"
+      - "windows-local/**"
+      - "packages/vessie-local-console/**"
+      - "packages/vessie-gateway-v0.1/ollama-probe.mjs"
       - "protocols/dlam-v0.1/genius-roster.json"
       - "protocols/routing-v2/model-candidates.json"
       - "runtime/MANIFEST.json"
@@ -41,9 +44,33 @@ jobs:
             echo "::notice title=GitHub Pages not enabled::Enable Settings → Pages → Build and deployment → Source: GitHub Actions, then re-run this workflow."
           fi
 
+  build-windows-local-console:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test local read-only service contracts
+        run: node --test packages/vessie-local-console/tests/server.test.mjs
+      - name: Build self-contained Windows ZIP with Node runtime and license
+        shell: pwsh
+        run: |
+          .\\windows-local\\build-portable.ps1 -OutputPath (Join-Path $env:RUNNER_TEMP 'SuperPhiVessel-Local-Console-Windows.zip')
+          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw 'PORTABLE_BUILD_BLOCKED' }
+          $zip=Join-Path $env:RUNNER_TEMP 'SuperPhiVessel-Local-Console-Windows.zip'
+          if (-not (Test-Path -LiteralPath $zip -PathType Leaf)) { throw 'PORTABLE_ZIP_MISSING' }
+          if ((Get-Item $zip).Length -gt 104857600) { throw 'PORTABLE_ZIP_TOO_LARGE' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vessie-windows-local-console
+          path: ${{ runner.temp }}/SuperPhiVessel-Local-Console-Windows.zip
+          if-no-files-found: error
+          retention-days: 3
+
   deploy:
     if: needs.pages-enabled.outputs.enabled == 'true'
-    needs: pages-enabled
+    needs: [pages-enabled, build-windows-local-console]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -85,6 +112,28 @@ jobs:
               assert z.testzip() is None
           assert Path('site/starter/index.html').is_file()
           print('windows-starter-pages-download: PASS')
+          PY
+
+      - name: Retrieve built local Windows console ZIP for public downloads
+        uses: actions/download-artifact@v4
+        with:
+          name: vessie-windows-local-console
+          path: site/downloads
+
+      - name: Verify local console downloadable artifact
+        shell: bash
+        run: |
+          test -s site/downloads/SuperPhiVessel-Local-Console-Windows.zip
+          test -f site/local/index.html
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          z=ZipFile('site/downloads/SuperPhiVessel-Local-Console-Windows.zip')
+          names={n.replace('\\','/') for n in z.namelist() if not n.endswith('/')}
+          required={'node.exe','LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd',
+                    'server.mjs','ollama-probe.mjs','ui/index.html','ui/style.css','ui/app.js'}
+          assert names == required, (names-required,required-names)
+          assert z.testzip() is None
+          print('windows-local-console-pages-download: PASS')
           PY
 
       - name: Verify existing front door and searchable manual preserved

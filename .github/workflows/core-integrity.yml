@@ -9,6 +9,50 @@ permissions:
   contents: read
 
 jobs:
+  vessie-local-console-windows-zip:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build standalone self-contained Windows ZIP
+        shell: pwsh
+        run: |
+          $zip=Join-Path $env:RUNNER_TEMP 'SuperPhiVessel-Local-Console-Windows.zip'
+          .\windows-local\build-portable.ps1 -OutputPath $zip
+          if (-not (Test-Path -LiteralPath $zip -PathType Leaf)) { throw 'WINDOWS_LOCAL_ZIP_MISSING' }
+          if ((Get-Item $zip).Length -gt 104857600) { throw 'WINDOWS_LOCAL_ZIP_TOO_LARGE' }
+          $out=Join-Path $env:RUNNER_TEMP 'vessie-unpacked'
+          Expand-Archive -LiteralPath $zip -DestinationPath $out -Force
+          $exe=Join-Path $out 'node.exe'
+          $license=Join-Path $out 'LICENSE.node.txt'
+          if (-not (Test-Path $exe) -or -not (Test-Path $license)) { throw 'NODE_BINARY_OR_LICENSE_MISSING' }
+          $version=& $exe --version
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^v22\.') { throw 'PORTABLE_NODE_RUNTIME_UNUSABLE' }
+          if (-not (Test-Path (Join-Path $out 'server.mjs'))) { throw 'LOCAL_SERVER_MISSING' }
+          Write-Host ('portable-windows-node-runtime: PASS ' + $version)
+      - name: Verify local HTTP API regression suite on Windows
+        run: node --test packages/vessie-local-console/tests/server.test.mjs
+
+  vessie-local-console:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify read-only same-origin localhost API and refusal controls
+        run: node --test packages/vessie-local-console/tests/server.test.mjs
+      - name: Verify deployment source boundaries
+        shell: bash
+        run: |
+          test -f packages/vessie-local-console/ui/index.html
+          test -f windows-local/Start-Local-Vessie.cmd
+          test -f windows-local/build-portable.ps1
+          test -f site/local/index.html
+          echo 'local-console-source-boundaries: PASS'
+
   vessie-windows-starter:
     runs-on: windows-latest
     steps:
