@@ -1,3 +1,5 @@
+import {makeHumanReview} from './review-evidence.mjs';
+
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
 const status = document.getElementById('status');
@@ -17,6 +19,28 @@ const trialStatus = document.getElementById('trial-status');
 const trialOutput = document.getElementById('trial-output');
 const trialReceipt = document.getElementById('trial-receipt');
 const trialTiming = document.getElementById('trial-timing');
+const reviewPanel = document.getElementById('human-review');
+const reviewHelpfulness = document.getElementById('review-helpfulness');
+const reviewCompleteness = document.getElementById('review-completeness');
+const reviewVerification = document.getElementById('review-verification');
+const reviewSubmit = document.getElementById('review-submit');
+const reviewExport = document.getElementById('review-export');
+const reviewStatus = document.getElementById('review-status');
+const reviewReceipt = document.getElementById('review-receipt');
+let lastPerformanceReceipt = null;
+let humanReviewReceipt = null;
+
+function resetHumanReview() {
+  lastPerformanceReceipt = null;
+  humanReviewReceipt = null;
+  reviewPanel.hidden = true;
+  reviewHelpfulness.value = '';
+  reviewCompleteness.value = '';
+  reviewVerification.value = '';
+  reviewExport.disabled = true;
+  reviewReceipt.textContent = 'No human review recorded.';
+  reviewStatus.textContent = 'No assessment recorded.';
+}
 
 function showTiming(receipt) {
   const ns = v=>Number.isSafeInteger(v)&&v>=0?v:null;
@@ -62,6 +86,7 @@ function bytes(size) {
     : 'Size unreported';
 }
 function render(items) {
+  resetHumanReview();
   localModels=items.filter(x=>x.execution_location==='LOCAL_WEIGHTS_REPORTED' &&
     x.classification_basis==='POSITIVE_SIZE_REPORT');
   trialModel.replaceChildren();
@@ -176,6 +201,7 @@ trialRun.addEventListener('click',async()=>{
   if(!window.confirm(`Send this ONE prompt to local Ollama model "${model}"? No cloud calls or automatic follow-ups are authorized.`))
     return;
   trialRun.disabled=true;
+  resetHumanReview();
   trialExport.disabled=true;
   trialApprove.checked=false;
   exportedReceipt=null;
@@ -201,12 +227,16 @@ trialRun.addEventListener('click',async()=>{
       throw new Error('TRIAL_CONTRACT_INVALID');
     trialOutput.textContent=data.response || '(Model returned an empty response)';
     exportedReceipt=data.receipt;
+    lastPerformanceReceipt=data.receipt;
+    reviewPanel.hidden=false;
+    reviewStatus.textContent='Answer available for your optional human review. Nothing is rated automatically.';
     trialReceipt.textContent=JSON.stringify(data.receipt,null,2);
     showTiming(data.receipt);
     trialExport.disabled=false;
     trialStatus.textContent='One local model trial completed. Receipt visible; no routing authority granted.';
   }catch{
     trialOutput.textContent='No verified model response available.';
+    resetHumanReview();
     trialReceipt.textContent='No receipt available.';
     trialTiming.textContent='No verified timing observation available.';
     trialStatus.textContent='Trial blocked or unavailable. Restarted models are not assumed. You may rescan before another attempt.';
@@ -219,6 +249,40 @@ trialExport.addEventListener('click',()=>{
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;
   a.download='vessie-local-trial-redacted-receipt.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+reviewSubmit.addEventListener('click',()=>{
+  if(!lastPerformanceReceipt || reviewPanel.hidden){
+    reviewStatus.textContent='No successfully completed local model answer is available to review.';
+    return;
+  }
+  try {
+    const review=makeHumanReview({
+      performanceReceipt:lastPerformanceReceipt,
+      helpfulness:reviewHelpfulness.value,
+      completeness:reviewCompleteness.value,
+      verification:reviewVerification.value
+    });
+    humanReviewReceipt=review;
+    reviewReceipt.textContent=JSON.stringify(review,null,2);
+    reviewExport.disabled=false;
+    reviewStatus.textContent='Your self-reported assessment is recorded in memory only. No model routing or execution permission changed.';
+  } catch {
+    humanReviewReceipt=null;
+    reviewExport.disabled=true;
+    reviewReceipt.textContent='No review recorded.';
+    reviewStatus.textContent='Choose all three assessment fields before recording. Nothing was exported.';
+  }
+});
+reviewExport.addEventListener('click',()=>{
+  if(!humanReviewReceipt || !lastPerformanceReceipt)return;
+  const blob=new Blob([JSON.stringify(humanReviewReceipt,null,2)+'\n'],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='vessie-local-human-review-redacted.json';
   a.click();
   URL.revokeObjectURL(url);
 });
