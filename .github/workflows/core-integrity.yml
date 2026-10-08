@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  vessie-r3f-custody-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test offline duplicate and replay flags over signed R3-E packets
+        run: node --test packages/vessie-gateway-v0.1/canonical-routes/tests/custody-batch.test.mjs
+
   vessie-r3e-operator-signature:
     runs-on: ubuntu-latest
     steps:
