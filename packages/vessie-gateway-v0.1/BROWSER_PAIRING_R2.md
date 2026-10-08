@@ -64,6 +64,17 @@ CI uses a self-signed temporary certificate with TLS verification bypassed **ins
 
 **No production/remote-exposure claim. Never port-forward the gateway, publish the pairing code, or use cloud/public TLS proxy for this local developer reference.**
 
+## R2 browser-side revocation observation update
+
+The React R2 field pilot now requires **both** an acknowledged `REVOKED`
+response and an explicit `403 SESSION_DENIED` for a follow-up read using
+the same old bearer before calling revocation confirmed. Transport failures
+and unrelated 403 responses fail this check rather than implying successful
+revocation. The exported redacted browser field report uses schema
+`superphivessel.gateway.r2.browser-field-report.v0.2`, and the local
+assessment requires all five checks. A pass remains only an operator
+browser observation, not independently authenticated physical evidence.
+
 ## R2 Windows field qualification pack
 
 A portable, privacy-minimized Windows pilot is now provided at [`pilots/README.md`](pilots/README.md). It includes a strict Windows OS TLS/denial check, an optional browser-exported self-report, and a two-receipt comparator. None of those creates cryptographic device attestation or grants execution. Both receipts must be collected on the operator's physical machine; Windows CI only validates harness syntax and fixture controls.
