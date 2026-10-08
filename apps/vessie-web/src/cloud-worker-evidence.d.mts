@@ -1,3 +1,6 @@
+export const CLOUD_SITE: string;
+export const CLOUD_REPO: string;
+export const CLOUD_API: string;
 export interface CloudEvidence {
   schema: 'superphivessel.cloud_observation.v0.1';
   disposition: 'STALE_OBSERVATION' | 'TASK_FAILURE_OBSERVED' | 'UNVERIFIED_PUBLIC_OBSERVATION';
