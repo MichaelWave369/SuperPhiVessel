@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {assessFieldReceipts} from './assess-field.mjs';
 
+const TRIAL='fedcba98765432100123456789abcdef';
 const win=()=>({
  schema:'superphivessel.gateway.r2.windows-pilot.v0.1',
+ trial_id:TRIAL,
  observation_source:'OPERATOR_WINDOWS_POWERSHELL_LOCAL_TEST',
  fixture:false, platform:'WINDOWS',gateway_target:'HTTPS_LOOPBACK',
  browser_pairing_qualified:false,operator_promotion_approved:false,
@@ -13,7 +15,8 @@ const win=()=>({
  checks:['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'].map(check=>({check,result:'PASS'})),
 });
 const browser=()=>({
- schema:'superphivessel.gateway.r2.browser-field-report.v0.2',
+ schema:'superphivessel.gateway.r2.browser-field-report.v0.3',
+ trial_id:TRIAL,
  revocation_proof_scope:'BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED',
  passed_checks:5,installed_models_approved:false,browser_restrictions_bypassed:false,
  observation_source:'UNATTESTED_BROWSER_CLIENT',
@@ -73,7 +76,7 @@ test('R2F09 input secrets cannot appear in final assessment',()=>{
 });
 
 test('R2F10 old v0.1 browser receipt cannot pass v0.2 revocation pilot',()=>{
- const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.1';
+ const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.2';
  const x=assessFieldReceipts(win(),b);
  assert.equal(x.status,'BLOCKED_FIELD_EVIDENCE');
  assert.equal(x.physically_qualified,false);
