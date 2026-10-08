@@ -253,6 +253,15 @@ trialExport.addEventListener('click',()=>{
   URL.revokeObjectURL(url);
 });
 
+for(const field of [reviewHelpfulness,reviewCompleteness,reviewVerification]) {
+  field.addEventListener('change',()=>{
+    humanReviewReceipt=null;
+    reviewExport.disabled=true;
+    reviewReceipt.textContent='No human review recorded for the current selections.';
+    reviewStatus.textContent='Assessment changed. Click Record my assessment again before exporting.';
+  });
+}
+
 reviewSubmit.addEventListener('click',()=>{
   if(!lastPerformanceReceipt || reviewPanel.hidden){
     reviewStatus.textContent='No successfully completed local model answer is available to review.';
