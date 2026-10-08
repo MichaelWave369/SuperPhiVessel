@@ -77,3 +77,17 @@ the source origin's protection from script compromise remain field gates.
 
 No BrainC connection, model execution, memory disclosure, API credentials,
 learned-policy promotion, BudgetGenius activation or executor control is added.
+
+## R3-A offline routing trace projection
+
+The review-only bridge now includes
+[R3-A offline P1-C/P3-A source projection](../../packages/vessie-gateway-v0.1/R3A_ROUTING_TRACE.md).
+It hashes and cross-checks extracted SQLite routing receipts and observations,
+then returns bounded allowlisted metadata with no raw task, memory or authority references.
+
+This is **not** a live BrainC connection and is not an HTTPS endpoint.
+Self-hash equality is not digital attestation. The React receipt inspector may
+recognize its schema but never promotes an imported record into a verified grant.
+
+R2 physical Windows/browser qualification remains pending, and live routing
+trace integration requires a separate R3-B donor-specific review.
