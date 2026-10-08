@@ -94,6 +94,34 @@
         <p class="footnote">The receipt is shown in memory only. Exporting it is your explicit choice. No background jobs, history, automatic retries, training, model admission or learned routing are started.</p>
       </div>
     </section>
+    <section class="panel" aria-labelledby="bench-heading">
+      <div class="panel-top"><h2 id="bench-heading">Local evidence bench</h2><span class="tiny" id="bench-count">0 observations in memory</span></div>
+      <p class="classification-note">Compare redacted local trial timings with your own answer reviews. Nothing runs automatically. Files stay in this browser; no server upload, history, model rankings or BrainC approvals.</p>
+      <div class="actions">
+        <button id="bench-add-performance" type="button" class="secondary" disabled>Keep current performance receipt</button>
+        <button id="bench-add-review" type="button" class="secondary" disabled>Keep current human review</button>
+      </div>
+      <label class="trial-label" for="bench-import">Optional: import redacted performance or human-review JSON files from your PC</label>
+      <input id="bench-import" type="file" class="trial-field" accept=".json,application/json" multiple />
+      <p class="footnote">At most 24 redacted observations in browser memory, 16 KiB per imported file. Importing reads only files you explicitly select. JSON is strictly projected to known fields. An imported file is not independently authenticated.</p>
+      <div class="actions">
+        <button id="bench-import-selected" type="button" class="secondary">Read selected local files</button>
+        <button id="bench-export" type="button" class="secondary" disabled>Export redacted comparison</button>
+        <button id="bench-clear" type="button" class="secondary" disabled>Clear this bench</button>
+      </div>
+      <div id="bench-status" class="status" role="status" aria-live="polite">Bench empty. Add a current redacted receipt or manually choose JSON evidence files.</div>
+      <div class="bench-scroll">
+        <table class="bench-table" aria-label="Unranked local evidence comparison">
+          <thead><tr>
+            <th>Model and date</th><th>Wall time</th><th>Load</th><th>Prompt evaluation</th>
+            <th>Generation</th><th>Output tokens / generation rate</th>
+            <th>Human usefulness</th><th>Apparent completeness</th><th>Facts independently checked?</th>
+          </tr></thead>
+          <tbody id="bench-rows"><tr><td colspan="9">No performance receipts compared yet.</td></tr></tbody>
+        </table>
+      </div>
+      <p id="bench-footnote" class="footnote">No automatic winner, no benchmark grade, no quality gate. A human review may only match a response by its model and output hash. Timing data is Ollama-reported, not hardware-attested.</p>
+    </section>
     <section class="scope">
       <h2>Connected, but governed</h2>
       <div class="scope-grid">
