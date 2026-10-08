@@ -75,6 +75,19 @@ revocation. The exported redacted browser field report uses schema
 assessment requires all five checks. A pass remains only an operator
 browser observation, not independently authenticated physical evidence.
 
+## R2 physical report trial correlation (v0.3)
+
+The Windows PowerShell TLS pilot and React field report now require one
+shared **operator-generated non-secret 128-bit random trial label**. Create
+it with `node packages/vessie-gateway-v0.1/pilots/new-trial.mjs`;
+supply it via PowerShell `-TrialId` and React's **R2 Trial ID** field.
+The field comparator rejects missing/mismatched IDs and report
+timestamps outside a bounded two-hour window with five-minute
+reverse-order allowance for clock skew. Browser reports are now `v0.3`.
+The shared ID is **not** a pairing code, bearer, signed identity
+attestation or proof of actual runtime origin. Physical qualification
+continues to require operator review.
+
 ## R2 Windows field qualification pack
 
 A portable, privacy-minimized Windows pilot is now provided at [`pilots/README.md`](pilots/README.md). It includes a strict Windows OS TLS/denial check, an optional browser-exported self-report, and a two-receipt comparator. None of those creates cryptographic device attestation or grants execution. Both receipts must be collected on the operator's physical machine; Windows CI only validates harness syntax and fixture controls.
