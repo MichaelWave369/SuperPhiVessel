@@ -89,6 +89,7 @@ jobs:
           Assert-Blocked @('-Stage','Collect','-TrialId',('a' * 32)) 'COLLECT_REQUIRES_FRESH_TRIAL_ID'
           Assert-Blocked @('-Stage','Assess','-TrialId',('f' * 32)) 'WINDOWS_RECEIPT_MISSING'
           Write-Host 'R2 guided pilot subprocess failure-path tests: PASS; no gateway/browser contact made'
+          exit 0
 
   vessie-r2-operator-preflight:
     runs-on: ubuntu-latest
