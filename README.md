@@ -11,6 +11,7 @@ Vessie explores how capable AI models, local compute, hosted inference, memory, 
 | Surface | Purpose |
 | --- | --- |
 | **[Project site](https://michaelwave369.github.io/SuperPhiVessel/)** | Public front door, architecture, release status, and project orientation |
+| **[React Vessie Cockpit](https://michaelwave369.github.io/SuperPhiVessel/vessie/)** | New modular review-only React shell, full GA108 explorer, candidate models and local evidence inspector. No model gateway connected. |
 | **[Searchable User Manual](https://michaelwave369.github.io/SuperPhiVessel/manual/)** | Live searchable operator guide for chambers, models, memory, SOMA, browser tools, governance, bridges, output, and troubleshooting |
 | **[Launch Vessie](https://superphivessel.netlify.app/)** | Current live Netlify deployment |
 | **[GitHub Releases](https://github.com/MichaelWave369/SuperPhiVessel/releases)** | Frozen standalone runtime downloads and checksums |
@@ -18,13 +19,13 @@ Vessie explores how capable AI models, local compute, hosted inference, memory, 
 
 ## Current canonical runtime
 
-**Version:** v2.0-alpha.11.0.54.10 — Service Models Handler Restoration
+**Version:** v2.0-alpha.11.0.54.12 — BudgetGenius Canonical Outcome Handoff
 
-**Path:** runtime/Super_PhiVessel_v2.0-alpha.11.0.54.10_Service_Models_Handler_Restoration.html
+**Path:** runtime/Super_PhiVessel_v2.0-alpha.11.0.54.12_BudgetGenius_Outcome_Handoff.html
 
-**SHA-256:** 96767c267b0d9ed20be9f4d182c30129944311096c0959d20b5d80c89fb2c09e
+**SHA-256:** a9e67b12d1c3622315b6937f1c2405acbd5b2a6bc6d32cf578c67d5178fa7212
 
-**Git blob:** b44e0411f7477f2041cb3f130452a6d1f0410121
+**Git blob:** c9dc18eb76be9883d18014de129c07cf78c5a498
 
 The canonical runtime was promoted from the exact standalone artifact tested in the live Netlify deployment. Runtime identity, size, version, and release invariants are recorded in [runtime/MANIFEST.json](runtime/MANIFEST.json).
 
@@ -274,3 +275,15 @@ Source code is released under the [MIT License](LICENSE), except where a file or
 ## Maintainer
 
 Created and maintained through an ongoing human–AI engineering collaboration led by **MichaelWave369**.
+
+## Modular React cockpit (candidate)
+
+The existing GitHub Pages front door and searchable manual remain intact.
+The new React shell is built from `apps/vessie-web/` into `site/vessie/` only during Pages deployment.
+
+- [Open Vessie React cockpit](https://michaelwave369.github.io/SuperPhiVessel/vessie/)
+- [Routing rebase](docs/routing/ROUTING_REBASE_V1.md)
+- [Local/free-API model audit](docs/routing/MODEL_AUDIT_2026_10_08.md)
+- [Gateway contract](docs/routing/GATEWAY_CONTRACT_V1.md)
+
+**Preview-only:** shows real GA108 roster and repository manifest, explicit candidate model statuses, and browser-only bounded receipt inspection. Does not run models, accept secrets, validate signatures, or replace the canonical executor. Physical Observer .54.13 remains a separate unpromoted review candidate.
