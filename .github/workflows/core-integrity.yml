@@ -9,6 +9,24 @@ permissions:
   contents: read
 
 jobs:
+  vessie-local-console:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify read-only same-origin localhost API and refusal controls
+        run: node --test packages/vessie-local-console/tests/server.test.mjs
+      - name: Verify deployment source boundaries
+        shell: bash
+        run: |
+          test -f packages/vessie-local-console/ui/index.html
+          test -f windows-local/Start-Local-Vessie.cmd
+          test -f windows-local/build-portable.ps1
+          test -f site/local/index.html
+          echo 'local-console-source-boundaries: PASS'
+
   vessie-windows-starter:
     runs-on: windows-latest
     steps:
