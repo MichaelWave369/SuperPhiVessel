@@ -3,3 +3,15 @@
 @media(max-width:1050px){.shell{grid-template-columns:200px minmax(0,1fr)}.sidebar{padding-left:8px;padding-right:8px}.metricGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.headright span:not(.statusDot){display:none}.atlasLayout{grid-template-columns:minmax(0,1fr)}.profile{position:static}.flowGrid{grid-template-columns:1fr}}
 @media(max-width:700px){.masthead{height:auto;min-height:74px;padding:14px}.wordmark strong{font-size:12px}.wordmark small{font-size:9px}.headright a{font-size:9px;margin:0;padding:8px}.shell{display:block}.sidebar{min-height:unset;border-right:0;border-bottom:1px solid #263d48;padding:10px}.railLabel,.railFoot{display:none}.sidebar nav{display:flex;overflow-x:auto;gap:4px}.navItem{white-space:nowrap;width:auto;padding:12px 10px;font-size:10px}.navNum,.navArrow{display:none}.main{padding:32px 18px 55px}.metricGrid{grid-template-columns:repeat(2,minmax(0,1fr));margin:26px 0 40px}.metric{padding:17px;min-height:100px}.metric b{font-size:25px}.sectionHead span{display:none}.routingRow{grid-template-columns:30px minmax(0,1fr);padding:14px;gap:10px}.routingStatus{grid-column:2}.footer{display:block;font-size:9px;line-height:2}.footer span{display:block}.inspectResult dl{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:no-preference){.navItem,.genius,.primaryButton,.secondaryButton{transition:background .18s,border-color .18s,color .18s}}
+
+.pairSection{border:1px solid #36584f;background:#10242c;padding:24px;margin:25px 0 28px}
+.pairSection code{font:11px 'DM Mono',monospace;color:#b8f2d2;overflow-wrap:anywhere}
+.pairControls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:18px 0}
+.pairControls label{width:100%;font:10px 'DM Mono',monospace;color:#95bdb3;letter-spacing:.12em}
+.pairControls input{flex:1;min-width:220px;max-width:510px;background:#081620;color:#d8f7e4;border:1px solid #42665e;padding:13px;font:12px 'DM Mono',monospace}
+.pairControls input:focus{border-color:#a8ffcd;outline:none}
+.pairControls button:disabled,.pairActions button:disabled{opacity:.45;cursor:not-allowed}
+.pairActions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:20px 0}
+.pairReady{font:11px 'DM Mono',monospace;color:#99f3ba}
+.pairSection .modelTableWrap{margin-top:20px}
+@media(max-width:700px){.pairSection{padding:15px}.pairControls button{width:100%}}
