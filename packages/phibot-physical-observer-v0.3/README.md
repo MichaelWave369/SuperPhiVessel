@@ -23,8 +23,8 @@ unchanged until a separate promotion.
 Nothing listens for messages in the background. There is no autonomous
 networking, hardware access, polling, or tool invocation.
 
-The panel uses a closed Shadow DOM to avoid inheriting the enormous monolithic
-runtime's CSS. Untrusted text is rendered with `textContent`, not `innerHTML`.
+The panel uses an open Shadow DOM to avoid inheriting the enormous monolithic
+runtime's CSS and permit browser accessibility/interaction tests. Shadow DOM is not a security boundary. Untrusted text is rendered with `textContent`, not `innerHTML`.
 
 ## Integrity and authority
 
@@ -58,7 +58,7 @@ node packages/phibot-physical-observer-v0.3/acceptance.mjs /tmp/PhiVessel_54_13_
 ```
 
 The builder refuses any canonical base other than the pinned `.54.12` bytes.
-It inserts exactly one module script immediately before `</body>` and updates only the runtime version marker.
+It inserts one module script at the final safe document insertion point and updates only the runtime version marker.
 
 Then it reverses those two edits in memory and demands an exact equality match
 against the original 13 MB HTML. Any unexpected change fails the build.
