@@ -317,6 +317,16 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R3-E offline operator-signed evidence
+
+An optional [R3-E Ed25519 operator envelope](packages/vessie-gateway-v0.1/canonical-routes/OPERATOR_ENVELOPE_R3E.md)
+wraps the **redacted** R3-C/R3-D projection for independently checkable
+operator-key custody, using an externally supplied trusted public key.
+It does not attest canonical runtime source, completed inference, answer
+quality, physical R2 pairing, or grant action/learning authority. The
+canonical `.54.12` production HTML and `.54.13` promotion hold remain
+unchanged. React recognizes imports but cannot validate signatures.
+
 ## R3-D routing outcome reconciliation
 
 R3-D hardens the R3-C projector and React inspector against misleading
