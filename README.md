@@ -317,6 +317,16 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R2 Windows operator source preflight
+
+Before physically testing browser-to-localhost pairing, the
+[Windows R2 operator preflight](packages/vessie-gateway-v0.1/pilots/README.md)
+can check Node version, the public TLS certificate's IP SAN/validity,
+and the **existence of** the private key outside the repository, without
+opening that key or changing Windows trust. It deliberately reports
+no real machine, gateway, browser or routing qualification. The physical
+Windows R2 pilot still requires separate operator testing.
+
 ## R2 Windows/browser operator trial correlation
 
 The R2 [physical field pilot](packages/vessie-gateway-v0.1/pilots/README.md)
