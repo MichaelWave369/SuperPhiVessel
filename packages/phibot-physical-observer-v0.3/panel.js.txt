@@ -11,7 +11,7 @@
 
     const host = document.createElement("div");
     host.id = PANEL_ID;
-    const shadow = host.attachShadow({ mode: "closed" });
+    const shadow = host.attachShadow({ mode: "open" });
 
     const style = document.createElement("style");
     style.textContent = [

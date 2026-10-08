@@ -1,0 +1,81 @@
+name: PhiBot Physical Observer Real Browser Qualification
+
+on:
+  pull_request:
+    paths:
+      - 'packages/phibot-physical-observer-v0.2/**'
+      - 'packages/phibot-physical-observer-v0.3/**'
+      - 'packages/phibot-physical-observer-v0.4/**'
+      - 'scripts/build-phibot-physical-observer-candidate-v0.3.mjs'
+      - '.github/workflows/phibot-physical-observer-browser.yml'
+      - 'packages/README.md'
+      - 'tests/README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout pinned NBG physical-handoff producer
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/NestedBubbleGear
+          ref: 7b5cb309fcd2af409de6f8676cc074c395a666b4
+          path: _nbg
+
+      - name: Install pinned Playwright
+        run: npm install --ignore-scripts --no-package-lock --prefix packages/phibot-physical-observer-v0.4
+
+      - name: Install headless Chromium and required libraries
+        run: packages/phibot-physical-observer-v0.4/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Recheck observer runtime and generated candidate contracts
+        shell: bash
+        env:
+          NBG_ROOT: ${{ github.workspace }}/_nbg
+        run: |
+          set -euo pipefail
+          node packages/phibot-physical-observer-v0.2/acceptance.mjs
+          node scripts/build-phibot-physical-observer-candidate-v0.3.mjs \
+            "$RUNNER_TEMP/Physical_Observer_54_13_Qualified_Candidate.html"
+          node packages/phibot-physical-observer-v0.3/acceptance.mjs \
+            "$RUNNER_TEMP/Physical_Observer_54_13_Qualified_Candidate.html"
+
+      - name: Produce signed-format fixtures with real pinned NBG
+        env:
+          NBG_ROOT: ${{ github.workspace }}/_nbg
+        run: |
+          node packages/phibot-physical-observer-v0.4/make-browser-fixtures.mjs \
+            "$RUNNER_TEMP/physical-observer-qualification"
+
+      - name: Run real Chromium browser qualification
+        env:
+          CI: '1'
+        run: |
+          node packages/phibot-physical-observer-v0.4/browser-qualification.mjs \
+            "$RUNNER_TEMP/Physical_Observer_54_13_Qualified_Candidate.html" \
+            "$RUNNER_TEMP/physical-observer-qualification/observer-browser-fixtures.json" \
+            "$RUNNER_TEMP/physical-observer-qualification"
+
+      - name: Upload reviewed HTML and browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhiBot-Physical-Observer-Chromium-Qualification
+          path: |
+            ${{ runner.temp }}/Physical_Observer_54_13_Qualified_Candidate.html
+            ${{ runner.temp }}/Physical_Observer_54_13_Qualified_Candidate.html.build.json
+            ${{ runner.temp }}/physical-observer-qualification/observer-desktop-valid.png
+            ${{ runner.temp }}/physical-observer-qualification/observer-mobile-valid.png
+          if-no-files-found: warn
+          retention-days: 14
