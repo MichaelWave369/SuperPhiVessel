@@ -59,7 +59,7 @@ try {
   Add-Type -AssemblyName System.IO.Compression
   $archive=[System.IO.Compression.ZipFile]::OpenRead($OutputFull)
   try {
-    $names=@($archive.Entries | ForEach-Object { $_.FullName.Replace('\\','/') } | Sort-Object)
+    $names=@($archive.Entries | Where-Object { -not $_.FullName.EndsWith('/') } | ForEach-Object { $_.FullName.Replace('\\','/') } | Sort-Object)
     $expected=@(
       'LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd',
       'node.exe','ollama-probe.mjs','server.mjs','ui/app.js',
