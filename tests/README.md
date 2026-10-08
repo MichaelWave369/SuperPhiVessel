@@ -171,3 +171,12 @@ The goal is to preserve the project's preference for explicit receipts and machi
 - `packages/spdw-v0.1/spdw-v0.1.acceptance.js` is run separately by CI for the frozen SPD-W package contract.
 
 Historical tests should identify the runtime/protocol version they were written against.
+
+
+- `packages/phibot-physical-observer-v0.1/acceptance.mjs` verifies the **PhiBot physical observer receiver v0.1** against pinned NestedBubbleGear:
+  - real NBG handoff interoperability;
+  - advisory-only observer rendering with preserved evidence references;
+  - SHA-256 receive receipts that never grant authority;
+  - upstream mutation, tool-request injection, physical-command injection, role substitution, maintenance promotion, and authority escalation fail closed;
+  - the package exposes no execution surface;
+  - deterministic replay preserves the same observer result.
