@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import roster from '../../../protocols/dlam-v0.1/genius-roster.json';
 import runtimeManifest from '../../../runtime/MANIFEST.json';
+import catalog from '../../../protocols/routing-v2/model-candidates.json';
 import { inspectReceipt } from './inspector.mjs';
 
 type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence';
@@ -13,16 +14,13 @@ const PAGES = [
   ['evidence','RECEIPT INSPECTOR','05'],
 ] as const;
 const MODELS = [
-  {model:'granite4.2:3b',role:'Utility / classification',tier:'LOCAL',fit:'12 GB VRAM candidate',state:'DISCOVER FIRST'},
-  {model:'granite4.2:8b',role:'Everyday assistant / JSON',tier:'LOCAL',fit:'12 GB VRAM candidate',state:'BENCHMARK'},
-  {model:'gemma4:e4b',role:'Compact multimodal',tier:'LOCAL',fit:'Measure VRAM + vision',state:'BENCHMARK'},
-  {model:'qwen3.8:27b',role:'Heavy coding / reasoning',tier:'LOCAL OFFLOAD',fit:'18 GB weights: CPU/GPU hybrid',state:'OPTIONAL'},
-  {model:'GroqCloud',role:'Fast approved remote fallback',tier:'FREE QUOTA',fit:'Provider-key gateway only',state:'NOT CONNECTED'},
-  {model:'Google Gemini API',role:'Approved multimodal fallback',tier:'FREE QUOTA',fit:'Privacy restrictions apply',state:'NOT CONNECTED'},
-  {model:'OpenRouter',role:'Free variant discovery',tier:'FREE QUOTA',fit:'Changing free roster',state:'NOT CONNECTED'},
-  {model:'Cloudflare Workers AI',role:'Hosted cheap specialists',tier:'FREE QUOTA',fit:'Some models paid-only',state:'NOT CONNECTED'},
-  {model:'Cerebras',role:'Fast hosted reasoning',tier:'FREE QUOTA',fit:'Account limits apply',state:'NOT CONNECTED'},
-] as const;
+  ...catalog.local_candidates.map((x)=>({
+    model:x.id,role:x.role,tier:'LOCAL',fit:x.benchmark,state:x.status
+  })),
+  ...catalog.remote_candidates.map((x)=>({
+    model:x.id,role:x.use,tier:x.tier,fit:x.data_policy.replaceAll('_',' '),state:x.status
+  })),
+];
 const LANES = [
  {name:'AUTHORITY + CONTEXT',detail:'Operator grant → policy and purpose admission → bounded context',tag:'GATE'},
  {name:'CRANE FLY / BRAINC',detail:'Exact model discovery, fitness, local-first hard eligibility',tag:'LIVE/CONDITIONAL'},
