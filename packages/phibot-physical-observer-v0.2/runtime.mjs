@@ -1,16 +1,24 @@
-import {
-  receivePhysicalExperienceHandoff,
-  verifyPhysicalObserverReceipt
-} from "../phibot-physical-observer-v0.1/receiver.mjs";
-
 export const RUNTIME_CONTRACT =
   "spv-phibot-physical-observer-runtime/v0.2";
+
+export const UPSTREAM_HANDOFF_CONTRACT =
+  "phibot-physical-experience-handoff/v0.1";
+
+export const UPSTREAM_ADVISOR_CONTRACT =
+  "phipie-physical-experience-advisor/v0.1";
+
+export const RECIPIENT_ROLE = "PHIBOT_PHYSICAL_OBSERVER";
 
 export const OBSERVER_EVENT =
   "phibot.physical.observer_view";
 
 export const CLEARED_EVENT =
   "phibot.physical.observer_cleared";
+
+const ALLOWED_PURPOSES = Object.freeze([
+  "READ_ONLY_EVIDENCE_REVIEW",
+  "FORMULATE_OBSERVATION_QUESTIONS"
+]);
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -33,6 +41,16 @@ function stableStringify(value) {
   return JSON.stringify(stable(value));
 }
 
+function nbgFingerprint(value) {
+  const text = typeof value === "string" ? value : stableStringify(value);
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return "fnv1a32:" + (hash >>> 0).toString(16).padStart(8, "0");
+}
+
 async function sha256(value) {
   if (!globalThis.crypto?.subtle) {
     throw new Error("WEB_CRYPTO_REQUIRED");
@@ -44,11 +62,147 @@ async function sha256(value) {
     .join("");
 }
 
+function bodyWithoutFingerprint(packet) {
+  const { handoffFingerprint: _handoffFingerprint, ...body } = packet;
+  return body;
+}
+
+function validateAuthority(authority) {
+  return (
+    authority?.grantsAuthority === false &&
+    authority?.actionAuthorized === false &&
+    authority?.mayInvokeTools === false &&
+    authority?.mayIssueHardwareCommands === false &&
+    authority?.requiresIndependentToolAuthorization === true &&
+    authority?.safetyPlaneUnaffected === true
+  );
+}
+
+function validateAdvisor(advisory) {
+  const boundaries = advisory?.boundaries;
+  if (!boundaries) return false;
+
+  return (
+    boundaries.causalClaim === false &&
+    boundaries.diagnosticConclusion === false &&
+    boundaries.safetyConclusion === false &&
+    boundaries.maintenanceRecommendation === false &&
+    boundaries.physicalActionRecommendation === false &&
+    boundaries.actionAuthorized === false &&
+    boundaries.hardwareCommand === null &&
+    boundaries.allowedOutput ===
+      "READ_ONLY_OBSERVATION_QUESTIONS_AND_EVIDENCE_REVIEW_ONLY"
+  );
+}
+
+function expectedEvidenceIndex(advisory) {
+  const memoryIds = new Set();
+  const evidenceIds = new Set();
+
+  (advisory?.prompts ?? []).forEach((prompt) => {
+    (prompt.evidenceMemoryIds ?? []).forEach((value) => memoryIds.add(value));
+    (prompt.evidenceIds ?? []).forEach((value) => evidenceIds.add(value));
+  });
+
+  return {
+    memoryIds: [...memoryIds].sort(),
+    evidenceIds: [...evidenceIds].sort()
+  };
+}
+
+export function validateRuntimeHandoff(packet) {
+  const errors = [];
+
+  if (!packet || typeof packet !== "object") {
+    return ["HANDOFF_OBJECT_REQUIRED"];
+  }
+
+  if (packet.contract !== UPSTREAM_HANDOFF_CONTRACT) {
+    errors.push("UPSTREAM_HANDOFF_CONTRACT_MISMATCH");
+  }
+
+  if (packet.producer?.system !== "NestedBubbleGear") {
+    errors.push("UPSTREAM_PRODUCER_MISMATCH");
+  }
+
+  if (packet.producer?.sourceAdvisorContract !== UPSTREAM_ADVISOR_CONTRACT) {
+    errors.push("UPSTREAM_ADVISOR_CONTRACT_MISMATCH");
+  }
+
+  if (packet.recipient?.role !== RECIPIENT_ROLE) {
+    errors.push("RECIPIENT_ROLE_MISMATCH");
+  }
+
+  if (!validateAuthority(packet.authority)) {
+    errors.push("AUTHORITY_BOUNDARY_MISMATCH");
+  }
+
+  if (!Array.isArray(packet.toolRequests) || packet.toolRequests.length !== 0) {
+    errors.push("TOOL_REQUESTS_MUST_BE_EMPTY");
+  }
+
+  if (
+    !Array.isArray(packet.physicalCommands) ||
+    packet.physicalCommands.length !== 0
+  ) {
+    errors.push("PHYSICAL_COMMANDS_MUST_BE_EMPTY");
+  }
+
+  if (JSON.stringify(packet.purposes) !== JSON.stringify(ALLOWED_PURPOSES)) {
+    errors.push("PURPOSES_MISMATCH");
+  }
+
+  if (!validateAdvisor(packet.advisory)) {
+    errors.push("UNSAFE_ADVISORY_PAYLOAD");
+  }
+
+  if (packet.queryMemoryId !== packet.advisory?.queryMemoryId) {
+    errors.push("QUERY_MEMORY_ID_MISMATCH");
+  }
+
+  if (
+    JSON.stringify(packet.evidenceIndex) !==
+    JSON.stringify(expectedEvidenceIndex(packet.advisory))
+  ) {
+    errors.push("EVIDENCE_INDEX_MISMATCH");
+  }
+
+  const expectedFingerprint = nbgFingerprint(bodyWithoutFingerprint(packet));
+  if (packet.handoffFingerprint !== expectedFingerprint) {
+    errors.push("UPSTREAM_HANDOFF_FINGERPRINT_MISMATCH");
+  }
+
+  return errors;
+}
+
+function buildObserverView(packet) {
+  return {
+    viewContract: "spv-phibot-physical-observer-view/v0.2",
+    queryMemoryId: packet.queryMemoryId,
+    historyMatchCount: packet.advisory.historyMatchCount,
+    questions: (packet.advisory.prompts ?? []).map((prompt) => ({
+      kind: prompt.kind,
+      subject: prompt.subject,
+      supportCount: prompt.supportCount,
+      meanSimilarity: prompt.meanSimilarity,
+      question: prompt.question,
+      readOnlyObservationSuggestion: prompt.readOnlyObservationSuggestion,
+      boundary: prompt.boundary,
+      evidenceMemoryIds: [...(prompt.evidenceMemoryIds ?? [])],
+      evidenceIds: [...(prompt.evidenceIds ?? [])]
+    })),
+    uncertainty: [...(packet.advisory.uncertainty ?? [])],
+    evidenceIndex: clone(packet.evidenceIndex),
+    authorityBanner: "NO_TOOL_OR_PHYSICAL_AUTHORITY",
+    allowedInteraction:
+      "DISPLAY_AND_REASON_OVER_READ_ONLY_EVIDENCE_QUESTIONS_ONLY"
+  };
+}
+
 async function runtimeReceipt({
   status,
   handoffId,
   handoffFingerprint,
-  upstreamReceiptSha256,
   viewFingerprint = null,
   reason = null
 }) {
@@ -59,7 +213,6 @@ async function runtimeReceipt({
     status,
     handoffId,
     handoffFingerprint,
-    upstreamReceiptSha256,
     viewFingerprint,
     reason,
     authorityGranted: false,
@@ -106,24 +259,13 @@ export function createPhysicalObserverRuntime({
   let latest = null;
 
   async function receive(packet) {
-    const accepted = receivePhysicalExperienceHandoff(packet);
+    const errors = validateRuntimeHandoff(packet);
 
-    if (accepted.receiveStatus !== "ACCEPTED_ADVISORY_ONLY") {
+    if (errors.length) {
       return {
         runtimeContract: RUNTIME_CONTRACT,
         status: "REFUSED",
-        errors: [...accepted.errors],
-        view: null,
-        receipt: null,
-        authorityGranted: false
-      };
-    }
-
-    if (!verifyPhysicalObserverReceipt(accepted.receipt)) {
-      return {
-        runtimeContract: RUNTIME_CONTRACT,
-        status: "REFUSED",
-        errors: ["UPSTREAM_RECEIVE_RECEIPT_INVALID"],
+        errors,
         view: null,
         receipt: null,
         authorityGranted: false
@@ -138,7 +280,6 @@ export function createPhysicalObserverRuntime({
         status: "REFUSED_CONFLICT",
         handoffId,
         handoffFingerprint: packet.handoffFingerprint,
-        upstreamReceiptSha256: accepted.receipt.receiptSha256,
         reason: "HANDOFF_ID_FINGERPRINT_CONFLICT"
       });
       writeReceipt(clone(receipt));
@@ -157,19 +298,18 @@ export function createPhysicalObserverRuntime({
         runtimeContract: RUNTIME_CONTRACT,
         status: "DUPLICATE",
         errors: [],
-        view: latest ? clone(latest.view) : clone(accepted.view),
+        view: latest ? clone(latest.view) : buildObserverView(packet),
         receipt: latest ? clone(latest.receipt) : null,
         authorityGranted: false
       };
     }
 
-    const view = clone(accepted.view);
+    const view = buildObserverView(packet);
     const viewFingerprint = await sha256(view);
     const receipt = await runtimeReceipt({
       status: "DISPLAYED_ADVISORY_ONLY",
       handoffId,
       handoffFingerprint: packet.handoffFingerprint,
-      upstreamReceiptSha256: accepted.receipt.receiptSha256,
       viewFingerprint
     });
 
@@ -177,8 +317,8 @@ export function createPhysicalObserverRuntime({
     latest = {
       handoffId,
       handoffFingerprint: packet.handoffFingerprint,
-      view,
-      receipt
+      view: clone(view),
+      receipt: clone(receipt)
     };
 
     writeReceipt(clone(receipt));
