@@ -15,3 +15,21 @@
 .pairReady{font:11px 'DM Mono',monospace;color:#99f3ba}
 .pairSection .modelTableWrap{margin-top:20px}
 @media(max-width:700px){.pairSection{padding:15px}.pairControls button{width:100%}}
+
+
+/* SPV-CW01: informational cloud observation, NOT a routing control. */
+.cloudPanel{background:#0e1c28;border:1px solid #32545a;padding:22px}
+.cloudPanel .smallNote{font-size:12px;line-height:1.7;color:#9fb9be}
+.cloudLink{display:inline-flex;align-items:center;font:11px 'DM Mono',monospace;color:#a1f3d4;border:1px solid #335a5a;padding:11px 15px;text-decoration:none;overflow-wrap:anywhere}
+.cloudLink:hover{border-color:#8cecc4}
+.cloudEvidenceResult{background:#10252e;border:1px solid #3b7769;padding:20px;margin-top:18px}
+.cloudEvidenceFacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.cloudEvidenceFacts>div{padding:13px;background:#0c1b24;border:1px solid #2a4650;overflow-wrap:anywhere}
+.cloudEvidenceFacts small{font:10px 'DM Mono',monospace;color:#7da7ad;display:block;margin-bottom:9px}
+.cloudEvidenceFacts strong{font-size:12px;color:#d1f7e8}
+.cloudTaskList{margin:18px 0}
+.cloudTaskList>div{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a4e55;padding:12px 5px;gap:15px;font-size:13px}
+.cloudTaskList strong{font:11px 'DM Mono',monospace}
+.cloudTaskOk{color:#7cf3bc}.cloudTaskError{color:#ffb09b}
+.cloudActions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px}
+@media(max-width:600px){.cloudEvidenceFacts{grid-template-columns:1fr}.cloudPanel{padding:14px}}
