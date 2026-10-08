@@ -4,6 +4,35 @@
 
 This pilot checks the HTTPS read-only pairing path. It cannot run inference, spend money, read memories, approve models, or change the canonical runtime.
 
+## Step 0 · Read-only Windows operator preflight
+
+**New local tool:** run from a Windows PowerShell session after setting the
+certificate/key environment variables (see **Before starting** below), but
+before running the gateway, pairing or TLS test:
+
+```powershell
+node packages/vessie-gateway-v0.1/pilots/preflight.mjs
+```
+
+This is a **source readiness check only**. It reports bounded PASS/BLOCKED
+codes for Windows OS, Node 22+, the public certificate file (size, readable,
+validity dates, exact IP SAN 127.0.0.1), and the **existence/location** of
+the private-key file. It **never reads the private key**, transmits data,
+loads Ollama, installs trust roots, creates files or contacts the gateway.
+The key must be outside the repository. No paths, passwords, certificate
+contents or device identifiers are printed.
+
+Status `LOCAL_SOURCE_PREFLIGHT_READY_FIELD_TEST_REQUIRED` means only the
+operator can proceed to the **separate** Windows strict-trust and real
+browser tests. It **does not** prove Windows trusts the certificate, that
+Chrome/Firefox permits the local network request, or that the private
+key actually matches the certificate. A blocked result is a diagnostic,
+not an invitation to disable security policy.
+
+**Never paste the private key or gateway one-use pairing code into chat,
+GitHub, a screenshot or an issue.** The certificate and key are supplied
+only to the local R2 gateway process through the environment as documented.
+
 ## R2 operator trial correlation (browser report v0.3)
 
 The Windows and browser reports must now share **one non-secret random
