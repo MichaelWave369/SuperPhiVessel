@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const EXPECT_WINDOWS=['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'];
 const EXPECT_BROWSER=['browser_https_pair','browser_status_read','browser_model_inventory','session_revocation_request'];
@@ -55,7 +57,7 @@ export function assessFieldReceipts(windows, browser) {
   };
 }
 
-if(process.argv[1] && import.meta.url===new URL('file://'+process.argv[1]).href){
+if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
   const [windowsPath,browserPath]=process.argv.slice(2);
   if(!windowsPath||!browserPath){
     console.error('Usage: node assess-field.mjs <windows-receipt.json> <browser-receipt.json>');
