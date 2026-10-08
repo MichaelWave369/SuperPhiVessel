@@ -1,0 +1,45 @@
+SUPERPHIVESSEL WINDOWS STARTER v0.1
+==================================
+
+This is the simplest way to get started when you have NO SuperPhiVessel
+files, NO local repository checkout, NO Node.js and NO TLS certificate.
+
+1. Download the starter ZIP from:
+   https://michaelwave369.github.io/SuperPhiVessel/downloads/SuperPhiVessel-Windows-Starter.zip
+
+2. Right-click the ZIP, choose Extract All, and open the extracted folder.
+   You can view both Start-Vessie.cmd and Start-Vessie.ps1 in Notepad before
+   running them. Only run files you trust.
+
+3. Double-click Start-Vessie.cmd. Do not run it as Administrator.
+
+What happens:
+- Runs a read-only check against Ollama on YOUR PC at 127.0.0.1:11434.
+- Prints your locally installed Ollama model names only in your console.
+- Opens the public Vessie React cockpit in your normal browser.
+- If Ollama is not installed/running, you still get the web cockpit.
+
+What does NOT happen:
+- It does not install SuperPhiVessel, Node.js, Git, Ollama, models or drivers.
+- It does not automatically enable local inference through the web cockpit.
+- It does not expose your local models to the public site.
+- It does not run a proxy/gateway or accept inbound connections.
+- It does not read TLS private keys, create certificates, disable TLS checks,
+  bypass execution policy, change the firewall, request admin rights, upload
+  credentials, spend money or approve models.
+- It does not qualify your physical R2 pairing setup.
+
+NEXT LEVEL:
+When you're ready to pair the web cockpit securely with local Ollama, the
+optional R2 field-pilot instructions live in the public GitHub repository:
+https://github.com/MichaelWave369/SuperPhiVessel/tree/main/packages/vessie-gateway-v0.1/pilots
+
+The advanced R2 test needs Node 22+, a deliberately trusted loopback TLS
+certificate and a local gateway setup. The simple starter does not.
+
+If Windows blocks the .ps1 script under your organization's execution
+policy, do NOT disable security to force it. Open the hosted cockpit
+directly: https://michaelwave369.github.io/SuperPhiVessel/vessie/
+
+This ZIP is publicly hosted by the project's GitHub Pages workflow and
+should only be downloaded over HTTPS from the URL above.
