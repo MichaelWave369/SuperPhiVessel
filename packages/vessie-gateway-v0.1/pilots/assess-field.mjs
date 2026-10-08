@@ -19,7 +19,7 @@ export function assessFieldReceipts(windows, browser) {
      windows.authority_granted!==false || !Array.isArray(windows.checks)){
     problems.push('WINDOWS_RECEIPT_INVALID');
   }
-  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.2' ||
+  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.3' ||
      browser.observation_source!=='UNATTESTED_BROWSER_CLIENT' ||
      browser.revocation_proof_scope!=='BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED'){
     problems.push('BROWSER_RECEIPT_INVALID');
