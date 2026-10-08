@@ -12,7 +12,7 @@ const fixture=()=>({
     routing_approved:true,execution_authorized:true,private_key:'NEVER_PRINT'
   }]
 });
-function request(port,path='/',{method='GET',headers={}}={}){
+function request(port,path='/',{method='GET',headers={},body=undefined}={}){
   return new Promise((resolve,reject)=>{
     const req=httpRequest({hostname:'127.0.0.1',port,path,method,
       headers:{Host:'127.0.0.1:'+port,...headers}},res=>{
@@ -23,7 +23,7 @@ function request(port,path='/',{method='GET',headers={}}={}){
       }));
     });
     req.once('error',reject);
-    req.end();
+    req.end(body);
   });
 }
 async function withServer(run,options={}){
@@ -238,5 +238,162 @@ test('L17 local UI never claims cloud reference is INSTALLED or reports 0 GiB of
     assert.ok(script.includes("LOCAL FILE"));
     assert.ok(script.includes('Cloud reference (not locally stored weights)'));
     assert.ok(!script.includes("badge.textContent=item.loaded?'LOADED':'INSTALLED'"));
+  });
+});
+
+const localFixture=()=>({
+  ...fixture(),
+  models:[{
+    name:'qwen3:4b',execution_location:'LOCAL_WEIGHTS_REPORTED',
+    classification_basis:'POSITIVE_SIZE_REPORT',size_bytes:12345
+  },{
+    name:'qwen3-coder:480b-cloud',execution_location:'CLOUD_REFERENCE',
+    classification_basis:'CLOUD_TAG_HINT',size_bytes:0
+  }]
+});
+const fakeTrial=({model,prompt,maxOutputTokens})=>({
+  schema:'superphivessel.local-console.trial.result.v0.1',
+  response:'LOCAL_RESPONSE_ONLY',
+  receipt:{
+    schema:'superphivessel.local-console.trial.receipt.v0.1',
+    timestamp:'2026-10-08T00:00:00Z',model,elapsed_wall_ms:22,
+    private_prompt_included:false,generated_text_included:false,
+    ollama_generated_tokens:5,model_routing_approved:false,authority_granted:false
+  },
+  authority_granted:false,can_schedule:false,model_routing_approved:false
+});
+async function trialRequest(port,token,model='qwen3:4b',more={}){
+  return request(port,'/api/local-trial',{
+    method:'POST',
+    headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({model,prompt:'Say hello',max_output_tokens:64,approve_once:true,...more})
+  });
+}
+test('L18 default read-only startup cannot invoke local inference even with bearer',async()=>{
+  let runs=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const s=JSON.parse((await request(g.port,'/api/status',{headers:{
+      Authorization:'Bearer '+key
+    }})).text);
+    assert.equal(s.local_trial_enabled,false);
+    assert.equal(s.model_execution_enabled,false);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,403);
+    assert.equal(JSON.parse(r.text).error,'LOCAL_TRIAL_DISABLED');
+    assert.equal(runs,0);
+  },{probe:async()=>localFixture(),trialRunner:async()=>{runs++;return fakeTrial({model:'qwen3:4b'});}});
+});
+test('L19 opt-in trial requires live bearer and affirmative approve_once',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    assert.equal((await trialRequest(g.port,'invalid')).code,403);
+    const r=await trialRequest(g.port,key,'qwen3:4b',{approve_once:false});
+    assert.equal(r.code,400);
+    assert.equal(calls,0);
+    const status=JSON.parse((await request(g.port,'/api/status',{headers:{
+      Authorization:'Bearer '+key
+    }})).text);
+    assert.equal(status.local_trial_enabled,true);
+    assert.equal(status.model_routing_approved,false);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async()=>{calls++;return fakeTrial({model:'qwen3:4b'});}});
+});
+test('L20 accepted trial runs exactly one local selected model with bounded receipt',async()=>{
+  let calls=0;let args=null;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,200);
+    const result=JSON.parse(r.text);
+    assert.equal(calls,1);
+    assert.deepEqual(args,{model:'qwen3:4b',prompt:'Say hello',maxOutputTokens:64});
+    assert.equal(result.response,'LOCAL_RESPONSE_ONLY');
+    assert.equal(result.receipt.model,'qwen3:4b');
+    assert.equal(result.receipt.private_prompt_included,false);
+    assert.equal(result.receipt.generated_text_included,false);
+    assert.equal(result.model_routing_approved,false);
+    assert.equal(result.can_schedule,false);
+    assert.ok(!r.text.includes('Say hello'));
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async inArgs=>{
+    calls++;args=inArgs;return fakeTrial(inArgs);
+  }});
+});
+test('L21 remote references, unknown metadata, or unavailable inventory refused',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    assert.equal((await trialRequest(g.port,key,'qwen3-coder:480b-cloud')).code,403);
+    assert.equal((await trialRequest(g.port,key,'no-such-model:latest')).code,403);
+    assert.equal(calls,0);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async()=>{calls++;return fakeTrial({model:'qwen3:4b'});}});
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    assert.equal((await trialRequest(g.port,key)).code,403);
+  },{trialEnabled:true,probe:async()=>({...localFixture(),probe_status:'UNAVAILABLE'})});
+});
+test('L22 cross-site and forged host denied before reaching local trial',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const body=JSON.stringify({model:'qwen3:4b',prompt:'hi',approve_once:true,max_output_tokens:64});
+    assert.equal((await request(g.port,'/api/local-trial',{
+      method:'POST',body,
+      headers:{Authorization:'Bearer '+key,'Content-Type':'application/json',
+        Origin:'https://not-vessie.example'}
+    })).code,403);
+    assert.equal((await request(g.port,'/api/local-trial',{
+      method:'POST',body,
+      headers:{Authorization:'Bearer '+key,'Content-Type':'application/json',
+        Host:'attacker.example'}
+    })).code,403);
+    assert.equal(calls,0);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async()=>{calls++;return fakeTrial({model:'qwen3:4b'});}});
+});
+test('L23 extra dangerous POST body keys and oversized body rejected',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    for(const extra of [
+      {model:'qwen3:4b',prompt:'hi',approve_once:true,max_output_tokens:64,system:'BYPASS'},
+      {model:'qwen3:4b',prompt:'hi',approve_once:true,max_output_tokens:1000},
+      {model:'qwen3:4b',prompt:'X'.repeat(2500),approve_once:true,max_output_tokens:64}
+    ]){
+      const r=await request(g.port,'/api/local-trial',{
+        method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+        body:JSON.stringify(extra)
+      });
+      assert.equal(r.code,400);
+    }
+    assert.equal(calls,0);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async()=>{calls++;return fakeTrial({model:'qwen3:4b'});}});
+});
+test('L24 no more than 6 operator-approved trials per hour',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    for(let i=0;i<6;i++)assert.equal((await trialRequest(g.port,key)).code,200);
+    assert.equal((await trialRequest(g.port,key)).code,429);
+    assert.equal(calls,6);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async args=>{calls++;return fakeTrial(args);}});
+});
+test('L25 trial failures show generic error and never reveal upstream secrets',async()=>{
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,503);
+    assert.ok(!r.text.includes('SECRET_PATH'));
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async()=>{throw Error('SECRET_PATH');}});
+});
+test('L26 local UI requires checkbox and confirm and does not auto-run generation',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.ok(html.includes('trial-approve'));
+    assert.ok(html.includes('trial-export'));
+    assert.ok(js.includes('window.confirm'));
+    assert.ok(js.includes('approve_once:true'));
+    assert.ok(js.includes("trialRun.addEventListener('click'"));
+    assert.ok(!js.includes("setInterval("));
   });
 });
