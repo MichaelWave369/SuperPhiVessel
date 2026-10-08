@@ -397,3 +397,40 @@ test('L26 local UI requires checkbox and confirm and does not auto-run generatio
     assert.ok(!js.includes("setInterval("));
   });
 });
+
+
+test('L27 extended timing receipt is allowlisted and upstream secret stop reason suppressed',async()=>{
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,200);
+    const receipt=JSON.parse(r.text).receipt;
+    assert.equal(receipt.ollama_prompt_eval_duration_ns,1300000000);
+    assert.equal(receipt.output_token_cap_reached,true);
+    assert.equal(receipt.ollama_done_reason,'UNREPORTED_OR_UNKNOWN');
+    assert.equal(receipt.authority_granted,false);
+    assert.equal(receipt.generated_text_included,false);
+    assert.equal(receipt.private_prompt_included,false);
+    assert.ok(!r.text.includes('SECRET_ORIGIN'));
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async args=>({
+    ...fakeTrial(args),
+    receipt:{
+      ...fakeTrial(args).receipt,
+      ollama_prompt_eval_duration_ns:1300000000,
+      output_token_cap_reached:true,
+      ollama_done_reason:'SECRET_ORIGIN',
+      private_session_token:'SECRET_ORIGIN'
+    }
+  })});
+});
+test('L28 local trial UI shows measured phase breakdown without interpreting model placement',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.ok(html.includes('id="trial-timing"'));
+    assert.ok(js.includes('ollama_prompt_eval_duration_ns'));
+    assert.ok(js.includes('Other/unattributed Ollama time'));
+    assert.ok(js.includes('does not prove the answer was truncated'));
+    assert.ok(js.includes('Not an independent GPU or routing benchmark.'));
+  });
+});
