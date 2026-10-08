@@ -109,7 +109,7 @@ The suite uses the real pinned NBG implementation to construct the upstream
 handoff and checks the v0.1 reference receiver and v0.2 browser runtime agree on
 its validity.
 
-The 14 checks cover:
+The 16 checks cover:
 
 1. pinned NBG + v0.1 receiver interoperability;
 2. ephemeral observer rendering;
@@ -129,7 +129,7 @@ The 14 checks cover:
 Expected:
 
 ```text
-PhiBot physical observer runtime seam v0.2: PASS (14/14)
+PhiBot physical observer runtime seam v0.2: PASS (16/16)
 ```
 
 ## Non-claims
@@ -145,3 +145,5 @@ memory != permission
 
 A later rung may insert this seam into the canonical standalone runtime after
 this package contract is green.
+
+**v0.3 replay isolation repair:** Clear now removes the in-memory ID cache; an older duplicate cannot surface a different latest view. The v0.2 acceptance suite includes two additional regression cases.
