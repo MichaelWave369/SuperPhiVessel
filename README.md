@@ -298,3 +298,13 @@ grant. See [R2 local certificate setup and field limitations](packages/vessie-ga
 The canonical .54.12 runtime and unpromoted .54.13 Physical Observer are
 untouched. R2 is source/test qualified only; real browser/private-network
 behavior requires an explicit Windows pilot.
+
+## R3-A extracted route trace inspector (offline)
+
+The local Python [R3-A routing trace exporter](packages/vessie-gateway-v0.1/R3A_ROUTING_TRACE.md)
+uses read-only SQLite to verify P1-C route receipts and optional P3-A shadow
+outcomes before projecting only safe, bounded routing metadata. The React receipt
+inspector recognizes that projection **without** claiming a signature or authority.
+
+No live BrainC telemetry, model execution or browser gateway trace endpoint
+is enabled. R2 field qualification remains an operator-owned prerequisite.
