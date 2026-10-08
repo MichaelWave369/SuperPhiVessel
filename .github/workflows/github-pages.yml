@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test local read-only service contracts
-        run: node --test packages/vessie-local-console/tests/server.test.mjs
+        run: node --test packages/vessie-local-console/tests/*.test.mjs
       - name: Build self-contained Windows ZIP with Node runtime and license
         shell: pwsh
         run: |
