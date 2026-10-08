@@ -180,3 +180,14 @@ Historical tests should identify the runtime/protocol version they were written 
   - upstream mutation, tool-request injection, physical-command injection, role substitution, maintenance promotion, and authority escalation fail closed;
   - the package exposes no execution surface;
   - deterministic replay preserves the same observer result.
+
+
+- `packages/phibot-physical-observer-v0.2/acceptance.mjs` verifies the **browser-native PhiBot physical observer runtime seam v0.2**:
+  - real pinned NBG handoff creation agrees with the v0.1 reference receiver;
+  - accepted handoffs become ephemeral sanitized observer views only;
+  - browser Web Crypto SHA-256 receipts remain non-authorizing;
+  - duplicate replay is idempotent and same-ID/different-fingerprint reuse fails closed;
+  - tool injection, authority escalation, and maintenance promotion are refused;
+  - the seam writes no localStorage/sessionStorage/IndexedDB state;
+  - the runtime API exposes only receive/status/clear and no execution surface;
+  - deterministic replay and receipt-tamper checks remain stable.
