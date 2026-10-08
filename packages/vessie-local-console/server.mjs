@@ -18,6 +18,7 @@ const MAX_TRIAL_INPUT_BYTES = 4096;
 const STATIC = new Map([
   ['/app.js', { file: join(HERE, 'ui', 'app.js'), type:'text/javascript; charset=utf-8' }],
   ['/review-evidence.mjs', { file: join(HERE, 'ui', 'review-evidence.mjs'), type:'text/javascript; charset=utf-8' }],
+  ['/evidence-bench.mjs', { file: join(HERE, 'ui', 'evidence-bench.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/style.css', { file: join(HERE, 'ui', 'style.css'), type:'text/css; charset=utf-8' }]
 ]);
 
