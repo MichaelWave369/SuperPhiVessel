@@ -43,3 +43,24 @@ test('raw input content is never echoed into safe summary', () => {
   assert.ok(!JSON.stringify(result).includes('private-memory-do-not-render'));
   assert.equal(result.sharesContent,false);
 });
+
+test('R3-A import remains visibly unverified even when source self-hash passed', () => {
+  const result=inspectReceipt(JSON.stringify({
+    schema:'superphivessel.gateway.r3a.routing-trace.v0.1',
+    route_decision_id:'route_'+'a'.repeat(32),
+    model_ref:'model:'+'b'.repeat(32),
+    profile_ref:'ga108:032',
+    self_hash_consistent:true,
+    external_signature_verified:false,
+    source_authenticity_attested:false,
+    live_brainc_connected:false,
+    authority_granted:false,
+    private_prompt:'SHOULD_NOT_APPEAR'
+  }));
+  assert.equal(result.recognized,true);
+  assert.equal(result.label,'UNVERIFIED_IMPORT');
+  assert.equal(result.fields.self_hash_consistent,true);
+  assert.equal(result.verifiedCryptographically,false);
+  assert.equal(result.executionPermitted,false);
+  assert.ok(!JSON.stringify(result).includes('SHOULD_NOT_APPEAR'));
+});
