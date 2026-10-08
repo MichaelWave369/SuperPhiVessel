@@ -1,7 +1,7 @@
 import { X509Certificate } from 'node:crypto';
 import { lstatSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // Never read a TLS private key. This is a source-level readiness preflight,
 // not Windows trust, browser connectivity, machine attestation, or a runtime
@@ -123,7 +123,7 @@ export function inspectR2OperatorPreflight({
   };
 }
 
-if(process.argv[1] && import.meta.url===new URL('file://' + resolve(process.argv[1])).href) {
+if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
   // This CLI does not write any report file, contact localhost, run Ollama,
   // or inspect the private key. Print only allowlisted statuses.
   const result=inspectR2OperatorPreflight();
