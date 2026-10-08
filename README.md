@@ -89,6 +89,11 @@ the process and restart the default launcher to restore read-only mode.
 
 See [local Windows operator instructions](windows-local/START_HERE.txt)
 and [trial source](packages/vessie-local-console/trial-runner.mjs).
+New optional receipt timing fields and careful interpretation of cold load
+versus prompt processing and generation are documented in
+[performance receipt guide](packages/vessie-local-console/PERFORMANCE_RECEIPT_GUIDE.md).
+A trial reaching the requested token count is not automatically a
+complete, correct answer or a benchmark of GPU residency.
 
 ## Current canonical runtime
 
