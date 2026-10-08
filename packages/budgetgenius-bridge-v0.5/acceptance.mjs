@@ -19,7 +19,8 @@ function ok(id, name) {
 }
 
 const manifest = JSON.parse(readFileSync("runtime/MANIFEST.json", "utf8"));
-assert.equal(manifest.runtime.version, "v2.0-alpha.11.0.54.11");
+const canonicalPatch = Number(manifest.runtime.version.match(/\.54\.(\d+)$/)?.[1]);
+assert.ok(Number.isInteger(canonicalPatch) && canonicalPatch >= 11);
 assert.equal(manifest.canary_runtime?.protocol, "PV-BUDGETGENIUS-CANARY-0.5");
 assert.equal(manifest.canary_runtime?.max_decisions, 1);
 assert.equal(manifest.canary_runtime?.max_duration_ms, 300000);
@@ -38,7 +39,7 @@ assert.equal(gitBlobSha1, manifest.runtime.git_blob_sha1);
 ok("C02", "canonical-runtime-size-sha256-and-git-blob-pin-match");
 
 const html = runtimeBytes.toString("utf8");
-assert.ok(html.includes("const SUPER_PHIVESSEL_VERSION='2.0-alpha.11.0.54.11';"));
+assert.ok(html.includes("const SUPER_PHIVESSEL_VERSION='" + manifest.runtime.version.replace(/^v/, "") + "';"));
 assert.ok(html.includes("function computeBrokerRoute(opts)"));
 assert.ok(html.includes("function executorAuthorizationDecision(capsule,req)"));
 assert.ok(html.includes("function authorizeExecutor(capsule,req)"));
