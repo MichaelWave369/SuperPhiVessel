@@ -154,8 +154,12 @@ export async function createLocalConsole({
               ollama_total_duration_ns:safe(receipt.ollama_total_duration_ns),
               ollama_load_duration_ns:safe(receipt.ollama_load_duration_ns),
               ollama_prompt_tokens:safe(receipt.ollama_prompt_tokens),
+              ollama_prompt_eval_duration_ns:safe(receipt.ollama_prompt_eval_duration_ns),
               ollama_generated_tokens:safe(receipt.ollama_generated_tokens),
               ollama_eval_duration_ns:safe(receipt.ollama_eval_duration_ns),
+              output_token_cap_reached:receipt.output_token_cap_reached===true,
+              ollama_done_reason:['stop','length'].includes(receipt.ollama_done_reason)
+                ? receipt.ollama_done_reason : 'UNREPORTED_OR_UNKNOWN',
               generated_text_sha256:typeof receipt.generated_text_sha256==='string'&&
                 /^[a-f0-9]{64}$/.test(receipt.generated_text_sha256)
                   ?receipt.generated_text_sha256:null,
