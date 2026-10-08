@@ -10,7 +10,11 @@ echo.
 powershell.exe -NoProfile -File "%~dp0Start-Vessie.ps1"
 set "RESULT=%ERRORLEVEL%"
 echo.
-if not "%RESULT%"=="0" echo Starter returned a blocked or unavailable status: %RESULT%
+if not "%RESULT%"=="0" (
+  echo Starter script was blocked or unavailable. No security setting was changed.
+  echo Opening the browser-only Vessie cockpit instead.
+  start "" "https://michaelwave369.github.io/SuperPhiVessel/vessie/"
+)
 echo Review START_HERE.txt for first-run help.
 pause
 exit /b %RESULT%
