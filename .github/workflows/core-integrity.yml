@@ -77,15 +77,18 @@ jobs:
       - name: Refuse uncorrelated assess and stale Collect mode inputs
         shell: pwsh
         run: |
-          $path = 'packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1'
-          $out = & $path -Stage Assess 2>&1 | Out-String
-          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: ASSESS_REQUIRES_TRIAL_ID') { throw 'ASSESS_FAIL_CLOSED_TEST_FAILED' }
-          $out = & $path -Stage Collect -TrialId ('a' * 32) 2>&1 | Out-String
-          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: COLLECT_REQUIRES_FRESH_TRIAL_ID') { throw 'COLLECT_FAIL_CLOSED_TEST_FAILED' }
-          $id = 'f' * 32
-          $out = & $path -Stage Assess -TrialId $id 2>&1 | Out-String
-          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: WINDOWS_RECEIPT_MISSING') { throw 'MISSING_RECEIPT_FAIL_CLOSED_TEST_FAILED' }
-          Write-Host 'R2 guided pilot failure-path tests: PASS; no gateway/browser contact made'
+          $path = (Resolve-Path 'packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1').Path
+          $shell = (Get-Process -Id $PID).Path
+          function Assert-Blocked([string[]]$PilotArgs, [string]$Expected) {
+            $out = & $shell -NoProfile -NonInteractive -File $path @PilotArgs 2>&1 | Out-String
+            if ($LASTEXITCODE -ne 2 -or $out -notmatch [regex]::Escape("BLOCKED_R2_PILOT: $Expected")) {
+              throw "R2_NEGATIVE_CONTROL_FAILED_$Expected"
+            }
+          }
+          Assert-Blocked @('-Stage','Assess') 'ASSESS_REQUIRES_TRIAL_ID'
+          Assert-Blocked @('-Stage','Collect','-TrialId',('a' * 32)) 'COLLECT_REQUIRES_FRESH_TRIAL_ID'
+          Assert-Blocked @('-Stage','Assess','-TrialId',('f' * 32)) 'WINDOWS_RECEIPT_MISSING'
+          Write-Host 'R2 guided pilot subprocess failure-path tests: PASS; no gateway/browser contact made'
 
   vessie-r2-operator-preflight:
     runs-on: ubuntu-latest
