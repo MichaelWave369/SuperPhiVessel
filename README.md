@@ -287,3 +287,14 @@ The new React shell is built from `apps/vessie-web/` into `site/vessie/` only du
 - [Gateway contract](docs/routing/GATEWAY_CONTRACT_V1.md)
 
 **Preview-only:** shows real GA108 roster and repository manifest, explicit candidate model statuses, and browser-only bounded receipt inspection. Does not run models, accept secrets, validate signatures, or replace the canonical executor. Physical Observer .54.13 remains a separate unpromoted review candidate.
+
+## Experimental read-only browser pairing (R2)
+
+The React Model Fabric tab can optionally pair with a locally trusted HTTPS
+gateway started by the operator. Pairing is a one-use secret from the local
+terminal and a short-lived in-memory read-only session, never a model execution
+grant. See [R2 local certificate setup and field limitations](packages/vessie-gateway-v0.1/BROWSER_PAIRING_R2.md).
+
+The canonical .54.12 runtime and unpromoted .54.13 Physical Observer are
+untouched. R2 is source/test qualified only; real browser/private-network
+behavior requires an explicit Windows pilot.
