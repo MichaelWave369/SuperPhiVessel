@@ -55,6 +55,33 @@ The browser report includes only checks and model count. It deliberately exclude
 
 If the browser refuses TLS or local-network access, keep that failed result. Do not disable protections or use browser flags to force success.
 
+## R2 revocation confirmation, browser report v0.2
+
+The browser pilot now distinguishes two separate observations:
+
+1. `session_revocation_request` is `PASS` **only** when the R2 gateway's
+   `DELETE /v1/session` responds with
+   `{ "session_status": "REVOKED", "authority_granted": false }`.
+2. `revoked_session_denied` is `PASS` **only** when the page subsequently
+   sends `GET /v1/status` with the **same old bearer** and reads
+   `HTTP 403` with `SESSION_DENIED` and `authority_granted: false`.
+
+A network timeout, TLS error, browser refusal, unexpected response or
+missing second check is **not** a pass. These observations remain
+`UNATTESTED_BROWSER_CLIENT` claims, not cryptographic runtime or device
+attestation. The React page resets its pilot checks when a new pairing
+attempt begins so old successes cannot survive a new failed trial.
+
+**Re-run the pilot after updating GitHub Pages.** The old
+`superphivessel.gateway.r2.browser-field-report.v0.1` is intentionally
+refused by the updated comparator; only `v0.2` with five passing checks
+is eligible for `OBSERVED_PENDING_OPERATOR_REVIEW`. It still never
+constitutes a physical qualification or a model-routing approval.
+
+Do not share the original pairing code, bearer, TLS private key or raw
+browser state. A redacted failure report is useful evidence and should
+not be hidden or converted into success.
+
 ## C. Compare the two local reports
 
 From the checkout:
