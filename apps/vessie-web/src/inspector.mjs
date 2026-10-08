@@ -31,6 +31,11 @@ export function inspectReceipt(input) {
       obj.may_change_live_thresholds === true) {
     issues.push('An imported record claims authority or live mutation privileges');
   }
+  if (schema === 'superphivessel.gateway.r3c.canonical-route-evidence.v0.1' &&
+      (obj.terminal_outcomes_conflict === true ||
+       obj.execution_record_status === 'MIXED_TERMINAL_RECORDS_UNRESOLVED')) {
+    issues.push('Mixed terminal records require operator review; final outcome is unresolved');
+  }
   const fields = {};
   for (const key of ['decision_id','route_decision_id','observation_id','snapshot_id','qualification_id','packet_id',
     'task_id','task_class','profile_ref','model_ref','routing_mode','status','disposition','evidence_class',
@@ -38,7 +43,7 @@ export function inspectReceipt(input) {
     'route_receipt_hash','projection_hash',
     'source','probe_status','per_request_effective_model',
     'execution_record_status','executor_authorization_status',
-    'evidence_level','source_runtime']) {
+    'terminal_outcome_class','evidence_level','source_runtime']) {
     const value = text(obj, key);
     if (value !== null) fields[key] = value;
   }
@@ -51,14 +56,16 @@ export function inspectReceipt(input) {
     'independent_execution_confirmation','independently_verified_answer_quality',
     'source_authenticity_attested','brain_route_present','dispatch_attempt_observed',
     'executor_authorized_observed','budgetgenius_influence','budgetgenius_execution_authorized',
-    'exact_model_artifact_attested','ga108_genius_identity_attested','live_trace_export_connected']) {
+    'exact_model_artifact_attested','ga108_genius_identity_attested','live_trace_export_connected',
+    'terminal_outcomes_conflict']) {
     const value = boolean(obj,key);
     if (value !== null) fields[key] = value;
   }
   return {
     schema: schema ?? 'MISSING',
     recognized: schema ? KNOWN.has(schema) : false,
-    label: issues.some(x=>x.includes('claims authority')) ? 'REVIEW_REQUIRED' : 'UNVERIFIED_IMPORT',
+    label: issues.some(x=>x.includes('claims authority') || x.includes('Mixed terminal records'))
+      ? 'REVIEW_REQUIRED' : 'UNVERIFIED_IMPORT',
     issues,
     fields,
     verifiedCryptographically: false,

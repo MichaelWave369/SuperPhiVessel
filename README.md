@@ -317,6 +317,17 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R3-D routing outcome reconciliation
+
+R3-D hardens the R3-C projector and React inspector against misleading
+mixed terminal outcomes. When the same imported run contains both native
+`FAILED` and `COMPLETED` rows, the report now declares
+`MIXED_TERMINAL_RECORDS_UNRESOLVED` instead of selecting completion by
+precedence. This **does not** prove a final outcome, a valid retry sequence,
+or suitability for routing-learning rewards. The canonical runtime and
+authorization chain remain unchanged. See the
+[R3-C/R3-D evidence contract](packages/vessie-gateway-v0.1/canonical-routes/README.md).
+
 ## R3-C canonical routing evidence (operator-exported, offline)
 
 [R3-C receipt projector](packages/vessie-gateway-v0.1/canonical-routes/README.md)

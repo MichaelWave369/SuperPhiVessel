@@ -35,6 +35,7 @@
     "execution_record_status": {
       "enum": [
         "COMPLETION_RECORDED_UNVERIFIED",
+        "MIXED_TERMINAL_RECORDS_UNRESOLVED",
         "FAILURE_RECORDED",
         "DISPATCH_STARTED_NO_FINAL_OUTCOME",
         "EXECUTOR_DENIED",
@@ -43,6 +44,12 @@
         "SELECTION_ONLY",
         "FROZEN_RUN_ONLY"
       ]
+    },
+    "terminal_outcomes_conflict": {
+      "type": "boolean"
+    },
+    "terminal_outcome_class": {
+      "enum": ["COMPLETION_ONLY", "FAILURE_ONLY", "MIXED_UNRESOLVED", "NONE_RECORDED"]
     },
     "source_authenticity_attested": {
       "const": false

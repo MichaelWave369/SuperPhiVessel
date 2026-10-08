@@ -135,13 +135,15 @@ test('C17 dispatch started is not completion',()=>{
  const b=bundle();b.attempts[0].status='DISPATCH_STARTED';
  assert.equal(projectCanonicalRoute(b).execution_record_status,'DISPATCH_STARTED_NO_FINAL_OUTCOME');
 });
-test('C18 multiple attempts count separately, completion remains unverified',()=>{
+test('C18 mixed terminal records preserve both counts but refuse a final outcome',()=>{
  const b=bundle();b.attempts=[attempt('DISPATCH_STARTED','try-1'),attempt('FAILED','try-2'),attempt('COMPLETED','try-3')];
  const x=projectCanonicalRoute(b);
  assert.equal(x.dispatch_started_count,1);
  assert.equal(x.dispatch_failed_count,1);
  assert.equal(x.dispatch_completed_count,1);
- assert.equal(x.execution_record_status,'COMPLETION_RECORDED_UNVERIFIED');
+ assert.equal(x.execution_record_status,'MIXED_TERMINAL_RECORDS_UNRESOLVED');
+ assert.equal(x.terminal_outcomes_conflict,true);
+ assert.equal(x.terminal_outcome_class,'MIXED_UNRESOLVED');
 });
 test('C19 invalid authoritative route mode mismatch refused',()=>{
  const b=bundle();b.brainRoute.mode='LOCKED';
@@ -225,4 +227,51 @@ test('C33 malformed run identity fails closed',()=>{
 test('C34 oversized/negative latency fails closed',()=>{
  const b=bundle();b.attempts[0].latencyMs=-20;
  refuse(()=>projectCanonicalRoute(b));
+});
+test('D35 recorded success followed by failure is unresolved, not successful',()=>{
+ const b=bundle();
+ b.attempts=[{...attempt('COMPLETED','finish-1'),ts:100},
+             {...attempt('FAILED','fail-2'),ts:200}];
+ const x=projectCanonicalRoute(b);
+ assert.equal(x.execution_record_status,'MIXED_TERMINAL_RECORDS_UNRESOLVED');
+ assert.equal(x.terminal_outcomes_conflict,true);
+ assert.equal(x.dispatch_completed_count,1);
+ assert.equal(x.dispatch_failed_count,1);
+ assert.equal(x.authority_granted,false);
+});
+test('D36 recorded failure followed by success is still unresolved without retry linkage',()=>{
+ const b=bundle();
+ b.attempts=[{...attempt('FAILED','fail-1'),ts:100},
+             {...attempt('COMPLETED','finish-2'),ts:200}];
+ const x=projectCanonicalRoute(b);
+ assert.equal(x.execution_record_status,'MIXED_TERMINAL_RECORDS_UNRESOLVED');
+ assert.equal(x.terminal_outcome_class,'MIXED_UNRESOLVED');
+ assert.equal(x.independent_execution_confirmation,false);
+});
+test('D37 timestamp collision cannot resolve contradictory terminal records',()=>{
+ const b=bundle(); b.attempts=[attempt('COMPLETED','done-1'),attempt('FAILED','fail-2')];
+ assert.equal(projectCanonicalRoute(b).execution_record_status,'MIXED_TERMINAL_RECORDS_UNRESOLVED');
+});
+test('D38 repeated completion-only rows remain merely recorded and unverified',()=>{
+ const b=bundle(); b.attempts=[attempt('COMPLETED','done-1'),attempt('COMPLETED','done-2')];
+ const x=projectCanonicalRoute(b);
+ assert.equal(x.execution_record_status,'COMPLETION_RECORDED_UNVERIFIED');
+ assert.equal(x.terminal_outcomes_conflict,false);
+ assert.equal(x.terminal_outcome_class,'COMPLETION_ONLY');
+ assert.equal(x.independently_verified_answer_quality,false);
+});
+test('D39 repeated failure-only rows never become completion',()=>{
+ const b=bundle(); b.attempts=[attempt('FAILED','fail-1'),attempt('FAILED','fail-2')];
+ const x=projectCanonicalRoute(b);
+ assert.equal(x.execution_record_status,'FAILURE_RECORDED');
+ assert.equal(x.terminal_outcome_class,'FAILURE_ONLY');
+ assert.equal(x.terminal_outcomes_conflict,false);
+});
+test('D40 new conflict metadata contains no untrusted private outcome or prompt',()=>{
+ const b=bundle();b.attempts=[attempt('FAILED','fail-1'),attempt('COMPLETED','done-2')];
+ const x=projectCanonicalRoute(b);
+ assert.equal(x.terminal_outcomes_conflict,true);
+ for(const secret of ['LEAK_SENTINEL','SENTINEL_PRIVATE_PROMPT','SENSITIVE_INTERNAL_ERROR','private_task_hash']){
+  assert.ok(!JSON.stringify(x).includes(secret));
+ }
 });

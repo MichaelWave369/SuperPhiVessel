@@ -86,6 +86,32 @@ test('BrainC configured model report never turns into a verified chat execution'
   assert.ok(!JSON.stringify(data).includes('PRIVATE_PROMPT_NEVER_RENDER'));
 });
 
+test('R3-D mixed terminal records trigger review without granting execution',()=>{
+ const result=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
+  terminal_outcomes_conflict:true,
+  terminal_outcome_class:'MIXED_UNRESOLVED',
+  execution_record_status:'MIXED_TERMINAL_RECORDS_UNRESOLVED',
+  privatePrompt:'SECRET_NOT_TO_RENDER',
+  authority_granted:false
+ }));
+ assert.equal(result.recognized,true);
+ assert.equal(result.label,'REVIEW_REQUIRED');
+ assert.equal(result.fields.terminal_outcomes_conflict,true);
+ assert.equal(result.fields.terminal_outcome_class,'MIXED_UNRESOLVED');
+ assert.equal(result.verifiedCryptographically,false);
+ assert.equal(result.executionPermitted,false);
+ assert.ok(!JSON.stringify(result).includes('SECRET_NOT_TO_RENDER'));
+});
+test('R3-D flags status-conflict even if imported conflict boolean is false',()=>{
+ const x=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
+  terminal_outcomes_conflict:false,
+  execution_record_status:'MIXED_TERMINAL_RECORDS_UNRESOLVED',
+ }));
+ assert.equal(x.label,'REVIEW_REQUIRED');
+ assert.equal(x.executionPermitted,false);
+});
 test('R3-C native route projection remains untrusted even when completion is recorded',()=>{
  const result=inspectReceipt(JSON.stringify({
   schema:'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',

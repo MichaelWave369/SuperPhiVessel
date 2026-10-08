@@ -89,6 +89,38 @@ node --test packages/vessie-gateway-v0.1/canonical-routes/tests/projector.test.m
 
 Tests check separate selected/authorized/attempted/completed states, no invented outcome, conflicting IDs, model/provider mismatch, repeated attempts, malformed metadata, privacy defaults, local approved-pool boundaries, canary non-authority and deterministic projection checksum.
 
+## R3-D terminal-outcome reconciliation
+
+The extracted operator-exported records do not contain a verifiable attempt/retry
+lineage establishing which of multiple terminal rows represents the final
+run outcome. R3-D therefore makes **no last-write-wins assumption**:
+
+- Only completion rows: `COMPLETION_RECORDED_UNVERIFIED`.
+- Only failure rows: `FAILURE_RECORDED`.
+- Both `COMPLETED` and `FAILED` rows for one projected run:
+  `MIXED_TERMINAL_RECORDS_UNRESOLVED`, regardless of row order or timestamps.
+- A conflicting bundle retains both counts, reports
+  `terminal_outcomes_conflict=true` and
+  `terminal_outcome_class=MIXED_UNRESOLVED`, and is flagged for operator
+  review by the GitHub Pages *unverified import* inspector.
+
+This conservative interpretation avoids treating a failed later run as success
+just because some older row says `COMPLETED`. It also avoids assuming that
+a later completion resolves an earlier failure without signed, correlated
+retry evidence. Even `COMPLETION_ONLY` remains unverified, and **no
+completion/failure counters are suitable as training rewards or promotion
+signals yet**.
+
+The R3-C schema identifier is retained for compatibility, with two additive
+fields and one additional outcome state. The schema, unit tests and React
+import inspection agree on the new state. A future governed export must pin
+attempt lineage and independently validate source origin before any routing
+learner may consume these records as outcomes.
+
+No live runtime, canonical manifest, BrainC model setting, browser-pairing
+grant, BudgetGenius permission, Physical Observer promotion status or
+executor authorization is changed.
+
 ## Integration boundary
 
 Every exported result includes:
