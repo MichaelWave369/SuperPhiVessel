@@ -317,6 +317,17 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R3-F offline batch custody and duplicate-evidence review
+
+The [R3-F signed batch auditor](packages/vessie-gateway-v0.1/canonical-routes/CUSTODY_BATCH_R3F.md)
+reviews multiple operator-signed R3-E receipts together and flags
+repeated packet IDs, indistinguishable redacted summaries, non-monotonic
+operator signing times and mixed terminal outcomes. Its results remain
+operator-custody **only**, not a runtime trace, independent quality
+metric, cross-batch replay prevention or P4 learning reward. Production
+runtime `.54.12` remains frozen; R2 physical field qualification and
+Physical Observer `.54.13` hold remain unchanged.
+
 ## R3-E offline operator-signed evidence
 
 An optional [R3-E Ed25519 operator envelope](packages/vessie-gateway-v0.1/canonical-routes/OPERATOR_ENVELOPE_R3E.md)
