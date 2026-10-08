@@ -112,6 +112,36 @@ test('R3-D flags status-conflict even if imported conflict boolean is false',()=
  assert.equal(x.label,'REVIEW_REQUIRED');
  assert.equal(x.executionPermitted,false);
 });
+test('R3-F imported audit is visibly unverified and never treated as a learner reward',()=>{
+ const result=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3f.custody-batch.v0.1',
+  audit_scope:'SINGLE_OFFLINE_BATCH_NO_PERSISTENT_REPLAY_REGISTRY',
+  status:'OPERATOR_SIGNATURES_VERIFIED_SOURCE_UNATTESTED',
+  cross_batch_replay_prevented:false,
+  signed_data_runtime_origin_attested:false,
+  model_performance_suitable_for_learning:false,
+  may_update_model_weights:false,
+  rawPrompt:'SECRET_BATCH_PROMPT'
+ }));
+ assert.equal(result.recognized,true);
+ assert.equal(result.label,'UNVERIFIED_IMPORT');
+ assert.equal(result.verifiedCryptographically,false);
+ assert.equal(result.executionPermitted,false);
+ assert.ok(!JSON.stringify(result).includes('SECRET_BATCH_PROMPT'));
+});
+test('R3-F reviewer flags duplicate/ambiguous audit report without granting authority',()=>{
+ const x=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3f.custody-batch.v0.1',
+  status:'REVIEW_REQUIRED',
+  mixed_terminal_record_count:2,
+  may_update_model_weights:true,
+  authority_granted:false
+ }));
+ assert.equal(x.label,'REVIEW_REQUIRED');
+ assert.equal(x.executionPermitted,false);
+ assert.equal(x.verifiedCryptographically,false);
+ assert.ok(x.issues.some(t=>t.includes('Batch custody anomalies')));
+});
 test('R3-E imported operator envelope is never browser-verified or executable',()=>{
  const result=inspectReceipt(JSON.stringify({
   schema:'superphivessel.gateway.r3e.operator-envelope.v0.1',

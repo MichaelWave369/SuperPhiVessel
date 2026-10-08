@@ -5,6 +5,7 @@ const KNOWN = new Set([
   'superphivessel.gateway.r3b.brainc-configuration.v0.1',
   'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
   'superphivessel.gateway.r3e.operator-envelope.v0.1',
+  'superphivessel.gateway.r3f.custody-batch.v0.1',
   'superphivessel.dlam.p3a.v0.1',
   'superphivessel.dlam.p3a.scorecards.v0.1',
   'superphivessel.dlam.p3b.replay-report.v0.1',
@@ -51,6 +52,15 @@ export function inspectReceipt(input) {
       issues.push('Mixed terminal records require operator review; final outcome is unresolved');
     }
   }
+  if (schema === 'superphivessel.gateway.r3f.custody-batch.v0.1') {
+    issues.push('Offline batch report is not live model telemetry, independent runtime provenance or a learner reward');
+    if(obj.status === 'REVIEW_REQUIRED' || obj.mixed_terminal_record_count > 0)
+      issues.push('Batch custody anomalies require operator review; no route promotion');
+    if(obj.authority_granted===true||obj.can_execute===true||
+      obj.may_update_model_weights===true||
+      obj.model_performance_suitable_for_learning===true)
+      issues.push('An imported record claims authority or live mutation privileges');
+  }
   const fields = {};
   for (const key of ['decision_id','route_decision_id','observation_id','snapshot_id','qualification_id','packet_id',
     'task_id','task_class','profile_ref','model_ref','routing_mode','status','disposition','evidence_class',
@@ -58,7 +68,8 @@ export function inspectReceipt(input) {
     'route_receipt_hash','projection_hash',
     'source','probe_status','per_request_effective_model',
     'execution_record_status','executor_authorization_status',
-    'terminal_outcome_class','evidence_level','source_runtime']) {
+    'terminal_outcome_class','evidence_level','source_runtime',
+    'audit_scope','verification_status']) {
     const value = text(obj, key);
     if (value !== null) fields[key] = value;
   }
@@ -72,14 +83,16 @@ export function inspectReceipt(input) {
     'source_authenticity_attested','brain_route_present','dispatch_attempt_observed',
     'executor_authorized_observed','budgetgenius_influence','budgetgenius_execution_authorized',
     'exact_model_artifact_attested','ga108_genius_identity_attested','live_trace_export_connected',
-    'terminal_outcomes_conflict']) {
+    'terminal_outcomes_conflict','cross_batch_replay_prevented',
+    'signed_data_runtime_origin_attested','model_performance_suitable_for_learning',
+    'may_update_model_weights']) {
     const value = boolean(obj,key);
     if (value !== null) fields[key] = value;
   }
   return {
     schema: schema ?? 'MISSING',
     recognized: schema ? KNOWN.has(schema) : false,
-    label: issues.some(x=>x.includes('claims authority') || x.includes('Mixed terminal records'))
+    label: issues.some(x=>x.includes('claims authority') || x.includes('Mixed terminal records') || x.includes('Batch custody anomalies'))
       ? 'REVIEW_REQUIRED' : 'UNVERIFIED_IMPORT',
     issues,
     fields,
