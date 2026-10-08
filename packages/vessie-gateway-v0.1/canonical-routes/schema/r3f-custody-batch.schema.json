@@ -19,7 +19,8 @@
     "issues",
     "issue_counts",
     "operator_public_key_fingerprint_sha256",
-    "verified_with_independently_supplied_key",
+    "signature_checked_against_caller_supplied_key",
+    "independent_key_trust_attested",
     "report_checksum_sha256",
     "cross_batch_replay_prevented",
     "signed_data_runtime_origin_attested",
@@ -100,9 +101,12 @@
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
     },
-    "verified_with_independently_supplied_key": {
+    "signature_checked_against_caller_supplied_key": {
       "const": true
     },
+    "independent_key_trust_attested": {
+      "const": false
+    }
     "report_checksum_sha256": {
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
