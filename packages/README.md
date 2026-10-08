@@ -22,5 +22,6 @@ Historical standalone packages must not be represented as integrated merely beca
 - `phibot-physical-observer-v0.1` — **EXPERIMENTAL / UNWIRED / ADVISORY-ONLY** receiver for pinned NBG physical-experience handoffs; renders evidence/questions and grants no tool or physical authority.
 - `phibot-physical-observer-v0.2` — **EXPERIMENTAL / DEFAULT-OFF / BROWSER-NATIVE / EPHEMERAL / UNWIRED** runtime seam for the same handoff; emits sanitized observer views, uses Web Crypto receipts, and writes no browser persistent storage.
 - `phibot-physical-observer-v0.3` — **EXPERIMENTAL / CANDIDATE ONLY / NOT CANONICAL** operator-triggered physical observer panel compiled into a reproducible standalone `.54.13` HTML CI artifact, without modifying the shipped `.54.12` runtime.
+- `phibot-physical-observer-v0.4` — **EXPERIMENTAL / HEADLESS CHROMIUM QUALIFICATION / NOT CANONICAL** true-browser UI gate, NBG-generated adversarial fixtures and desktop/mobile screenshots for the `.54.13` review candidate.
 
 Presence here is not runtime activation.
