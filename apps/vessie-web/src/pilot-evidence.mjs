@@ -16,7 +16,7 @@ export function makeR2BrowserReceipt(input = {}, options = {}) {
     options.modelCount <= 256 ? options.modelCount : null;
   const observed = Object.values(checks).filter(x => x === 'PASS').length;
   return {
-    schema: 'superphivessel.gateway.r2.browser-field-report.v0.1',
+    schema: 'superphivessel.gateway.r2.browser-field-report.v0.2',
     observation_source: 'UNATTESTED_BROWSER_CLIENT',
     generated_at_utc: new Date().toISOString(),
     scope: 'READ_ONLY_HTTPS_MODEL_DISCOVERY',
