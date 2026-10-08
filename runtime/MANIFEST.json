@@ -1,12 +1,12 @@
 {
   "schema": "superphivessel.runtime-manifest.v0.1",
   "runtime": {
-    "version": "v2.0-alpha.11.0.54.11",
-    "name": "BudgetGenius One-Shot Local Canary Seam",
-    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.11_BudgetGenius_Canary_Seam.html",
-    "size_bytes": 13341450,
-    "sha256": "8370ed738deb367ed3ae9e6ae27ce798e75a98f844b56d4b61868bc3bfb8afe5",
-    "git_blob_sha1": "5cb0492646d5f6e8de232871ef056928db5f20a8"
+    "version": "v2.0-alpha.11.0.54.12",
+    "name": "BudgetGenius Canonical Outcome Handoff",
+    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.12_BudgetGenius_Outcome_Handoff.html",
+    "size_bytes": 13345436,
+    "sha256": "a9e67b12d1c3622315b6937f1c2405acbd5b2a6bc6d32cf578c67d5178fa7212",
+    "git_blob_sha1": "c9dc18eb76be9883d18014de129c07cf78c5a498"
   },
   "canonical": true,
   "release_status": "ALPHA",
@@ -36,7 +36,10 @@
     "Historical .51.x ZIP bundles are not current deployment truth.",
     "v2.0-alpha.11.0.54.11 adds a default-off, one-shot, local-only BudgetGenius canary route-influence seam after BudgetCompute and before final Executor Authorization.",
     "The live canary requires an SHA-256-valid v0.4 lease, Operator/Steward/Board approvals, an exact RESERVED BudgetPass for the same mandate and route, code/builder scope, one approved local Ollama model, <=5 minutes, one decision, and zero paid spend.",
-    "Canary route influence does not authorize execution; authorizeExecutor remains downstream and mandatory."
+    "Canary route influence does not authorize execution; authorizeExecutor remains downstream and mandatory.",
+    "v2.0-alpha.11.0.54.12 adds automatic BudgetGenius canary outcome capture at the canonical local executor completion/failure seam.",
+    "Successful execution is captured as AWAITING_VERIFICATION, never as verified quality; failed canary execution becomes ROLLBACK_REQUIRED before any remote fallback.",
+    "The v0.7 outcome handoff normalizes the canonical v0.5 influence identity for the v0.6 closeout layer without granting writeback, routing, execution, payment, or scope-expansion authority."
   ],
   "canary_runtime": {
     "protocol": "PV-BUDGETGENIUS-CANARY-0.5",
@@ -47,6 +50,12 @@
     "max_decisions": 1,
     "max_duration_ms": 300000,
     "paid_spend_usd": 0,
-    "final_executor_authorization_required": true
+    "final_executor_authorization_required": true,
+    "outcome_handoff_protocol": "PV-BUDGETGENIUS-OUTCOME-0.7",
+    "outcome_handoff_status": "AUTOMATIC_CAPTURE_AWAITING_INDEPENDENT_VERIFICATION",
+    "outcome_success_state": "AWAITING_VERIFICATION",
+    "outcome_failure_state": "ROLLBACK_REQUIRED",
+    "verified_writeback_authority": false,
+    "scope_expansion_authority": false
   }
 }
