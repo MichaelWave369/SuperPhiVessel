@@ -1,6 +1,7 @@
 SUPERPHIVESSEL LOCAL CONSOLE FOR WINDOWS
 ======================================
-Portable read-only Ollama dashboard. No Git or Node installation needed.
+Portable Ollama dashboard with read-only DEFAULT and optional manually
+enabled local inference trials. No Git or Node installation needed.
 The ZIP includes its own Node.js runtime (with its license).
 
 DOWNLOAD AFTER #50 MERGES AND PAGES DEPLOYS:
@@ -11,6 +12,7 @@ https://michaelwave369.github.io/SuperPhiVessel/local/
 2. Right-click -> Extract All. DO NOT run directly inside ZIP.
 3. Review the source files if you like.
 4. Double-click Start-Local-Vessie.cmd as your normal Windows user.
+   This remains READ ONLY. It cannot run any model prompts.
 5. Your default browser should open http://127.0.0.1:8791/
    If not, copy that local address into the browser yourself.
 6. Press "Discover my local models".
@@ -21,6 +23,32 @@ at http://127.0.0.1:11434. If Ollama is not installed or isn't running,
 you will see an unavailable/empty report. No model gets installed.
 Optional Ollama installer: https://ollama.com/download/windows
 
+OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
+- Stop the read-only console first.
+- Double-click Start-Local-Trial.cmd, read its warning, and enter
+  the exact word ENABLE. No administrative access needed.
+- Open the local dashboard, click Discover, choose a model whose
+  local weight size Ollama reported. CLOUD REF / UNKNOWN entries
+  are intentionally ineligible.
+- Enter one short prompt (up to 2,000 characters), choose 64 or 128
+  maximum generated tokens, check the approval box and confirm
+  in the separate browser confirmation. Each prompt needs a new
+  approval. No automatic or repeated runs are scheduled.
+- Ollama may take up to 90 seconds and use CPU/GPU resources.
+  Larger models may fail, load slowly, or offload to system RAM.
+- Review the generated answer and the evidence receipt in the
+  browser. The receipt intentionally excludes the prompt and
+  generated answer. It includes model name, latency and Ollama-
+  reported token timing/counts (not independently attested).
+- Export the redacted receipt only if you explicitly choose to.
+- This trial feature limits execution to six attempts per hour per
+  launched process. No cloud references, prompt history, memory
+  writes, background agents, model routing or paid API authority.
+- Opt-in is per-process, not a persistent setting. Restart the
+  default launcher to return to no-execution read-only mode.
+- Ollama model metadata is advisory and not a perfect guarantee
+  of origin. Check what you run and avoid sensitive prompts.
+
 SECURITY AND SCOPE:
 - Bundled Node runtime is prepackaged by the GitHub Actions Windows
   build, not downloaded or installed when you start the app.
@@ -30,9 +58,11 @@ SECURITY AND SCOPE:
 - Never sends local model names to GitHub Pages or cloud APIs.
 - A random read-only API secret is stored in the running process only,
   not in files or shared browser storage.
-- No prompts, inference, agent execution, memory reads, cloud model
-  calls, software installs, paid API calls, CA installation, or
-  governance changes are available.
+- The DEFAULT read-only launcher exposes no prompts, inference or
+  execution. The separate operator-enabled trial launcher can send
+  one short prompt at a time to an eligible local Ollama model;
+  no cloud models, agents, memory reads, software installs, paid
+  API calls, CA installation or governance changes are enabled.
 - Does not connect the HOSTED Vessie React page to your PC.
   That remains a separate HTTPS R2 pilot and a different security scope.
 - Your local browser displays an independent minimal Vessie console.
