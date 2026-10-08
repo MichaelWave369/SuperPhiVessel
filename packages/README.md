@@ -20,5 +20,6 @@ Historical standalone packages must not be represented as integrated merely beca
 - `budgetgenius-bridge-v0.5` — **EXPERIMENTAL / DEFAULT-OFF / CANONICAL RUNTIME CANARY** one-shot local builder/code route influence bound to an empirical v0.4 lease, a real RESERVED BudgetPass, frozen Run Capsule approval, and downstream Executor Authorization.
 - `spdw-v0.1` — frozen experimental SPD-W acceptance contract.
 - `phibot-physical-observer-v0.1` — **EXPERIMENTAL / UNWIRED / ADVISORY-ONLY** receiver for pinned NBG physical-experience handoffs; renders evidence/questions and grants no tool or physical authority.
+- `phibot-physical-observer-v0.2` — **EXPERIMENTAL / DEFAULT-OFF / BROWSER-NATIVE / EPHEMERAL / UNWIRED** runtime seam for the same handoff; emits sanitized observer views, uses Web Crypto receipts, and writes no browser persistent storage.
 
 Presence here is not runtime activation.
