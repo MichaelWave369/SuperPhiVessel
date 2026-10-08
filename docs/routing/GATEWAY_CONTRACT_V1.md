@@ -60,3 +60,20 @@ a separately qualified HTTPS pairing path exists.
 
 R1 is **not** the browser-capable gateway described by the target contract.
 No BrainC, task routing, private memory or remote-provider secrets are connected.
+
+## R2 candidate browser pairing (local HTTPS)
+
+A separate candidate `browser-server.mjs` now implements a browser-facing HTTPS
+read-only pairing service with a local operator-supplied certificate, exact
+GitHub Pages origin, one-use 256-bit secret, 15-minute in-memory bearer and
+revocation. It binds `127.0.0.1` and only exposes local telemetry GETs.
+
+See [R2 setup and limitations](../../packages/vessie-gateway-v0.1/BROWSER_PAIRING_R2.md).
+
+**Not yet physically/browser-qualified.** CI tests a local TLS server against
+temporary certificate fixtures. The user's Windows certificate trust,
+Chrome/Firefox private-network permissions, actual Ollama results and
+the source origin's protection from script compromise remain field gates.
+
+No BrainC connection, model execution, memory disclosure, API credentials,
+learned-policy promotion, BudgetGenius activation or executor control is added.
