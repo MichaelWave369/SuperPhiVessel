@@ -22,7 +22,7 @@ DECISION_RE = re.compile(r"^route_[0-9a-f]{32}$")
 OBSERVATION_RE = re.compile(r"^p3obs_[0-9a-f]{32}$")
 PROFILE_RE = re.compile(r"^ga108:[0-9]{3}$")
 MODEL_RE = re.compile(r"^model:[0-9a-f]{32}$")
-TASK_CLASS_RE = re.compile(r"^[a-z][a-z0-9_.-]{0,63}$")
+TASK_CLASS_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 TRACE_SCHEMA = "superphivessel.gateway.r3a.routing-trace.v0.1"
 MAX_JSON_LENGTH = 131072
@@ -53,7 +53,7 @@ def valid_digest(data: dict[str, Any], *, kind: str) -> str:
         "route": ("PV-DLAM-ROUTE|", "receipt_hash", "decision_id", "route_",
                   "superphivessel.dlam.route-decision.p1c.v0.1"),
         "observation": ("PV-DLAM-P3A-OBS|", "observation_hash", "observation_id",
-                        "p3obs_", "superphivessel.dlam.p3a.observation.v0.1"),
+                        "p3obs_", "superphivessel.dlam.p3a.v0.1"),
     }[kind]
     prefix, hash_field, id_field, id_prefix, schema = spec
     require(data.get("schema") == schema, "SCHEMA_MISMATCH")
