@@ -141,7 +141,13 @@ export function projectCanonicalRoute(bundle,{operatorNames=false}={}){
   const completed=clean.filter(x=>x.status==='COMPLETED');
   const failed=clean.filter(x=>x.status==='FAILED');
   const started=clean.filter(x=>x.status==='DISPATCH_STARTED');
-  const finalStatus=completed.length>0?'COMPLETION_RECORDED_UNVERIFIED':
+  // The native export does not prove retry lineage or which terminal row is
+  // authoritative. Never let an arbitrary completion hide a failure (or vice versa).
+  const terminalOutcomesConflict=completed.length>0 && failed.length>0;
+  const terminalOutcomeClass=terminalOutcomesConflict?'MIXED_UNRESOLVED':
+    completed.length>0?'COMPLETION_ONLY':failed.length>0?'FAILURE_ONLY':'NONE_RECORDED';
+  const finalStatus=terminalOutcomesConflict?'MIXED_TERMINAL_RECORDS_UNRESOLVED':
+    completed.length>0?'COMPLETION_RECORDED_UNVERIFIED':
     failed.length>0?'FAILURE_RECORDED':
     started.length>0?'DISPATCH_STARTED_NO_FINAL_OUTCOME':
     auth?.status==='DENIED'?'EXECUTOR_DENIED':
@@ -177,6 +183,8 @@ export function projectCanonicalRoute(bundle,{operatorNames=false}={}){
     dispatch_started_count:started.length,
     dispatch_completed_count:completed.length,
     dispatch_failed_count:failed.length,
+    terminal_outcomes_conflict:terminalOutcomesConflict,
+    terminal_outcome_class:terminalOutcomeClass,
     last_recorded_latency_ms:lastLatency,
     execution_record_status:finalStatus,
     independent_execution_confirmation:false,
