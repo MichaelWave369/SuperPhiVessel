@@ -191,3 +191,5 @@ Historical tests should identify the runtime/protocol version they were written 
   - the seam writes no localStorage/sessionStorage/IndexedDB state;
   - the runtime API exposes only receive/status/clear and no execution surface;
   - deterministic replay and receipt-tamper checks remain stable.
+
+- `packages/phibot-physical-observer-v0.3/acceptance.mjs` verifies the **canonical HTML candidate builder**, frozen original runtime preservation, isolated module compilation, hidden-until-opened panel, invalid-input refusal, ephemeral clearing, and nonauthoritative UI. CI uploads the candidate as a review artifact, not a canonical release.
