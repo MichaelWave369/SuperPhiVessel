@@ -93,6 +93,12 @@ export async function createLocalConsole({port=PORT,probe=discoverOllama,launchB
           // Explicit projection instead of blindly relaying future upstream fields.
           const models = local.models.map(x=>({
             name:typeof x.name==='string'?x.name.slice(0,128):'',
+            // Only known classification enums are allowed to cross the API
+            // boundary. Missing/foreign values become UNKNOWN, never "local".
+            execution_location:['LOCAL_WEIGHTS_REPORTED','CLOUD_REFERENCE'].includes(x.execution_location)
+              ? x.execution_location : 'UNKNOWN',
+            classification_basis:['REMOTE_METADATA','CLOUD_TAG_HINT','POSITIVE_SIZE_REPORT'].includes(x.classification_basis)
+              ? x.classification_basis : 'INSUFFICIENT_METADATA',
             loaded:x.loaded===true,
             quantization:typeof x.quantization==='string'?x.quantization.slice(0,48):'Unreported',
             parameter_size:typeof x.parameter_size==='string'?x.parameter_size.slice(0,48):'Unreported',
@@ -103,6 +109,13 @@ export async function createLocalConsole({port=PORT,probe=discoverOllama,launchB
           return respond(res,200,{
             schema:'superphivessel.local-console.models.v0.1',
             probe_status:local.probe_status,model_count:models.length,models,
+            classification_counts:{
+              local_weights_reported:models.filter(x=>x.execution_location==='LOCAL_WEIGHTS_REPORTED').length,
+              cloud_references:models.filter(x=>x.execution_location==='CLOUD_REFERENCE').length,
+              unknown:models.filter(x=>x.execution_location==='UNKNOWN').length
+            },
+            classification_is_advisory:true,
+            cloud_execution_approved:false,
             no_cloud_upload:true,authority_granted:false,can_execute:false
           });
         } finally {inFlight=false;}
