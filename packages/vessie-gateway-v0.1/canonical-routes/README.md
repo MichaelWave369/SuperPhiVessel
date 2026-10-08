@@ -121,6 +121,22 @@ No live runtime, canonical manifest, BrainC model setting, browser-pairing
 grant, BudgetGenius permission, Physical Observer promotion status or
 executor authorization is changed.
 
+## R3-E offline operator-signed envelope
+
+[**Operator walkthrough and verification boundary**](OPERATOR_ENVELOPE_R3E.md).
+
+R3-E adds an optional, **operator-local, no-network** Ed25519 signature to
+the redacted R3-C/R3-D evidence projection. A reviewer must supply the
+operator's public key independently to validate custody of the signed packet.
+It uses an exact projection allowlist and preserves mixed terminal outcomes
+as unresolved. The key and raw receipts never belong in GitHub Pages.
+
+**Not connected:** canonical browser export, BrainC, local HTTPS R2, live
+execution, model quality, signer identity proof, runtime-origin attestation,
+P4 learning or authority. A valid operator signature only says a given key
+signed this packet. See [R3-E implementation](operator-envelope.mjs) and
+[negative controls](tests/operator-envelope.test.mjs).
+
 ## Integration boundary
 
 Every exported result includes:

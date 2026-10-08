@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/vessie-gateway-v0.1/canonical-routes/schema/r3e-operator-envelope.schema.json",
+  "title": "Vessie R3-E operator-signed offline redacted evidence",
+  "description": "Signed custody of an operator-exported projection only. Never runtime origin, execution, or model-quality attestation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "packet",
+    "signer",
+    "signature_base64"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.gateway.r3e.operator-envelope.v0.1"
+    },
+    "packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packet_id",
+        "created_at",
+        "operator_review_declared",
+        "custody_claim",
+        "projection",
+        "runtime_origin_verified",
+        "independently_verified_answer_quality",
+        "authority_granted",
+        "can_execute",
+        "may_change_live_route"
+      ],
+      "properties": {
+        "packet_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "operator_review_declared": {
+          "const": true
+        },
+        "custody_claim": {
+          "const": "OPERATOR_SIGNED_REDACTED_PROJECTION_NOT_RUNTIME_ATTESTED"
+        },
+        "projection": {
+          "$ref": "r3c-projection.schema.json"
+        },
+        "runtime_origin_verified": {
+          "const": false
+        },
+        "independently_verified_answer_quality": {
+          "const": false
+        },
+        "authority_granted": {
+          "const": false
+        },
+        "can_execute": {
+          "const": false
+        },
+        "may_change_live_route": {
+          "const": false
+        }
+      }
+    },
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "key_fingerprint_sha256",
+        "trust"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "Ed25519"
+        },
+        "key_fingerprint_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "trust": {
+          "const": "EXTERNAL_OPERATOR_PUBLIC_KEY_REQUIRED"
+        }
+      }
+    },
+    "signature_base64": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{86}==$"
+    }
+  }
+}
