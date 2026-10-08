@@ -47,7 +47,17 @@ OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
 - Phase timing is for review only. The trial runner uses keep_alive:0
   to unload weights after the request. Do not treat separate
   approved trials as a continuous warm-cache speed benchmark.
-- Export the redacted receipt only if you explicitly choose to.
+- Export the redacted performance receipt only if you explicitly choose to.
+- Optionally, after a completed response, record a HUMAN answer review:
+  usefulness 1-5 or not assessed, whether the answer appears complete,
+  and whether YOU separately checked factual claims. This is a human
+  self-report, not a factual audit, autonomous grader or authority grant.
+- The review's redacted JSON links back to the output SHA-256 but never
+  includes the prompt or model answer. You must explicitly click
+  Export redacted human review to save it locally. A new trial or
+  inventory refresh clears the current review association.
+- Previous receipts without an answer cannot be retroactively rated
+  from token timings or hashes alone.
 - This trial feature limits execution to six attempts per hour per
   launched process. No cloud references, prompt history, memory
   writes, background agents, model routing or paid API authority.
