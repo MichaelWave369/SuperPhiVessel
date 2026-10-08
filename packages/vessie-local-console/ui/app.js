@@ -2,6 +2,7 @@ const session = document.querySelector('meta[name="vessie-readonly-token"]')?.co
 const button = document.getElementById('scan');
 const status = document.getElementById('status');
 const count = document.getElementById('count');
+const breakdown = document.getElementById('breakdown');
 const empty = document.getElementById('empty');
 const modelsRoot = document.getElementById('models');
 
@@ -21,19 +22,29 @@ function render(items) {
     title.textContent=item.name;
     const detail = document.createElement('div');
     detail.className='detail';
-    detail.textContent=`${item.parameter_size} · ${item.quantization} · ${bytes(item.size_bytes)}` +
-      (item.loaded ? ` · GPU/VRAM reported: ${bytes(item.runtime_vram_bytes)}` : '');
+    const location = item.execution_location;
+    const cloud = location === 'CLOUD_REFERENCE';
+    const local = location === 'LOCAL_WEIGHTS_REPORTED';
+    const sizeLabel = cloud ? 'Cloud reference (not locally stored weights)'
+      : local ? bytes(item.size_bytes) + ' size reported locally'
+      : 'Weight location unverified';
+    detail.textContent=`${item.parameter_size} · ${item.quantization} · ${sizeLabel}` +
+      (item.loaded ? ` · Active in Ollama report; VRAM: ${bytes(item.runtime_vram_bytes)}` : '');
     body.append(title,detail);
     const badge = document.createElement('span');
-    badge.className='state'+(item.loaded?' live':'');
-    badge.textContent=item.loaded?'LOADED':'INSTALLED';
+    badge.className='state'+(cloud?' cloud':item.loaded?' live':'');
+    badge.textContent=cloud?'CLOUD REF':local?(item.loaded?'LOCAL ACTIVE':'LOCAL FILE'):'UNKNOWN';
     card.append(body,badge);
     modelsRoot.append(card);
   }
   modelsRoot.hidden=items.length===0;
   empty.hidden=items.length>0;
   empty.textContent=items.length===0?'No Ollama models were reported locally. No models were installed or started.':'';
+  const localCount=items.filter(x=>x.execution_location==='LOCAL_WEIGHTS_REPORTED').length;
+  const cloudCount=items.filter(x=>x.execution_location==='CLOUD_REFERENCE').length;
+  const unknownCount=items.length-localCount-cloudCount;
   count.textContent=items.length+' discovered, none authorized';
+  breakdown.textContent=`${localCount} local weight-size reports · ${cloudCount} cloud references · ${unknownCount} unknown. Names/sizes are metadata, not proof of execution or local GPU fit. No cloud calls initiated.`;
 }
 async function scan() {
   button.disabled=true;
@@ -60,6 +71,7 @@ async function scan() {
     modelsRoot.replaceChildren();modelsRoot.hidden=true;empty.hidden=false;
     empty.textContent='No verified local model inventory available.';
     count.textContent='Not available';
+    breakdown.textContent='Classification unavailable. No local or cloud execution attempted.';
   } finally {button.disabled=false;}
 }
 button.addEventListener('click',scan);

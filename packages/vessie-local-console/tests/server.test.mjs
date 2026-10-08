@@ -184,3 +184,59 @@ test('L14 declared unavailable Ollama inventory is not fabricated',async()=>{
     assert.equal(data.can_execute,false);
   },{probe:async()=>({...fixture(),probe_status:'UNAVAILABLE',models:[]})});
 });
+
+
+test('L15 cloud references and local-size reports are counted without execution grants',async()=>{
+  const augmented={...fixture(),models:[
+    {...fixture().models[0],execution_location:'LOCAL_WEIGHTS_REPORTED',
+      classification_basis:'POSITIVE_SIZE_REPORT'},
+    {name:'qwen3-coder:480b-cloud',size_bytes:0,loaded:false,
+      execution_location:'CLOUD_REFERENCE',classification_basis:'CLOUD_TAG_HINT',
+      private_remote_host:'SHOULD_NEVER_LEAK',routing_approved:true,
+      execution_authorized:true},
+    {name:'opaque:latest',size_bytes:0,loaded:false,execution_location:'FALSE_LOCAL',
+      classification_basis:'MALICIOUS',routing_approved:true}
+  ]};
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await request(g.port,'/api/models',{headers:{Authorization:'Bearer '+key}});
+    assert.equal(r.code,200);
+    const data=JSON.parse(r.text);
+    assert.deepEqual(data.classification_counts,{
+      local_weights_reported:1,cloud_references:1,unknown:1
+    });
+    assert.equal(data.classification_is_advisory,true);
+    assert.equal(data.cloud_execution_approved,false);
+    assert.equal(data.can_execute,false);
+    assert.equal(data.authority_granted,false);
+    assert.equal(data.models[1].execution_location,'CLOUD_REFERENCE');
+    assert.equal(data.models[1].routing_approved,false);
+    assert.equal(data.models[1].execution_authorized,false);
+    assert.equal(data.models[2].execution_location,'UNKNOWN');
+    assert.equal(data.models[2].classification_basis,'INSUFFICIENT_METADATA');
+    assert.ok(!r.text.includes('SHOULD_NEVER_LEAK'));
+    assert.ok(!r.text.includes('MALICIOUS'));
+  },{probe:async()=>augmented});
+});
+test('L16 cloud model naming never makes server launch an inference request',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    await request(g.port,'/api/models',{headers:{Authorization:'Bearer '+key}});
+    assert.equal(calls,1);
+    assert.equal((await request(g.port,'/api/chat',{method:'POST'})).code,405);
+    assert.equal(calls,1);
+  },{probe:async()=>{calls++;return {...fixture(),models:[{
+      name:'kimi-k3:cloud',size_bytes:0,
+      execution_location:'CLOUD_REFERENCE',classification_basis:'REMOTE_METADATA'
+    }]};}});
+});
+test('L17 local UI never claims cloud reference is INSTALLED or reports 0 GiB of GPU fit',async()=>{
+  await withServer(async g=>{
+    const script=(await request(g.port,'/app.js')).text;
+    assert.ok(script.includes("CLOUD REF"));
+    assert.ok(script.includes("LOCAL FILE"));
+    assert.ok(script.includes('Cloud reference (not locally stored weights)'));
+    assert.ok(!script.includes("badge.textContent=item.loaded?'LOADED':'INSTALLED'"));
+  });
+});

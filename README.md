@@ -42,6 +42,12 @@ Node installation, firewall changes, admin rights or cloud API keys needed.
 - Windows package is assembled from an exact allowlist during the
   GitHub Pages workflow and redistributed with the Node runtime license.
 
+Cloud-backed Ollama entries now display as **CLOUD REF** rather than
+**INSTALLED**, with separate local-size, cloud and unknown counts. A cloud
+name suffix is a hint; an on-disk size is only a reported weight size,
+not a GPU compatibility claim. Nothing contacts a cloud provider.
+See [model-location evidence rules](packages/vessie-local-console/MODEL_LOCATION_NOTES.md).
+
 See [local console source](packages/vessie-local-console/),
 [Windows portable packager](windows-local/build-portable.ps1), and
 [operator notes](windows-local/START_HERE.txt). Windows source/packaging
