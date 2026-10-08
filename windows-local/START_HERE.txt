@@ -66,6 +66,26 @@ OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
 - Ollama model metadata is advisory and not a perfect guarantee
   of origin. Check what you run and avoid sensitive prompts.
 
+LOCAL EVIDENCE BENCH (AVAILABLE EVEN IN DEFAULT READ-ONLY MODE):
+- This bench compares redacted performance receipts with human self-
+  reports. It NEVER runs a model, creates a rank or approves routing.
+- After a completed trial, click Keep current performance receipt.
+  After recording a human review, click Keep current human review.
+  Neither result enters the comparison until you click those buttons.
+- For old receipts or comparing across different model sessions, select
+  exported redacted JSON files in the file input. Click Read selected
+  local files. Up to 24 distinct entries, at most 16 KiB per file.
+- The first exported performance-only receipt can be imported even
+  if its answer was not retained. It will show No review; no answer
+  quality is invented or guessed from token throughput.
+- The bench matches a review only on model name plus output SHA-256.
+  A matching review remains a human assertion, not verified truth.
+- Explicitly click Export redacted comparison to download a JSON
+  summary. No prompt or answer content is included.
+- Click Clear this bench or close/refresh the page to discard the
+  in-memory comparison. No persistent storage, server uploads,
+  automatic rankings, or model routing exists.
+
 SECURITY AND SCOPE:
 - Bundled Node runtime is prepackaged by the GitHub Actions Windows
   build, not downloaded or installed when you start the app.

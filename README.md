@@ -99,6 +99,16 @@ are self-reports, not independently verified quality or a BrainC route
 approval. See [Human Review Guide](packages/vessie-local-console/HUMAN_REVIEW_GUIDE.md).
 Previously exported timing receipts cannot be given retroactive answer
 quality ratings unless the human also retained the actual answer.
+
+The **Local Evidence Bench** can compare up to 24 explicitly selected,
+redacted performance and human-review JSON receipts, in browser memory
+only. Import is through a manual file selection, or the operator can
+explicitly keep the latest receipt in the bench. Exports require another
+click. Rows remain **chronological and unranked**. A matching human
+self-report is linked to a performance observation by model and output
+SHA-256, not by presumed hardware or a routing endorsement.
+Old performance-only receipts are supported, but no model answer quality
+is invented. See [Evidence Bench Guide](packages/vessie-local-console/EVIDENCE_BENCH_GUIDE.md).
 New optional receipt timing fields and careful interpretation of cold load
 versus prompt processing and generation are documented in
 [performance receipt guide](packages/vessie-local-console/PERFORMANCE_RECEIPT_GUIDE.md).

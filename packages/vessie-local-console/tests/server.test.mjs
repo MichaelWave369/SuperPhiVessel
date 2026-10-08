@@ -469,3 +469,43 @@ test('L30 review requires a completed live trial and explicitly clicked export',
     assert.ok(!js.includes('innerHTML'));
   });
 });
+
+
+test('L31 pure evidence-bench helper served only as allowlisted same-origin local module',async()=>{
+  await withServer(async g=>{
+    const r=await request(g.port,'/evidence-bench.mjs');
+    assert.equal(r.code,200);
+    assert.match(r.headers['content-type'],/javascript/);
+    assert.equal(r.headers['access-control-allow-origin'],undefined);
+    assert.match(r.text,/export function addBenchEvidence/);
+    assert.match(r.text,/export function buildBenchSummary/);
+    assert.equal((await request(g.port,'/ui/evidence-bench.mjs')).code,404);
+    assert.equal((await request(g.port,'/evidence-bench.mjs',{headers:{
+      Origin:'https://michaelwave369.github.io'
+    }})).code,403);
+  });
+});
+test('L32 evidence bench requires deliberate in-memory import/export and never auto-schedules prompts',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.ok(html.includes('id="bench-import"'));
+    assert.ok(html.includes('id="bench-add-performance"'));
+    assert.ok(html.includes('id="bench-add-review"'));
+    assert.ok(html.includes('id="bench-export"'));
+    assert.ok(html.includes('id="bench-clear"'));
+    assert.ok(js.includes('addBenchEvidence('));
+    assert.ok(js.includes('buildBenchSummary('));
+    assert.ok(js.includes('file.text()'));
+    assert.ok(js.includes('file.size>16384'));
+    assert.ok(js.includes("benchImportSelected.addEventListener('click'"));
+    assert.ok(js.includes("benchExport.addEventListener('click'"));
+    assert.ok(js.includes("benchClear.addEventListener('click'"));
+    assert.ok(!js.includes('localStorage'));
+    assert.ok(!js.includes('indexedDB'));
+    assert.ok(!js.includes('setInterval('));
+    assert.ok(!js.includes('innerHTML'));
+    assert.equal((await request(g.port,'/api/bench')).code,404);
+    assert.equal((await request(g.port,'/api/import-evidence',{method:'POST'})).code,405);
+  });
+});
