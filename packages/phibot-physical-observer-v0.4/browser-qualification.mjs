@@ -149,7 +149,7 @@ try {
   console.log(
     "PhiBot physical observer real-browser qualification: PASS (" +
       checks +
-      "/14)"
+      "/15)"
   );
   console.log(
     "NOTE this is headless Chromium acceptance against generated candidate HTML, not operator review or canonical promotion."
