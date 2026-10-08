@@ -9,6 +9,45 @@ permissions:
   contents: read
 
 jobs:
+  vessie-windows-starter:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse optional standalone Windows read-only launcher
+        shell: powershell
+        run: |
+          $t = $null
+          $e = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('windows-starter/Start-Vessie.ps1', [ref]$t, [ref]$e) | Out-Null
+          if ($e.Count -gt 0) { throw 'STARTER_SCRIPT_PARSE_FAILED' }
+          Write-Host 'starter-powershell-parser: PASS'
+      - name: Run launcher in explicitly non-network test mode
+        shell: powershell
+        run: |
+          $out = & powershell.exe -NoProfile -File 'windows-starter/Start-Vessie.ps1' -NoBrowser -SkipLocalProbe 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 0 -or
+              $out -notmatch 'Local Ollama probe: NOT_TESTED' -or
+              $out -notmatch 'Browser launch: NOT_TESTED' -or
+              $out -notmatch 'STARTER_COMPLETE_NO_AUTHORITY') { throw 'STARTER_READ_ONLY_TEST_FAILED' }
+          if ($out -match 'AVAILABLE_READ_ONLY|Installed models discovered') { throw 'STARTER_TEST_FABRICATED_LOCAL_DISCOVERY' }
+          Write-Host 'starter-launcher-read-only-skip-mode: PASS'
+      - name: Package only the three allowlisted starter files
+        shell: pwsh
+        run: |
+          python windows-starter/build-package.py --output (Join-Path $env:RUNNER_TEMP 'SuperPhiVessel-Windows-Starter.zip')
+          if ($LASTEXITCODE -ne 0) { throw 'STARTER_PACKAGE_FAILED' }
+          python -c "import zipfile,sys; z=zipfile.ZipFile(sys.argv[1]); assert z.namelist()==['START_HERE.txt','Start-Vessie.cmd','Start-Vessie.ps1']; assert z.testzip() is None; print('starter-archive-contract: PASS')" (Join-Path $env:RUNNER_TEMP 'SuperPhiVessel-Windows-Starter.zip')
+          if ($LASTEXITCODE -ne 0) { throw 'STARTER_ARCHIVE_INVALID' }
+      - name: Never grant browser authority or modify canonical runtime
+        shell: pwsh
+        run: |
+          if (-not (Test-Path site/starter/index.html)) { throw 'STARTER_LANDING_MISSING' }
+          if (-not (Test-Path runtime/MANIFEST.json)) { throw 'CANONICAL_MANIFEST_MISSING' }
+          Write-Host 'starter-source-boundary: PASS'
+
   vessie-r3f-custody-batch:
     runs-on: ubuntu-latest
     steps:
