@@ -40,11 +40,18 @@ if (!html.includes("BUDGETGENIUS_CANARY_OUTCOME_RUNTIME_V0_7_BEGIN")) {
   throw new Error("BUDGETGENIUS_OUTCOME_ANCHOR_MISSING");
 }
 
-const bodyClose = /<\/body\s*>/gi;
-const closes = [...html.matchAll(bodyClose)];
-if (closes.length !== 1) {
-  throw new Error("EXPECTED_EXACTLY_ONE_BODY_CLOSE_TAG");
+const bodyCloses = [...html.matchAll(/<\/body\s*>/gi)];
+const htmlCloses = [...html.matchAll(/<\/html\s*>/gi)];
+const lastBodyClose = bodyCloses.at(-1);
+const lastHtmlClose = htmlCloses.at(-1);
+const insertionAnchor =
+  lastBodyClose && (!lastHtmlClose || lastBodyClose.index < lastHtmlClose.index)
+    ? lastBodyClose
+    : lastHtmlClose;
+if (!insertionAnchor && !html.includes("</script>")) {
+  throw new Error("NO_SAFE_DOCUMENT_INSERTION_POINT");
 }
+const insertionIndex = insertionAnchor ? insertionAnchor.index : html.length;
 if (html.includes(START) || html.includes(END)) {
   throw new Error("PHYSICAL_OBSERVER_ALREADY_INSERTED");
 }
@@ -80,7 +87,10 @@ const injection = [
 ].join("\n") + "\n";
 
 let candidate = html.replace(oldMarker, newMarker);
-candidate = candidate.replace(closes[0][0], injection + closes[0][0]);
+candidate =
+  candidate.slice(0, insertionIndex) +
+  injection +
+  candidate.slice(insertionIndex);
 
 if (!candidate.includes(newMarker) || candidate.includes(oldMarker)) {
   throw new Error("CANDIDATE_VERSION_PATCH_FAILED");
@@ -110,6 +120,7 @@ const report = {
   baseVersion: BASE_VERSION,
   baseSha256: BASE_DIGEST,
   candidateVersion: CANDIDATE_VERSION,
+  insertionAnchor: insertionAnchor ? insertionAnchor[0].toLowerCase() : "APPEND_AFTER_SOURCE",
   candidatePath: output,
   candidateSizeBytes: candidateBytes.length,
   candidateSha256,
