@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,revokeGateway}
+import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,revokeGateway,confirmRevokedGateway}
   from '../src/pairing-client.mjs';
 
 const session='f'.repeat(64);
