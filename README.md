@@ -317,6 +317,16 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R2 browser revocation confirmation
+
+The [Windows R2 physical-pilot guide](packages/vessie-gateway-v0.1/pilots/README.md)
+now requires the browser to observe both an acknowledged read-only
+session deletion **and** subsequent `403 SESSION_DENIED` for that same
+old bearer. The redacted browser report is now `v0.2`; older reports
+cannot pass the updated field comparator. A browser-observed refusal
+does **not** equal independent Windows/Chromium field qualification,
+live routing permission or runtime attestation.
+
 ## R3-F offline batch custody and duplicate-evidence review
 
 The [R3-F signed batch auditor](packages/vessie-gateway-v0.1/canonical-routes/CUSTODY_BATCH_R3F.md)
