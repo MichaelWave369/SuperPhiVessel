@@ -1,4 +1,5 @@
 import {makeHumanReview} from './review-evidence.mjs';
+import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
@@ -19,6 +20,17 @@ const trialStatus = document.getElementById('trial-status');
 const trialOutput = document.getElementById('trial-output');
 const trialReceipt = document.getElementById('trial-receipt');
 const trialTiming = document.getElementById('trial-timing');
+const benchCount = document.getElementById('bench-count');
+const benchRows = document.getElementById('bench-rows');
+const benchStatus = document.getElementById('bench-status');
+const benchFootnote = document.getElementById('bench-footnote');
+const benchAddPerformance = document.getElementById('bench-add-performance');
+const benchAddReview = document.getElementById('bench-add-review');
+const benchImport = document.getElementById('bench-import');
+const benchImportSelected = document.getElementById('bench-import-selected');
+const benchExport = document.getElementById('bench-export');
+const benchClear = document.getElementById('bench-clear');
+let benchEntries = [];
 const reviewPanel = document.getElementById('human-review');
 const reviewHelpfulness = document.getElementById('review-helpfulness');
 const reviewCompleteness = document.getElementById('review-completeness');
@@ -40,6 +52,7 @@ function resetHumanReview() {
   reviewExport.disabled = true;
   reviewReceipt.textContent = 'No human review recorded.';
   reviewStatus.textContent = 'No assessment recorded.';
+  syncBenchButtons();
 }
 
 function showTiming(receipt) {
@@ -228,6 +241,7 @@ trialRun.addEventListener('click',async()=>{
     trialOutput.textContent=data.response || '(Model returned an empty response)';
     exportedReceipt=data.receipt;
     lastPerformanceReceipt=data.receipt;
+    syncBenchButtons();
     reviewPanel.hidden=false;
     reviewStatus.textContent='Answer available for your optional human review. Nothing is rated automatically.';
     trialReceipt.textContent=JSON.stringify(data.receipt,null,2);
@@ -256,6 +270,7 @@ trialExport.addEventListener('click',()=>{
 for(const field of [reviewHelpfulness,reviewCompleteness,reviewVerification]) {
   field.addEventListener('change',()=>{
     humanReviewReceipt=null;
+    syncBenchButtons();
     reviewExport.disabled=true;
     reviewReceipt.textContent='No human review recorded for the current selections.';
     reviewStatus.textContent='Assessment changed. Click Record my assessment again before exporting.';
@@ -275,11 +290,13 @@ reviewSubmit.addEventListener('click',()=>{
       verification:reviewVerification.value
     });
     humanReviewReceipt=review;
+    syncBenchButtons();
     reviewReceipt.textContent=JSON.stringify(review,null,2);
     reviewExport.disabled=false;
     reviewStatus.textContent='Your self-reported assessment is recorded in memory only. No model routing or execution permission changed.';
   } catch {
     humanReviewReceipt=null;
+    syncBenchButtons();
     reviewExport.disabled=true;
     reviewReceipt.textContent='No review recorded.';
     reviewStatus.textContent='Choose all three assessment fields before recording. Nothing was exported.';
@@ -295,3 +312,117 @@ reviewExport.addEventListener('click',()=>{
   a.click();
   URL.revokeObjectURL(url);
 });
+
+function syncBenchButtons(){
+  benchAddPerformance.disabled = !lastPerformanceReceipt || benchEntries.length>=MAX_BENCH_ENTRIES;
+  benchAddReview.disabled = !humanReviewReceipt || benchEntries.length>=MAX_BENCH_ENTRIES;
+}
+function fmtMs(value){
+  return Number.isSafeInteger(value)&&value>=0?(value/1000).toFixed(2)+' s':'Not reported';
+}
+function renderBench(){
+  const summary=buildBenchSummary(benchEntries);
+  benchCount.textContent=benchEntries.length+' of '+MAX_BENCH_ENTRIES+' entries in memory';
+  benchExport.disabled=benchEntries.length===0;
+  benchClear.disabled=benchEntries.length===0;
+  syncBenchButtons();
+  benchRows.replaceChildren();
+  if(summary.rows.length===0){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=9;
+    td.textContent='No performance receipts yet. Human reviews without matching performance receipts remain unpaired.';
+    tr.append(td);benchRows.append(tr);
+  }
+  for(const row of summary.rows){
+    const tr=document.createElement('tr');
+    const colValues=[
+      row.model+' · '+row.observed_at.slice(0,16).replace('T',' ')+' UTC',
+      fmtMs(row.wall_ms),
+      fmtMs(row.model_load_ms),
+      fmtMs(row.prompt_eval_ms),
+      fmtMs(row.generation_eval_ms),
+      (row.generated_tokens??'Not reported')+' / '+
+        (row.reported_generation_tokens_per_second===null?'N/A':
+          row.reported_generation_tokens_per_second.toFixed(1)+' tok/s'),
+      row.human_review_status==='OPERATOR_SELF_REPORT'?row.helpfulness+' / 5':'Not assessed',
+      row.human_review_status==='OPERATOR_SELF_REPORT'?row.completeness:'No review',
+      row.verification==='NOT_CHECKED'?'Not checked':row.verification
+    ];
+    for(const value of colValues){
+      const cell=document.createElement('td');cell.textContent=String(value);tr.append(cell);
+    }
+    tr.title='Output SHA-256: '+row.output_sha256+
+      ' · Human review evidence is a self-report, not independent verification.';
+    benchRows.append(tr);
+  }
+  benchFootnote.textContent=
+    summary.performance_receipt_count+' performance receipts · '+
+    summary.human_review_receipt_count+' human self-reports · '+
+    summary.unpaired_human_reviews+' unpaired reviews. '+
+    'Rows are not ranked. A shared model+output hash links a human review to an answer, not to verified hardware or route authority. Imported JSON is user-selected and unauthenticated.';
+}
+function benchError(){
+  benchStatus.textContent='Evidence was not accepted: missing/invalid redacted fields, oversized file, or full bench. No information was uploaded or persisted.';
+}
+benchAddPerformance.addEventListener('click',()=>{
+  try{
+    if(!lastPerformanceReceipt)throw new Error('NO_TRIAL');
+    const previous=benchEntries.length;
+    benchEntries=addBenchEvidence(benchEntries,lastPerformanceReceipt);
+    renderBench();
+    benchStatus.textContent=benchEntries.length===previous?
+      'This performance receipt was already in the bench.':
+      'One redacted performance receipt added to browser memory, not disk.';
+  }catch{benchError();}
+});
+benchAddReview.addEventListener('click',()=>{
+  try{
+    if(!humanReviewReceipt)throw new Error('NO_REVIEW');
+    const previous=benchEntries.length;
+    benchEntries=addBenchEvidence(benchEntries,humanReviewReceipt);
+    renderBench();
+    benchStatus.textContent=benchEntries.length===previous?
+      'This human review was already in the bench.':
+      'One human self-report added to browser memory. No automated grade or route permission.';
+  }catch{benchError();}
+});
+benchImportSelected.addEventListener('click',async()=>{
+  const files=Array.from(benchImport.files??[]);
+  if(files.length===0){
+    benchStatus.textContent='Choose redacted JSON files first. Nothing has been read.';
+    return;
+  }
+  benchImportSelected.disabled=true;
+  try{
+    if(files.length>MAX_BENCH_ENTRIES)throw new Error('TOO_MANY_FILES');
+    let next=benchEntries;
+    for(const file of files){
+      if(file.size>16384||file.size===0)throw new Error('FILE_SIZE_DENIED');
+      const parsed=JSON.parse(await file.text());
+      next=addBenchEvidence(next,parsed);
+    }
+    const imported=next.length-benchEntries.length;
+    benchEntries=next;
+    renderBench();
+    benchStatus.textContent=imported+' redacted observation(s) accepted from explicitly selected local files. No upload, history or model execution.';
+  }catch{benchError();}
+  finally{benchImportSelected.disabled=false;benchImport.value='';}
+});
+benchExport.addEventListener('click',()=>{
+  if(benchEntries.length===0)return;
+  const summary=buildBenchSummary(benchEntries);
+  const blob=new Blob([JSON.stringify(summary,null,2)+'\n'],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='vessie-evidence-bench-redacted-summary.json';
+  a.click();URL.revokeObjectURL(url);
+  benchStatus.textContent='Redacted, descriptive comparison exported by your explicit action. No routing decisions made.';
+});
+benchClear.addEventListener('click',()=>{
+  if(!window.confirm('Clear all in-memory comparison evidence from this tab? Existing exported files are unchanged.'))return;
+  benchEntries=[];
+  renderBench();
+  benchStatus.textContent='Browser-memory bench cleared. No files were deleted.';
+});
+renderBench();
