@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "apps/vessie-web/**"
+      - "protocols/dlam-v0.1/genius-roster.json"
+      - "protocols/routing-v2/model-candidates.json"
+      - "runtime/MANIFEST.json"
       - ".github/workflows/github-pages.yml"
   workflow_dispatch:
 
@@ -49,6 +53,32 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
+      - name: Set up Node for React cockpit
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install cockpit dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-audit --no-fund
+
+      - name: Test React cockpit source
+        working-directory: apps/vessie-web
+        run: npm test
+
+      - name: Build /vessie/ into existing static site
+        working-directory: apps/vessie-web
+        run: npm run build
+
+      - name: Verify existing front door and searchable manual preserved
+        shell: bash
+        run: |
+          test -f site/index.html
+          test -f site/manual/index.html
+          test -f site/vessie/index.html
+          grep -q '/SuperPhiVessel/vessie/' site/vessie/index.html
+          echo 'existing-site-and-react-cockpit: PASS'
 
       - name: Upload static site
         uses: actions/upload-pages-artifact@v4
