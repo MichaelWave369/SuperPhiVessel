@@ -64,3 +64,24 @@ test('R3-A import remains visibly unverified even when source self-hash passed',
   assert.equal(result.executionPermitted,false);
   assert.ok(!JSON.stringify(result).includes('SHOULD_NOT_APPEAR'));
 });
+
+test('BrainC configured model report never turns into a verified chat execution',()=>{
+  const data=inspectReceipt(JSON.stringify({
+    schema:'superphivessel.gateway.r3b.brainc-configuration.v0.1',
+    source:'BRAINC_V1_LOCAL_READ_ONLY_API',
+    probe_status:'AVAILABLE',
+    configured_active_model:'braincbrain',
+    configured_active_in_inventory:true,
+    per_request_effective_model:'UNKNOWN',
+    execution_observed:false,
+    brainc_routing_trace_verified:false,
+    authority_granted:false,
+    prompt:'PRIVATE_PROMPT_NEVER_RENDER',
+  }));
+  assert.equal(data.recognized,true);
+  assert.equal(data.fields.per_request_effective_model,'UNKNOWN');
+  assert.equal(data.fields.execution_observed,false);
+  assert.equal(data.verifiedCryptographically,false);
+  assert.equal(data.executionPermitted,false);
+  assert.ok(!JSON.stringify(data).includes('PRIVATE_PROMPT_NEVER_RENDER'));
+});

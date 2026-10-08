@@ -91,3 +91,17 @@ recognize its schema but never promotes an imported record into a verified grant
 
 R2 physical Windows/browser qualification remains pending, and live routing
 trace integration requires a separate R3-B donor-specific review.
+
+## R3-B BrainC donor configuration proof
+
+R3-B source-reviewed [`BrainC` v1 configured-state probe](../../packages/vessie-gateway-v0.1/brainc-donor/BRAINC_DONOR_AUDIT.md)
+reads only the two existing local GET model configuration endpoints and explicitly
+declines to infer which model served a specific chat request.
+
+The BrainC chat code uses a per-user model preference or its own default,
+which can differ from the global active-model setting. As a result, **configured
+active model is not execution evidence**. It does not expose a canonical verified
+per-request Crane Fly/GA108/P1-C route receipt. The two surfaces must never be conflated.
+
+R3-B remains operator-only localhost CLI, disconnected from the R2 browser gateway
+and canonical SuperPhiVessel router, with no switching/chat/actions or new authorization.
