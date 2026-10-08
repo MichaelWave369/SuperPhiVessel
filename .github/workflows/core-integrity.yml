@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  vessie-gateway-r1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prove local-only discovery auth and refusal controls
+        run: npm test --prefix packages/vessie-gateway-v0.1
+
   vessie-web:
     runs-on: ubuntu-latest
     steps:
