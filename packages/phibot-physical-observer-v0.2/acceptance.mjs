@@ -264,8 +264,25 @@ const tamperedReceipt = {
 assert.equal(await verifyRuntimeReceipt(tamperedReceipt), false);
 ok("C14", "runtime-receipt-authority-tamper-fails-integrity");
 
+const cacheRuntime = createPhysicalObserverRuntime();
+const rememberedA = makePacket({ handoffId: "cache-a" });
+const rememberedB = makePacket({ handoffId: "cache-b" });
+await cacheRuntime.receive(rememberedA);
+await cacheRuntime.receive(rememberedB);
+const olderDuplicate = await cacheRuntime.receive(rememberedA);
+assert.equal(olderDuplicate.status, "DUPLICATE");
+assert.equal(olderDuplicate.view, null);
+assert.equal(olderDuplicate.receipt, null);
+ok("C15", "older-duplicate-cannot-replay-the-newest-handoff-view");
+
+cacheRuntime.clear();
+const replayAfterClear = await cacheRuntime.receive(rememberedA);
+assert.equal(replayAfterClear.status, "DISPLAYED_ADVISORY_ONLY");
+assert.ok(replayAfterClear.view);
+ok("C16", "clear-removes-idempotence-cache-and-allows-fresh-display");
+
 console.log(
-  "PhiBot physical observer runtime seam v0.2: PASS (" + passed + "/14)"
+  "PhiBot physical observer runtime seam v0.2: PASS (" + passed + "/16)"
 );
 console.log(
   "NOTE v0.2 is ephemeral, browser-native, default-unwired, and exposes no tool or physical action surface."
