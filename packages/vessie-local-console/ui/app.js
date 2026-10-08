@@ -16,6 +16,41 @@ const trialExport = document.getElementById('trial-export');
 const trialStatus = document.getElementById('trial-status');
 const trialOutput = document.getElementById('trial-output');
 const trialReceipt = document.getElementById('trial-receipt');
+const trialTiming = document.getElementById('trial-timing');
+
+function showTiming(receipt) {
+  const ns = v=>Number.isSafeInteger(v)&&v>=0?v:null;
+  const total=ns(receipt.ollama_total_duration_ns);
+  const load=ns(receipt.ollama_load_duration_ns);
+  const prompt=ns(receipt.ollama_prompt_eval_duration_ns);
+  const evalNs=ns(receipt.ollama_eval_duration_ns);
+  const generated=ns(receipt.ollama_generated_tokens);
+  const sec=v=>v===null?'not reported':(v/1e9).toFixed(2)+' s';
+  const rows=[
+    'Total Ollama time: '+sec(total),
+    'Model loading: '+sec(load),
+    'Prompt evaluation: '+sec(prompt),
+    'Token generation: '+sec(evalNs),
+    'End-to-end wall time: '+
+      (ns(receipt.elapsed_wall_ms)===null?'not reported':(receipt.elapsed_wall_ms/1000).toFixed(2)+' s')
+  ];
+  if(generated!==null&&evalNs!==null&&evalNs>0)
+    rows.push('Reported generation throughput: '+(generated*1e9/evalNs).toFixed(1)+' tokens/s (generation phase only)');
+  if(receipt.output_token_cap_reached===true)
+    rows.push('Output token cap reached. This does not prove the answer was truncated.');
+  rows.push('Stop reason: '+(['stop','length'].includes(receipt.ollama_done_reason)
+    ?receipt.ollama_done_reason:'unreported/unknown'));
+  if(total!==null&&load!==null&&evalNs!==null){
+    const known=load+evalNs+(prompt??0);
+    const remaining=total-known;
+    if(remaining>=0)rows.push(
+      'Other/unattributed Ollama time: '+(remaining/1e9).toFixed(2)+' s' +
+      (prompt===null?' (prompt evaluation not separately reported)':'')
+    );
+  }
+  rows.push('Metadata comes from Ollama. Not an independent GPU or routing benchmark.');
+  trialTiming.textContent=rows.join('\n');
+}
 let exportedReceipt = null;
 let localModels = [];
 let trialModeEnabled = false;
@@ -146,6 +181,7 @@ trialRun.addEventListener('click',async()=>{
   exportedReceipt=null;
   trialOutput.textContent='Waiting for local model…';
   trialReceipt.textContent='No receipt available.';
+  trialTiming.textContent='Timing measurement in progress.';
   trialStatus.textContent='Local one-shot trial started. This may load model weights or use CPU/GPU resources. No automatic retry.';
   try{
     const response=await fetch('/api/local-trial',{
@@ -166,11 +202,13 @@ trialRun.addEventListener('click',async()=>{
     trialOutput.textContent=data.response || '(Model returned an empty response)';
     exportedReceipt=data.receipt;
     trialReceipt.textContent=JSON.stringify(data.receipt,null,2);
+    showTiming(data.receipt);
     trialExport.disabled=false;
     trialStatus.textContent='One local model trial completed. Receipt visible; no routing authority granted.';
   }catch{
     trialOutput.textContent='No verified model response available.';
     trialReceipt.textContent='No receipt available.';
+    trialTiming.textContent='No verified timing observation available.';
     trialStatus.textContent='Trial blocked or unavailable. Restarted models are not assumed. You may rescan before another attempt.';
   }finally{trialRun.disabled=false;}
 });

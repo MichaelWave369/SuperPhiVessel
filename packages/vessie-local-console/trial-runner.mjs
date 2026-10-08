@@ -5,6 +5,7 @@ const MAX_RESPONSE_BYTES=128*1024;
 const MAX_OUTPUT_CHARS=6000;
 const GENERATION_TIMEOUT_MS=90000;
 const safeInt=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+const safeReason=value=>['stop','length'].includes(value)?value:'UNREPORTED_OR_UNKNOWN';
 
 async function boundedJson(response){
   if(!response.ok) throw new Error('OLLAMA_GENERATION_UNAVAILABLE');
@@ -65,8 +66,14 @@ export async function runLocalTrial({model,prompt,maxOutputTokens=128,fetchImpl=
     ollama_total_duration_ns:safeInt(result.total_duration),
     ollama_load_duration_ns:safeInt(result.load_duration),
     ollama_prompt_tokens:safeInt(result.prompt_eval_count),
+    ollama_prompt_eval_duration_ns:safeInt(result.prompt_eval_duration),
     ollama_generated_tokens:safeInt(result.eval_count),
     ollama_eval_duration_ns:safeInt(result.eval_duration),
+    // Reaching the request cap is an observation, NOT proof of
+    // truncation or of a successful answer.
+    output_token_cap_reached:safeInt(result.eval_count)!==null &&
+      safeInt(result.eval_count)>=maxOutputTokens,
+    ollama_done_reason:safeReason(result.done_reason),
     generated_text_sha256:createHash('sha256').update(result.response).digest('hex'),
     private_prompt_included:false,
     generated_text_included:false,

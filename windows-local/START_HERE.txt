@@ -40,6 +40,13 @@ OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
   browser. The receipt intentionally excludes the prompt and
   generated answer. It includes model name, latency and Ollama-
   reported token timing/counts (not independently attested).
+- Newer receipts also include reported prompt-evaluation duration,
+  an allowlisted stop reason and whether the requested token cap
+  was reached. A reached cap is NOT proof that the answer was cut
+  short, nor that the answer was correct.
+- Phase timing is for review only. The trial runner uses keep_alive:0
+  to unload weights after the request. Do not treat separate
+  approved trials as a continuous warm-cache speed benchmark.
 - Export the redacted receipt only if you explicitly choose to.
 - This trial feature limits execution to six attempts per hour per
   launched process. No cloud references, prompt history, memory
