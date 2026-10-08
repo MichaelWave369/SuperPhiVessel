@@ -27,7 +27,8 @@
       <div id="status" role="status" aria-live="polite" class="status">Ready for a read-only Ollama check. Press Discover.</div>
     </section>
     <section class="panel" aria-labelledby="models-heading">
-      <div class="panel-top"><h2 id="models-heading">Local model inventory</h2><span class="tiny" id="count">Not scanned</span></div>
+      <div class="panel-top"><h2 id="models-heading">Ollama model inventory</h2><span class="tiny" id="count">Not scanned</span></div>
+      <p id="breakdown" class="classification-note" aria-live="polite">Local weights, cloud references and uncertain entries will be counted separately. Classification is advisory, not an execution or billing approval.</p>
       <div class="empty" id="empty">Nothing has been probed yet. Your installed Ollama models will appear here after you request a scan.</div>
       <div id="models" class="models" hidden></div>
     </section>
@@ -35,7 +36,7 @@
       <h2>Connected, but governed</h2>
       <div class="scope-grid">
         <div><strong>LOCAL ONLY</strong><span>HTTP server bound to 127.0.0.1. No LAN or Internet listener.</span></div>
-        <div><strong>DISCOVERY ONLY</strong><span>Model names, size, quantization and loaded state. No prompts sent.</span></div>
+        <div><strong>DISCOVERY ONLY</strong><span>Local-weight size reports and cloud references shown separately. No prompts sent.</span></div>
         <div><strong>NO EXECUTION GRANT</strong><span>Models discovered here are not automatically approved for BrainC or Crane Fly.</span></div>
       </div>
       <p class="footnote">This local dashboard is a standalone companion. It does not claim the hosted React cockpit can automatically access your local models. To stop this local server, return to the command window and press Ctrl+C.</p>
