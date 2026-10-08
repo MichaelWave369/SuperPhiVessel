@@ -17,6 +17,7 @@ Historical standalone packages must not be represented as integrated merely beca
 - `budgetgenius-bridge-v0.2` — **EXPERIMENTAL / SHADOW ECONOMICS / UNWIRED** runtime-economic mirror for BudgetCompute, Credit Governor, PV-GPU, Run Capsule, and P4-A shadow evidence.
 - `budgetgenius-bridge-v0.3` — **EXPERIMENTAL / SHADOW QUALIFICATION / UNWIRED** held-out economic evidence gate; may request a bounded canary lease only after empirical qualification.
 - `budgetgenius-bridge-v0.4` — **EXPERIMENTAL / BOUNDED CANARY LEASE / UNWIRED** operator/steward/board-approved route-influence envelope with hard expiry, spend/decision caps, revocation, and automatic rollback.
+- `budgetgenius-bridge-v0.5` — **EXPERIMENTAL / DEFAULT-OFF / CANONICAL RUNTIME CANARY** one-shot local builder/code route influence bound to an empirical v0.4 lease, a real RESERVED BudgetPass, frozen Run Capsule approval, and downstream Executor Authorization.
 - `spdw-v0.1` — frozen experimental SPD-W acceptance contract.
 
 Presence here is not runtime activation.
