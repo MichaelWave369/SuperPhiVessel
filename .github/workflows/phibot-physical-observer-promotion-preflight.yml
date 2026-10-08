@@ -1,0 +1,80 @@
+name: PhiBot Physical Observer Promotion Preflight
+
+on:
+  pull_request:
+    paths:
+      - 'docs/physical-observer/**'
+      - 'packages/phibot-physical-observer-v0.5/**'
+      - 'scripts/verify-physical-observer-promotion-v0.5.mjs'
+      - '.github/workflows/phibot-physical-observer-promotion-preflight.yml'
+      - 'packages/README.md'
+      - 'tests/README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  promotion-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build pinned candidate without touching canonical runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/promotion-review"
+          node scripts/build-phibot-physical-observer-candidate-v0.3.mjs \
+            "$RUNNER_TEMP/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html"
+
+      - name: Download exact pinned Chromium qualification evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 37730175204 \
+            -n PhiBot-Physical-Observer-Chromium-Qualification \
+            -D "$RUNNER_TEMP/promotion-review/qualification"
+          test -f "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-desktop-valid.png"
+          test -f "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-mobile-valid.png"
+
+      - name: Verify immutable candidate/screenshot pins and generate HOLD receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/verify-physical-observer-promotion-v0.5.mjs \
+            "$RUNNER_TEMP/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html" \
+            "$RUNNER_TEMP/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html.build.json" \
+            "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-desktop-valid.png" \
+            "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-mobile-valid.png" \
+            "$RUNNER_TEMP/promotion-review/PROMOTION_PREFLIGHT_HOLD.json" \
+            docs/physical-observer/PROMOTION_DOSSIER_54_13.json
+
+      - name: Exercise fail-closed tampering and approval-promotion negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          node packages/phibot-physical-observer-v0.5/acceptance.mjs \
+            "$RUNNER_TEMP/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html" \
+            "$RUNNER_TEMP/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html.build.json" \
+            "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-desktop-valid.png" \
+            "$RUNNER_TEMP/promotion-review/qualification/physical-observer-qualification/observer-mobile-valid.png"
+
+      - name: Upload operator-review HOLD dossier
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhiBot-Physical-Observer-Promotion-Preflight-HOLD
+          path: |
+            ${{ runner.temp }}/promotion-review/PROMOTION_PREFLIGHT_HOLD.json
+            ${{ runner.temp }}/promotion-review/Physical_Observer_54_13_Qualified_Candidate.html.build.json
+          if-no-files-found: warn
+          retention-days: 14

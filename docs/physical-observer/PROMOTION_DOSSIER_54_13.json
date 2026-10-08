@@ -1,0 +1,49 @@
+{
+  "contract": "spv-physical-observer-promotion-dossier/v0.5",
+  "status": "QUALIFIED_CANDIDATE_OPERATOR_REVIEW_PENDING",
+  "source": {
+    "repository": "MichaelWave369/SuperPhiVessel",
+    "canonicalBaseVersion": "v2.0-alpha.11.0.54.12",
+    "canonicalBaseSha256": "a9e67b12d1c3622315b6937f1c2405acbd5b2a6bc6d32cf578c67d5178fa7212",
+    "candidateVersion": "v2.0-alpha.11.0.54.13",
+    "candidateSha256": "8e5de54f8957c5060c3711f7756479811b69b07524de666c442442d936cdc66a",
+    "candidateGitBlobSha1": "4b58af30e821ca1502e636b8166339464175afd9",
+    "candidateSizeBytes": 13363622,
+    "builder": "scripts/build-phibot-physical-observer-candidate-v0.3.mjs",
+    "qualifiedSourceMerge": "c56dc658aaf3d6774b7f24dff94cd41e613683ce",
+    "qualifiedHead": "404cd71e6204a63018f97df54a5b5b5f67d293f6"
+  },
+  "qualification": {
+    "browserRunId": 37730175204,
+    "browserRunConclusion": "success",
+    "browserChecksPassed": 15,
+    "candidateSmokeChecksPassed": 10,
+    "observerRuntimeChecksPassed": 16,
+    "artifactId": 11529263628,
+    "artifactName": "PhiBot-Physical-Observer-Chromium-Qualification",
+    "desktopScreenshotSha256": "b105521e749f575f2eabd95c9c88672511e0853bd502774c58107253c3ebc3db",
+    "mobileScreenshotSha256": "f74d8ed78e971fcef0fa6e6498ca6585b045a7307bfd13acac740fd023370567",
+    "artifactZipSha256": "82118d28081d97a552e110ded363475500e31e40e3f23f9e9ae7c3986e2d2b11"
+  },
+  "review": {
+    "operatorDecision": "PENDING",
+    "operatorReviewer": null,
+    "operatorReviewTimestamp": null,
+    "operatorVisualReviewComplete": false,
+    "candidatePromoted": false
+  },
+  "boundaries": {
+    "toolAuthorizationGranted": false,
+    "physicalAuthorityGranted": false,
+    "execAuthorizationUnchanged": true,
+    "runtimeManifestUpdated": false,
+    "productionDeploymentAuthorized": false
+  },
+  "notes": [
+    "Qualification evidence is synthetic NBG handoff + real headless browser acceptance, not a physical device pilot.",
+    "Assistant inspected desktop and mobile captures for legibility, but inspection is not the operator's approval.",
+    "Source fingerprints are not producer signatures.",
+    "GitHub Actions artifact retention is temporary; refresh qualification once artifact expires.",
+    "Canonical promotion requires separate human review and explicit release PR with exact bytes and manifest."
+  ]
+}
