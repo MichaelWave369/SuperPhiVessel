@@ -33,7 +33,7 @@ jobs:
           if (-not (Test-Path (Join-Path $out 'server.mjs'))) { throw 'LOCAL_SERVER_MISSING' }
           Write-Host ('portable-windows-node-runtime: PASS ' + $version)
       - name: Verify local HTTP API regression suite on Windows
-        run: node --test packages/vessie-local-console/tests/server.test.mjs
+        run: node --test packages/vessie-local-console/tests/*.test.mjs
 
   vessie-local-console:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify read-only same-origin localhost API and refusal controls
-        run: node --test packages/vessie-local-console/tests/server.test.mjs
+        run: node --test packages/vessie-local-console/tests/*.test.mjs
       - name: Verify deployment source boundaries
         shell: bash
         run: |
