@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/vessie-gateway-v0.1/canonical-routes/schema/r3f-custody-batch.schema.json",
+  "title": "Vessie R3-F Offline Signed Operator Custody Batch Audit",
+  "description": "Privacy-preserving intra-batch duplication/sequence review for signed operator evidence; never runtime attestation, cross-batch replay protection, or learner authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source",
+    "audit_scope",
+    "status",
+    "verified_operator_signature_count",
+    "envelope_count",
+    "distinct_signed_packet_ids",
+    "distinct_redacted_projection_hashes",
+    "mixed_terminal_record_count",
+    "claimed_execution_record_counts_unverified",
+    "issues",
+    "issue_counts",
+    "operator_public_key_fingerprint_sha256",
+    "verified_with_independently_supplied_key",
+    "report_checksum_sha256",
+    "cross_batch_replay_prevented",
+    "signed_data_runtime_origin_attested",
+    "independently_verified_execution",
+    "independently_verified_answer_quality",
+    "model_performance_suitable_for_learning",
+    "physically_qualified",
+    "live_trace_export_connected",
+    "may_update_model_weights",
+    "may_change_live_route",
+    "can_execute",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.gateway.r3f.custody-batch.v0.1"
+    },
+    "source": {
+      "const": "R3E_OPERATOR_SIGNED_REDACTED_ENVELOPES"
+    },
+    "audit_scope": {
+      "const": "SINGLE_OFFLINE_BATCH_NO_PERSISTENT_REPLAY_REGISTRY"
+    },
+    "status": {
+      "enum": [
+        "REVIEW_REQUIRED",
+        "OPERATOR_SIGNATURES_VERIFIED_SOURCE_UNATTESTED"
+      ]
+    },
+    "verified_operator_signature_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "envelope_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "distinct_signed_packet_ids": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "distinct_redacted_projection_hashes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "mixed_terminal_record_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 32
+    },
+    "claimed_execution_record_counts_unverified": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "issues": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z_]+$"
+      }
+    },
+    "issue_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "operator_public_key_fingerprint_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "verified_with_independently_supplied_key": {
+      "const": true
+    },
+    "report_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "cross_batch_replay_prevented": {
+      "const": false
+    },
+    "signed_data_runtime_origin_attested": {
+      "const": false
+    },
+    "independently_verified_execution": {
+      "const": false
+    },
+    "independently_verified_answer_quality": {
+      "const": false
+    },
+    "model_performance_suitable_for_learning": {
+      "const": false
+    },
+    "physically_qualified": {
+      "const": false
+    },
+    "live_trace_export_connected": {
+      "const": false
+    },
+    "may_update_model_weights": {
+      "const": false
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "can_execute": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    }
+  }
+}
