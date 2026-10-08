@@ -46,9 +46,10 @@ test('R2P05 five-check report uses new schema and no machine attestation',()=>{
    browser_https_pair:'PASS',browser_status_read:'PASS',
    browser_model_inventory:'PASS',session_revocation_request:'PASS',
    revoked_session_denied:'PASS'
- },{modelCount:5});
- assert.equal(receipt.schema,'superphivessel.gateway.r2.browser-field-report.v0.2');
+ },{modelCount:5,trialId:'fedcba98765432100123456789abcdef'});
+ assert.equal(receipt.schema,'superphivessel.gateway.r2.browser-field-report.v0.3');
  assert.equal(receipt.passed_checks,5);
+ assert.equal(receipt.trial_id,'fedcba98765432100123456789abcdef');
  assert.equal(receipt.checks.revoked_session_denied,'PASS');
  assert.equal(receipt.revocation_proof_scope,'BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED');
  assert.equal(receipt.authority_granted,false);
@@ -57,4 +58,21 @@ test('R2P06 omitted revoked session check remains NOT_RUN',()=>{
  const report=makeR2BrowserReceipt({session_revocation_request:'PASS'}, {modelCount:1});
  assert.equal(report.checks.revoked_session_denied,'NOT_RUN');
  assert.equal(report.passed_checks,1);
+});
+
+test('R2P07 missing or malicious trial ID is not accepted into export',()=>{
+ const x=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'a'.repeat(32)+'PRIVATEKEY'
+ });
+ assert.equal(x.trial_id,null);
+ assert.equal(x.authority_granted,false);
+ const y=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'AAAABBBBCCCCDDDDEEEEFFFF00001111'
+ });
+ assert.equal(y.trial_id,null);
+ const z=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'0'.repeat(32)
+ });
+ assert.equal(z.trial_id,'0'.repeat(32));
+ assert.equal(z.field_qualified,false);
 });

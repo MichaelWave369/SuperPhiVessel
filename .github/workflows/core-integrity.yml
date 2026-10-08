@@ -66,8 +66,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify redacted field assessment contract
-        run: node --test packages/vessie-gateway-v0.1/pilots/assess-field.test.mjs
+      - name: Verify operator field-trial correlation and random label generator
+        run: node --test packages/vessie-gateway-v0.1/pilots/assess-field.test.mjs packages/vessie-gateway-v0.1/pilots/new-trial.test.mjs
       - name: Parse PowerShell field script without changing Windows TLS settings
         shell: pwsh
         run: |

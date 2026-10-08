@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {assessFieldReceipts} from './assess-field.mjs';
 
+const TRIAL='fedcba98765432100123456789abcdef';
 const win=()=>({
  schema:'superphivessel.gateway.r2.windows-pilot.v0.1',
+ trial_id:TRIAL,
  observation_source:'OPERATOR_WINDOWS_POWERSHELL_LOCAL_TEST',
  fixture:false, platform:'WINDOWS',gateway_target:'HTTPS_LOOPBACK',
  browser_pairing_qualified:false,operator_promotion_approved:false,
@@ -13,7 +15,8 @@ const win=()=>({
  checks:['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'].map(check=>({check,result:'PASS'})),
 });
 const browser=()=>({
- schema:'superphivessel.gateway.r2.browser-field-report.v0.2',
+ schema:'superphivessel.gateway.r2.browser-field-report.v0.3',
+ trial_id:TRIAL,
  revocation_proof_scope:'BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED',
  passed_checks:5,installed_models_approved:false,browser_restrictions_bypassed:false,
  observation_source:'UNATTESTED_BROWSER_CLIENT',
@@ -73,7 +76,7 @@ test('R2F09 input secrets cannot appear in final assessment',()=>{
 });
 
 test('R2F10 old v0.1 browser receipt cannot pass v0.2 revocation pilot',()=>{
- const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.1';
+ const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.2';
  const x=assessFieldReceipts(win(),b);
  assert.equal(x.status,'BLOCKED_FIELD_EVIDENCE');
  assert.equal(x.physically_qualified,false);
@@ -99,5 +102,53 @@ test('R2F13 Windows report count and platform claims are checked',()=>{
 });
 test('R2F14 incomplete browser check count is not accepted',()=>{
  const b=browser();b.passed_checks=4;
+ assert.equal(assessFieldReceipts(win(),b).status,'BLOCKED_FIELD_EVIDENCE');
+});
+
+test('R2F15 correlation of the matching operator trial ID is review-only',()=>{
+ const r=assessFieldReceipts(win(),browser());
+ assert.equal(r.trial_correlation_status,'OPERATOR_LABEL_MATCHED_UNATTESTED');
+ assert.equal(r.same_device_authenticated,false);
+ assert.equal(r.same_browser_session_attested,false);
+ assert.equal(r.operator_trial_id_echoed,false);
+ assert.equal(JSON.stringify(r).includes(TRIAL),false);
+ assert.equal(r.physically_qualified,false);
+});
+test('R2F16 wrong trial ID is blocked, even with five green checks',()=>{
+ const b=browser();b.trial_id='a'.repeat(32);
+ const r=assessFieldReceipts(win(),b);
+ assert.equal(r.status,'BLOCKED_FIELD_EVIDENCE');
+ assert.ok(r.issues.includes('TRIAL_ID_MISMATCH'));
+});
+test('R2F17 absent/invalid trial ID is refused',()=>{
+ const b=browser();delete b.trial_id;
+ assert.ok(assessFieldReceipts(win(),b).issues.includes('TRIAL_ID_MISSING_OR_INVALID'));
+ const w=win();w.trial_id='NOT-HEX';
+ assert.ok(assessFieldReceipts(w,browser()).issues.includes('TRIAL_ID_MISSING_OR_INVALID'));
+});
+test('R2F18 unrelated timestamps over two hours apart are rejected',()=>{
+ const b=browser();b.generated_at_utc='2026-10-08T12:00:01Z';
+ const r=assessFieldReceipts(win(),b);
+ assert.equal(r.status,'BLOCKED_FIELD_EVIDENCE');
+ assert.ok(r.issues.includes('TRIAL_REPORT_TIME_WINDOW_INVALID'));
+});
+test('R2F19 browser observation far before Windows check is rejected',()=>{
+ const b=browser();b.generated_at_utc='2026-10-08T09:00:00Z';
+ assert.ok(assessFieldReceipts(win(),b).issues.includes('TRIAL_REPORT_TIME_WINDOW_INVALID'));
+});
+test('R2F20 clock skew up to 5 minutes remains structurally reviewable',()=>{
+ const b=browser();b.generated_at_utc='2026-10-08T09:26:00Z';
+ const r=assessFieldReceipts(win(),b);
+ assert.equal(r.status,'OBSERVED_PENDING_OPERATOR_REVIEW');
+ assert.equal(r.physically_qualified,false);
+});
+test('R2F21 malformed timestamps cannot skip the time-window check',()=>{
+ const b=browser();b.generated_at_utc='not-a-time';
+ assert.ok(assessFieldReceipts(win(),b).issues.includes('BROWSER_TIMESTAMP_INVALID'));
+ const w=win();w.generated_at_utc=null;
+ assert.ok(assessFieldReceipts(w,browser()).issues.includes('WINDOWS_TIMESTAMP_INVALID'));
+});
+test('R2F22 old browser field receipt v0.2 is refused',()=>{
+ const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.2';
  assert.equal(assessFieldReceipts(win(),b).status,'BLOCKED_FIELD_EVIDENCE');
 });

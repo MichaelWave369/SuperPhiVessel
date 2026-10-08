@@ -4,6 +4,48 @@
 
 This pilot checks the HTTPS read-only pairing path. It cannot run inference, spend money, read memories, approve models, or change the canonical runtime.
 
+## R2 operator trial correlation (browser report v0.3)
+
+The Windows and browser reports must now share **one non-secret random
+operator trial ID**. Create it locally before starting the field test:
+
+```powershell
+node packages/vessie-gateway-v0.1/pilots/new-trial.mjs
+$TrialId = Read-Host "Paste the non-secret 32-character trial ID"
+```
+
+Keep this `$TrialId` variable in the PowerShell session where you run
+the Windows TLS test. It is **not** the 64-character gateway pairing
+secret. Do not enter one in place of the other.
+
+Run the Windows check using the ID:
+
+```powershell
+.\packages\vessie-gateway-v0.1\pilots\Windows-R2-LocalTrust.ps1 -TrialId $TrialId
+```
+
+In React → Model Fabric, enter the **same ID in R2 Trial ID** before
+entering the separate one-use gateway pairing secret. The browser
+export then includes `trial_id` in its redacted v0.3 field report.
+Changing the trial ID resets the browser test states. Use a fresh
+trial ID for each new operator pilot.
+
+The assessor refuses mismatching or missing IDs, browser observations
+more than **two hours after** the Windows report, or browser
+timestamps more than **five minutes before** the Windows report.
+Clock values and the operator-entered ID are untrusted.
+`OPERATOR_LABEL_MATCHED_UNATTESTED` establishes only that two
+submitted reports contain the same label and a plausible timing
+relationship. It does **not** authenticate one device, one browser
+session or the runtime's behavior.
+
+**Do not confuse correlation with authentication.** Never publish
+the actual gateway pairing secret, session bearer, local TLS key,
+raw private logs or unredacted model inventory. A failed physical
+pilot is legitimate evidence: keep it blocked rather than editing
+the report to pass. Older v0.1/v0.2 browser reports are deliberately
+rejected by the updated assessor.
+
 ## Before starting
 
 1. Update your local SuperPhiVessel checkout. You need Node 22+, Ollama optionally running, and an up-to-date browser.
@@ -23,7 +65,7 @@ The local terminal prints a one-use pairing code. Keep it local: never paste it 
 While the gateway runs, open another PowerShell window in the checkout:
 
 ```powershell
-.\packages\vessie-gateway-v0.1\pilots\Windows-R2-LocalTrust.ps1
+.\packages\vessie-gateway-v0.1\pilots\Windows-R2-LocalTrust.ps1 -TrialId $TrialId
 ```
 
 The script uses normal Windows TLS certificate validation and refuses a process-level custom certificate-validation callback. It does not need a pairing code or bearer token.
@@ -45,7 +87,7 @@ Windows TLS trust does not prove Chromium accepts the same certificate. That nee
 
 Open [Vessie React](https://michaelwave369.github.io/SuperPhiVessel/vessie/) → **Model Fabric**.
 
-1. Enter the one-use code from the operator's terminal.
+1. Enter the same 32-character non-secret trial ID as the Windows receipt; then enter the one-use pairing code from the operator's terminal.
 2. Press **Pair Read-Only**. The browser must accept the valid TLS certificate and comply with its private-network permission policy. Do not bypass either.
 3. Press **Discover Local Models**. Inventory must reflect only what Ollama actually reports, with every model unapproved.
 4. Press **Disconnect / Revoke**. Confirm the UI reports gateway revocation rather than just local disconnect.
@@ -55,7 +97,7 @@ The browser report includes only checks and model count. It deliberately exclude
 
 If the browser refuses TLS or local-network access, keep that failed result. Do not disable protections or use browser flags to force success.
 
-## R2 revocation confirmation, browser report v0.2
+## R2 revocation confirmation, browser report v0.3
 
 The browser pilot now distinguishes two separate observations:
 
@@ -74,7 +116,7 @@ attempt begins so old successes cannot survive a new failed trial.
 
 **Re-run the pilot after updating GitHub Pages.** The old
 `superphivessel.gateway.r2.browser-field-report.v0.1` is intentionally
-refused by the updated comparator; only `v0.2` with five passing checks
+refused by the updated comparator; only `v0.3` with five passing checks
 is eligible for `OBSERVED_PENDING_OPERATOR_REVIEW`. It still never
 constitutes a physical qualification or a model-routing approval.
 

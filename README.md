@@ -317,6 +317,16 @@ probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
 
+## R2 Windows/browser operator trial correlation
+
+The R2 [physical field pilot](packages/vessie-gateway-v0.1/pilots/README.md)
+now generates one random, non-secret trial ID for the Windows HTTPS
+report and React browser report. The assessor requires the same label
+and a bounded timestamp relationship, preventing accidental comparison
+of unrelated runs. Browser receipts use schema v0.3. Matching reports
+still do **not** attest a machine, prove inference quality, qualify
+R2 physically, approve BrainC, or grant execution authority.
+
 ## R2 browser revocation confirmation
 
 The [Windows R2 physical-pilot guide](packages/vessie-gateway-v0.1/pilots/README.md)

@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+const TRIAL_ID=/^[a-f0-9]{32}$/;
+const MAX_REPORT_SEPARATION_MS=2*60*60*1000;
+const WINDOWS_AFTER_BROWSER_GRACE_MS=5*60*1000;
 const EXPECT_WINDOWS=['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'];
 const EXPECT_BROWSER=['browser_https_pair','browser_status_read','browser_model_inventory','session_revocation_request','revoked_session_denied'];
 
@@ -16,12 +19,17 @@ export function assessFieldReceipts(windows, browser) {
      windows.authority_granted!==false || !Array.isArray(windows.checks)){
     problems.push('WINDOWS_RECEIPT_INVALID');
   }
-  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.2' ||
+  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.3' ||
      browser.observation_source!=='UNATTESTED_BROWSER_CLIENT' ||
      browser.revocation_proof_scope!=='BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED'){
     problems.push('BROWSER_RECEIPT_INVALID');
   }
   if(problems.length===0){
+    if(typeof windows.trial_id!=='string'||!TRIAL_ID.test(windows.trial_id)||
+       typeof browser.trial_id!=='string'||!TRIAL_ID.test(browser.trial_id))
+      problems.push('TRIAL_ID_MISSING_OR_INVALID');
+    else if(windows.trial_id!==browser.trial_id)
+      problems.push('TRIAL_ID_MISMATCH');
     for(const check of EXPECT_WINDOWS){
       const matches=windows.checks.filter(item=>item&&item.check===check);
       if(matches.length!==1||matches[0].result!=='PASS')problems.push('WINDOWS_CHECK_INCOMPLETE_'+check);
@@ -45,17 +53,29 @@ export function assessFieldReceipts(windows, browser) {
       browser.installed_models_approved!==false){
       problems.push('BROWSER_PRIVACY_OR_AUTHORITY_BOUNDARY_BROKEN');
     }
-    // Only structurally compare receipt dates. Cannot authenticate client clocks.
+    // Correlation here is operator-assigned, not runtime identity attestation.
+    // Reject widely separated receipts and reversed test order.
+    const stamps=[];
     for(const [kind,receipt] of [['WINDOWS',windows],['BROWSER',browser]]){
-      const t=Date.parse(receipt.generated_at_utc);
+      const value=receipt.generated_at_utc;
+      const t=typeof value==='string' ? Date.parse(value) : NaN;
       if(!Number.isFinite(t))problems.push(kind+'_TIMESTAMP_INVALID');
+      stamps.push(t);
     }
+    if(stamps.every(Number.isFinite) &&
+       (stamps[1]-stamps[0]>MAX_REPORT_SEPARATION_MS ||
+        stamps[0]-stamps[1]>WINDOWS_AFTER_BROWSER_GRACE_MS))
+       problems.push('TRIAL_REPORT_TIME_WINDOW_INVALID');
   }
   return {
     schema:'superphivessel.gateway.r2.field-assessment.v0.1',
     assessment:'R2_LOCAL_CONNECTION_OBSERVED_CLAIM_UNATTESTED',
     status:problems.length?'BLOCKED_FIELD_EVIDENCE':'OBSERVED_PENDING_OPERATOR_REVIEW',
     issues:problems,
+    trial_correlation_status:problems.length===0?'OPERATOR_LABEL_MATCHED_UNATTESTED':'UNRESOLVED',
+    operator_trial_id_echoed:false,
+    same_device_authenticated:false,
+    same_browser_session_attested:false,
     windows_check_count:problems.includes('WINDOWS_RECEIPT_INVALID')?0:EXPECT_WINDOWS.length,
     browser_check_count:problems.includes('BROWSER_RECEIPT_INVALID')?0:EXPECT_BROWSER.length,
     browser_field_receipt_authenticity_verified:false,

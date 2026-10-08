@@ -3,6 +3,7 @@
 # No pairing code, bearer token, model name, username, or hostname is read or saved.
 [CmdletBinding()]
 param(
+  [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{32}$')][string]$TrialId,
   [ValidateRange(1,65535)][int]$Port = 8790,
   [string]$OutputPath = (Join-Path $env:TEMP "vessie-r2-windows-pilot.json")
 )
@@ -62,6 +63,7 @@ if ($wasCustomTlsCallback) {
 $failed = @($results | Where-Object { $_.result -ne "PASS" }).Count -gt 0
 $receipt = [ordered]@{
   schema = $schema
+  trial_id = $TrialId
   observation_source = "OPERATOR_WINDOWS_POWERSHELL_LOCAL_TEST"
   generated_at_utc = (Get-Date).ToUniversalTime().ToString("o")
   fixture = $false
