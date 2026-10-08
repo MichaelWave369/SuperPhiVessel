@@ -27,8 +27,10 @@ try {
     @{From=$NodePath;To='node.exe'},
     @{From=$License;To='LICENSE.node.txt'},
     @{From=(Join-Path $PSScriptRoot 'Start-Local-Vessie.cmd');To='Start-Local-Vessie.cmd'},
+    @{From=(Join-Path $PSScriptRoot 'Start-Local-Trial.cmd');To='Start-Local-Trial.cmd'},
     @{From=(Join-Path $PSScriptRoot 'START_HERE.txt');To='START_HERE.txt'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/server.mjs');To='server.mjs'},
+    @{From=(Join-Path $Root 'packages/vessie-local-console/trial-runner.mjs');To='trial-runner.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-gateway-v0.1/ollama-probe.mjs');To='ollama-probe.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/index.html');To='ui/index.html'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/style.css');To='ui/style.css'},
@@ -51,8 +53,10 @@ try {
     (Join-Path $Staging 'node.exe'),
     (Join-Path $Staging 'LICENSE.node.txt'),
     (Join-Path $Staging 'Start-Local-Vessie.cmd'),
+    (Join-Path $Staging 'Start-Local-Trial.cmd'),
     (Join-Path $Staging 'START_HERE.txt'),
     (Join-Path $Staging 'server.mjs'),
+    (Join-Path $Staging 'trial-runner.mjs'),
     (Join-Path $Staging 'ollama-probe.mjs'),
     (Join-Path $Staging 'ui')
   ) -DestinationPath $OutputFull -CompressionLevel Optimal
@@ -61,8 +65,8 @@ try {
   try {
     $names=@($archive.Entries | Where-Object { -not $_.FullName.EndsWith('/') } | ForEach-Object { $_.FullName.Replace('\\','/') } | Sort-Object)
     $expected=@(
-      'LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd',
-      'node.exe','ollama-probe.mjs','server.mjs','ui/app.js',
+      'LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd','Start-Local-Trial.cmd',
+      'node.exe','ollama-probe.mjs','server.mjs','trial-runner.mjs','ui/app.js',
       'ui/index.html','ui/style.css'
     ) | Sort-Object
     if ((Compare-Object $names $expected).Count -ne 0) { throw 'ARCHIVE_ALLOWLIST_MISMATCH' }
