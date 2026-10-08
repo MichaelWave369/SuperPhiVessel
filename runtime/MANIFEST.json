@@ -1,17 +1,17 @@
 {
   "schema": "superphivessel.runtime-manifest.v0.1",
   "runtime": {
-    "version": "v2.0-alpha.11.0.54.10",
-    "name": "Service Models Handler Restoration",
-    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.10_Service_Models_Handler_Restoration.html",
-    "size_bytes": 13332646,
-    "sha256": "96767c267b0d9ed20be9f4d182c30129944311096c0959d20b5d80c89fb2c09e",
-    "git_blob_sha1": "b44e0411f7477f2041cb3f130452a6d1f0410121"
+    "version": "v2.0-alpha.11.0.54.11",
+    "name": "BudgetGenius One-Shot Local Canary Seam",
+    "path": "runtime/Super_PhiVessel_v2.0-alpha.11.0.54.11_BudgetGenius_Canary_Seam.html",
+    "size_bytes": 13341450,
+    "sha256": "8370ed738deb367ed3ae9e6ae27ce798e75a98f844b56d4b61868bc3bfb8afe5",
+    "git_blob_sha1": "5cb0492646d5f6e8de232871ef056928db5f20a8"
   },
   "canonical": true,
   "release_status": "ALPHA",
   "source_form": "standalone-html",
-  "recorded_at": "2026-09-29",
+  "recorded_at": "2026-10-07",
   "blank_state": {
     "protocol": "PV-BLANK-STATE-0.1",
     "public_data_epoch": "PV-PUBLIC-BLANK-2026-09-29-V1",
@@ -33,6 +33,20 @@
     "The git_blob_sha1 matches the uploaded GitHub blob and is not a substitute for the SHA-256 release digest.",
     "The .54.10 hotfix inherits the .54.8 public data epoch and does not intentionally wipe state created after .54.8.",
     "Service / Models handler restoration was verified in the live Netlify deployment before canonical promotion.",
-    "Historical .51.x ZIP bundles are not current deployment truth."
-  ]
+    "Historical .51.x ZIP bundles are not current deployment truth.",
+    "v2.0-alpha.11.0.54.11 adds a default-off, one-shot, local-only BudgetGenius canary route-influence seam after BudgetCompute and before final Executor Authorization.",
+    "The live canary requires an SHA-256-valid v0.4 lease, Operator/Steward/Board approvals, an exact RESERVED BudgetPass for the same mandate and route, code/builder scope, one approved local Ollama model, <=5 minutes, one decision, and zero paid spend.",
+    "Canary route influence does not authorize execution; authorizeExecutor remains downstream and mandatory."
+  ],
+  "canary_runtime": {
+    "protocol": "PV-BUDGETGENIUS-CANARY-0.5",
+    "status": "EXPERIMENTAL_ONE_SHOT_LOCAL",
+    "budgetgenius_pin": "44ffc8ccd0f8eafb7130a3051215e536daaa4dce",
+    "stage": "builder",
+    "task_class": "code",
+    "max_decisions": 1,
+    "max_duration_ms": 300000,
+    "paid_spend_usd": 0,
+    "final_executor_authorization_required": true
+  }
 }
