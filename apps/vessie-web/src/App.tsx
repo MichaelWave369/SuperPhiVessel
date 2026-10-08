@@ -4,8 +4,9 @@ import runtimeManifest from '../../../runtime/MANIFEST.json';
 import catalog from '../../../protocols/routing-v2/model-candidates.json';
 import { inspectReceipt } from './inspector.mjs';
 import PairingPanel from './PairingPanel';
+import CloudEvidencePanel from './CloudEvidencePanel';
 
-type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence';
+type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud';
 type Inspection = ReturnType<typeof inspectReceipt>;
 const PAGES = [
   ['overview','OVERVIEW','01'],
@@ -13,6 +14,7 @@ const PAGES = [
   ['routing','ROUTING','03'],
   ['models','MODEL FABRIC','04'],
   ['evidence','RECEIPT INSPECTOR','05'],
+  ['cloud','CLOUD EVIDENCE','06'],
 ] as const;
 const MODELS = [
   ...catalog.local_candidates.map((x)=>({
@@ -162,6 +164,12 @@ function App() {
               <tbody>{MODELS.map(m=><tr key={m.model}><td><strong>{m.model}</strong></td><td>{m.role}</td><td>{m.tier}</td><td>{m.fit}</td><td><span className="smallPill">{m.state}</span></td></tr>)}</tbody></table></div>
             <p className="smallNote">Cloud free tiers are conditional and can change. Provider access requires account verification, acceptable data-sharing policy, remaining quota and explicit operator approval.</p>
             <div className="textLinks"><a href="https://ollama.com/library">Ollama model library ↗</a><a href="https://console.groq.com/docs/rate-limits">Groq limits ↗</a><a href="https://openrouter.ai/pricing">OpenRouter limits ↗</a><a href="https://developers.cloudflare.com/workers-ai/platform/pricing/">Workers AI pricing ↗</a></div>
+          </section>}
+          {view==='cloud'&&<section>
+            <div className="eyebrow">UNVERIFIED PUBLIC OBSERVATIONS / OPERATOR REVIEW</div>
+            <h1>Cloud <em>Evidence.</em></h1>
+            <p className="lede">Read the actual FieldCloudWorker status from GitHub, compare with the associated run and inspect a metadata-only projection. None of this starts a model or grants action authority.</p>
+            <CloudEvidencePanel />
           </section>}
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>
