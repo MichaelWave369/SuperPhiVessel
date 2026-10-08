@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,revokeGateway}
+import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,revokeGateway,confirmRevokedGateway}
   from '../src/pairing-client.mjs';
 
 const session='f'.repeat(64);
@@ -56,4 +56,50 @@ test('P05 gateway session can be locally revoked',async()=>{
     assert.equal(options.headers.Authorization,'Bearer '+session);
     return answer({session_status:'REVOKED',authority_granted:false});
   });
+});
+
+test('P06 revoked bearer receives explicit 403 SESSION_DENIED after DELETE',async()=>{
+ const observation=await confirmRevokedGateway(session,async(url,options)=>{
+   assert.equal(url,LOCAL_GATEWAY+'/v1/status');
+   assert.equal(options.method,'GET');
+   assert.equal(options.headers.Authorization,'Bearer '+session);
+   assert.equal(options.credentials,'omit');
+   return answer({error:'SESSION_DENIED',authority_granted:false},403);
+ });
+ assert.equal(observation.confirmed,true);
+ assert.equal(observation.source,'HTTP_403_SESSION_DENIED');
+ assert.equal(observation.authority_granted,false);
+});
+test('P07 successful DELETE with wrong JSON is not a revocation confirmation',async()=>{
+ await assert.rejects(revokeGateway(session,async()=>answer({
+   session_status:'ACTIVE',authority_granted:false
+ })),/did not confirm/);
+ await assert.rejects(revokeGateway(session,async()=>answer({
+   session_status:'REVOKED',authority_granted:true
+ })),/did not confirm/);
+});
+test('P08 a successful status read after revoke MUST fail the denial check',async()=>{
+ await assert.rejects(confirmRevokedGateway(session,async()=>answer({
+   schema:'superphivessel.gateway.status.v0.2',authority_granted:false
+ },200)),/not denied/);
+});
+test('P09 connection errors, 401 and unrelated 403 errors cannot imply revocation',async()=>{
+ await assert.rejects(confirmRevokedGateway(session,async()=>{throw new Error('TLS_FAILURE');}),/TLS_FAILURE/);
+ await assert.rejects(confirmRevokedGateway(session,async()=>answer({
+   error:'ORIGIN_DENIED',authority_granted:false
+ },403)),/contract mismatch/);
+ await assert.rejects(confirmRevokedGateway(session,async()=>answer({
+   error:'SESSION_DENIED',authority_granted:true
+ },403)),/contract mismatch/);
+ await assert.rejects(confirmRevokedGateway(session,async()=>answer({
+   error:'SESSION_DENIED',authority_granted:false
+ },401)),/not denied/);
+});
+test('P10 invalid or missing bearer cannot be treated as confirmed revoked',async()=>{
+ await assert.rejects(confirmRevokedGateway('invalid',async()=>answer({
+   error:'SESSION_DENIED',authority_granted:false
+ },403)),/Invalid local session/);
+ await assert.rejects(revokeGateway('',async()=>answer({
+   session_status:'REVOKED',authority_granted:false
+ })),/Invalid local session/);
 });

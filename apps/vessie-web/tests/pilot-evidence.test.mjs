@@ -40,3 +40,21 @@ test('R2P04 exported receipt cannot promote learned routing or execution',()=>{
   assert.equal(receipt.authority_granted,false);
   assert.equal(receipt.status,'OPERATOR_REVIEW_REQUIRED');
 });
+
+test('R2P05 five-check report uses new schema and no machine attestation',()=>{
+ const receipt=makeR2BrowserReceipt({
+   browser_https_pair:'PASS',browser_status_read:'PASS',
+   browser_model_inventory:'PASS',session_revocation_request:'PASS',
+   revoked_session_denied:'PASS'
+ },{modelCount:5});
+ assert.equal(receipt.schema,'superphivessel.gateway.r2.browser-field-report.v0.2');
+ assert.equal(receipt.passed_checks,5);
+ assert.equal(receipt.checks.revoked_session_denied,'PASS');
+ assert.equal(receipt.revocation_proof_scope,'BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED');
+ assert.equal(receipt.authority_granted,false);
+});
+test('R2P06 omitted revoked session check remains NOT_RUN',()=>{
+ const report=makeR2BrowserReceipt({session_revocation_request:'PASS'}, {modelCount:1});
+ assert.equal(report.checks.revoked_session_denied,'NOT_RUN');
+ assert.equal(report.passed_checks,1);
+});

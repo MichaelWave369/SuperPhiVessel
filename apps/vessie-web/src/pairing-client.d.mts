@@ -15,3 +15,6 @@ export function gatewayStatus(session:string):Promise<{
 }>;
 export function gatewayModels(session:string):Promise<{count:number;models:GatewayModel[];probe_status:string}>;
 export function revokeGateway(session:string):Promise<void>;
+export function confirmRevokedGateway(session:string):Promise<{
+  confirmed:true;source:'HTTP_403_SESSION_DENIED';authority_granted:false
+}>;

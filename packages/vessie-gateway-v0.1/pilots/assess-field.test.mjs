@@ -5,12 +5,17 @@ import {assessFieldReceipts} from './assess-field.mjs';
 const win=()=>({
  schema:'superphivessel.gateway.r2.windows-pilot.v0.1',
  observation_source:'OPERATOR_WINDOWS_POWERSHELL_LOCAL_TEST',
- fixture:false, generated_at_utc:'2026-10-08T09:30:00Z',
+ fixture:false, platform:'WINDOWS',gateway_target:'HTTPS_LOOPBACK',
+ browser_pairing_qualified:false,operator_promotion_approved:false,
+ authority_granted:false,check_count:3,
+ generated_at_utc:'2026-10-08T09:30:00Z',
  result:'LOCAL_TLS_AND_REFUSAL_PASS_BROWSER_PENDING',
  checks:['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'].map(check=>({check,result:'PASS'})),
 });
 const browser=()=>({
- schema:'superphivessel.gateway.r2.browser-field-report.v0.1',
+ schema:'superphivessel.gateway.r2.browser-field-report.v0.2',
+ revocation_proof_scope:'BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED',
+ passed_checks:5,installed_models_approved:false,browser_restrictions_bypassed:false,
  observation_source:'UNATTESTED_BROWSER_CLIENT',
  generated_at_utc:'2026-10-08T09:31:00Z',
  status:'OPERATOR_REVIEW_REQUIRED',field_qualified:false,
@@ -19,6 +24,7 @@ const browser=()=>({
  checks:{
  browser_https_pair:'PASS',browser_status_read:'PASS',
  browser_model_inventory:'PASS',session_revocation_request:'PASS',
+ revoked_session_denied:'PASS',
  }
 });
 test('R2F01 structurally complete receipts stay review-only and unattested',()=>{
@@ -64,4 +70,34 @@ test('R2F09 input secrets cannot appear in final assessment',()=>{
  const out=JSON.stringify(assessFieldReceipts(win(),b));
  assert.equal(out.includes(secret),false);
  assert.equal(out.includes('session_token'),false);
+});
+
+test('R2F10 old v0.1 browser receipt cannot pass v0.2 revocation pilot',()=>{
+ const b=browser();b.schema='superphivessel.gateway.r2.browser-field-report.v0.1';
+ const x=assessFieldReceipts(win(),b);
+ assert.equal(x.status,'BLOCKED_FIELD_EVIDENCE');
+ assert.equal(x.physically_qualified,false);
+});
+test('R2F11 acknowledged DELETE without denied bearer check must block',()=>{
+ const b=browser();b.checks.revoked_session_denied='NOT_RUN';b.passed_checks=4;
+ const x=assessFieldReceipts(win(),b);
+ assert.equal(x.status,'BLOCKED_FIELD_EVIDENCE');
+ assert.ok(x.issues.some(t=>t.includes('revoked_session_denied')));
+ assert.equal(x.authority_granted,false);
+});
+test('R2F12 browser may not claim policy bypass or installed model approval',()=>{
+ const b=browser();b.browser_restrictions_bypassed=true;
+ assert.equal(assessFieldReceipts(win(),b).status,'BLOCKED_FIELD_EVIDENCE');
+ const c=browser();c.installed_models_approved=true;
+ assert.equal(assessFieldReceipts(win(),c).status,'BLOCKED_FIELD_EVIDENCE');
+});
+test('R2F13 Windows report count and platform claims are checked',()=>{
+ const w=win();w.check_count=2;
+ assert.equal(assessFieldReceipts(w,browser()).status,'BLOCKED_FIELD_EVIDENCE');
+ const a=win();a.gateway_target='PUBLIC_HTTP';
+ assert.equal(assessFieldReceipts(a,browser()).status,'BLOCKED_FIELD_EVIDENCE');
+});
+test('R2F14 incomplete browser check count is not accepted',()=>{
+ const b=browser();b.passed_checks=4;
+ assert.equal(assessFieldReceipts(win(),b).status,'BLOCKED_FIELD_EVIDENCE');
 });

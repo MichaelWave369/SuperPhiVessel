@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
-  gatewayModels, gatewayStatus, pairGateway, revokeGateway,
+  gatewayModels, gatewayStatus, pairGateway, revokeGateway, confirmRevokedGateway,
   type GatewayModel, LOCAL_GATEWAY
 } from './pairing-client.mjs';
 import { makeR2BrowserReceipt } from './pilot-evidence.mjs';
 
 type Check = 'PASS' | 'FAIL' | 'NOT_RUN';
 type CheckKey = 'browser_https_pair' | 'browser_status_read' |
-  'browser_model_inventory' | 'session_revocation_request';
+  'browser_model_inventory' | 'session_revocation_request' | 'revoked_session_denied';
 const initialChecks: Record<CheckKey,Check> = {
   browser_https_pair: 'NOT_RUN',
   browser_status_read: 'NOT_RUN',
   browser_model_inventory: 'NOT_RUN',
   session_revocation_request: 'NOT_RUN',
+  revoked_session_denied: 'NOT_RUN',
 };
 const formatBytes=(size:number|null)=>
   size===null?'Unreported':(size/1024/1024/1024).toFixed(2)+' GiB';
@@ -47,6 +48,8 @@ export default function PairingPanel() {
 
   const pair=async()=>{
     setBusy(true);setError('');
+    // A new pairing attempt must not inherit earlier trial PASS states.
+    setChecks({...initialChecks});setObservedModelCount(null);
     let provisionalKey:string|null=null;
     try{
       const key=await pairGateway(code.trim());
@@ -85,19 +88,28 @@ export default function PairingPanel() {
 
   const disconnect=async()=>{
     if(busy)return;
+    setBusy(true);
     const current=session;
     setSession(null);setExpiresAt(null);setModels(null);setCode('');
     setStatus('Local session cleared');setError('');
     if(current){
+      let deleteConfirmed=false;
       try{
         await revokeGateway(current);
+        deleteConfirmed=true;
         mark('session_revocation_request','PASS');
-        setStatus('Local session revoked at gateway');
+        setStatus('Gateway acknowledged DELETE; checking old bearer refusal');
+        const denied=await confirmRevokedGateway(current);
+        if(!denied.confirmed)throw new Error('DENIAL_NOT_CONFIRMED');
+        mark('revoked_session_denied','PASS');
+        setStatus('Gateway revoked session and refused the old bearer');
       }catch{
-        mark('session_revocation_request','FAIL');
-        setError('The browser discarded its session, but gateway revocation was not confirmed. Restart the gateway to invalidate the previous session.');
+        if(!deleteConfirmed)mark('session_revocation_request','FAIL');
+        mark('revoked_session_denied','FAIL');
+        setError('The browser discarded its session, but post-revocation denial was not confirmed. Restart the gateway to invalidate any remaining bearer.');
       }
     }
+    setBusy(false);
   };
 
   const exportPilot=()=>{
@@ -136,14 +148,14 @@ export default function PairingPanel() {
     </div>}
     <div className="pilotPanel">
       <div className="laneTop"><strong>R2 WINDOWS/BROWSER PILOT</strong><span className="laneTag">UNATTESTED REPORT</span></div>
-      <p className="smallNote">These checks record only what this page observed, never prove certificate provenance or authorize routing. Export a redacted report alongside the separate PowerShell TLS trust report after testing on your own PC.</p>
+      <p className="smallNote">These checks record only what this page observed, never prove certificate provenance or authorize routing. The revocation test requires the old bearer to receive HTTP 403 SESSION_DENIED after an acknowledged DELETE; failed network access is not counted as success. Export a redacted report alongside the separate PowerShell TLS trust report after testing on your own PC.</p>
       <dl className="pilotChecks">
         {Object.entries(checks).map(([name,result])=><div key={name}>
           <dt>{name.replaceAll('_',' ').toUpperCase()}</dt>
           <dd>{result}</dd>
         </div>)}
       </dl>
-      <button type="button" className="secondaryButton" onClick={exportPilot}>
+      <button type="button" className="secondaryButton" onClick={exportPilot} disabled={busy}>
         EXPORT REDACTED BROWSER REPORT
       </button>
       <p className="smallNote">Report excludes secrets, tokens, usernames, device identity and model names. Gateway restart is required to invalidate a stranded session when the browser closes without disconnecting.</p>
