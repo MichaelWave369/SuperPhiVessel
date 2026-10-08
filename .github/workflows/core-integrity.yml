@@ -59,6 +59,16 @@ jobs:
       - name: Test offline route trace source and authority refusals
         run: python3 packages/vessie-gateway-v0.1/r3a_acceptance.py
 
+  vessie-r2-operator-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prove source-only Windows setup preflight and no key reads
+        run: node --test packages/vessie-gateway-v0.1/pilots/preflight.test.mjs
+
   vessie-r2-field-harness:
     runs-on: windows-latest
     steps:
