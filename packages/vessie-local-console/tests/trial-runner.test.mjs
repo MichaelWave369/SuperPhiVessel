@@ -81,3 +81,38 @@ test('TR05 refuse declared response larger than cap before parsing',async()=>{
       status:200,headers:{'content-type':'application/json'}
     })}));
 });
+
+
+test('TR06 timing receipt records prompt evaluation and reports cap without guessing truncation',async()=>{
+  const out=await runLocalTrial({
+    model:'qwen3:4b',prompt:'Short answer',maxOutputTokens:64,
+    fetchImpl:async()=>upstream({extra:{
+      prompt_eval_duration:11800000000,
+      eval_duration:1155987000,
+      eval_count:64,
+      done_reason:'length'
+    }})
+  });
+  assert.equal(out.receipt.ollama_prompt_eval_duration_ns,11800000000);
+  assert.equal(out.receipt.ollama_eval_duration_ns,1155987000);
+  assert.equal(out.receipt.output_token_cap_reached,true);
+  assert.equal(out.receipt.ollama_done_reason,'length');
+  assert.equal(out.receipt.generated_text_included,false);
+  assert.ok(!JSON.stringify(out.receipt).includes('Short answer'));
+});
+test('TR07 missing or arbitrary upstream stop reason is sanitized and no cap inferred',async()=>{
+  const out=await runLocalTrial({
+    model:'qwen3:4b',prompt:'Short',
+    maxOutputTokens:128,
+    fetchImpl:async()=>upstream({extra:{
+      prompt_eval_duration:'SECRET_PRIVATE_FIELD',
+      eval_count:8,
+      done_reason:'PRIVATE_NEVER_ECHO'
+    }})
+  });
+  assert.equal(out.receipt.ollama_prompt_eval_duration_ns,null);
+  assert.equal(out.receipt.output_token_cap_reached,false);
+  assert.equal(out.receipt.ollama_done_reason,'UNREPORTED_OR_UNKNOWN');
+  assert.ok(!JSON.stringify(out.receipt).includes('SECRET_PRIVATE_FIELD'));
+  assert.ok(!JSON.stringify(out.receipt).includes('PRIVATE_NEVER_ECHO'));
+});
