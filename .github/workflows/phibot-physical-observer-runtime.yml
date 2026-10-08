@@ -1,0 +1,38 @@
+name: PhiBot Physical Observer Runtime Seam
+
+on:
+  pull_request:
+    paths:
+      - 'packages/phibot-physical-observer-v0.1/**'
+      - 'packages/phibot-physical-observer-v0.2/**'
+      - 'packages/README.md'
+      - 'tests/README.md'
+      - '.github/workflows/phibot-physical-observer-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout pinned NestedBubbleGear source
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/NestedBubbleGear
+          ref: 7b5cb309fcd2af409de6f8676cc074c395a666b4
+          path: _nbg
+
+      - name: Run PhiBot physical observer runtime seam acceptance
+        env:
+          NBG_ROOT: ${{ github.workspace }}/_nbg
+        run: node packages/phibot-physical-observer-v0.2/acceptance.mjs
