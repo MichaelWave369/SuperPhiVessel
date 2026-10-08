@@ -316,3 +316,13 @@ pins the actual BrainC v1 model/chat code and provides a fixed-loopback local
 probe for `/models` and `/models/active`. The CLI defaults to a redacted
 review report. This is **not** an executed chat-model or Crane Fly route receipt,
 and it does not connect BrainC to the React HTTPS gateway.
+
+## R3-C canonical routing evidence (operator-exported, offline)
+
+[R3-C receipt projector](packages/vessie-gateway-v0.1/canonical-routes/README.md)
+joins native `.54.12` `PhiRunCapsule`, `BrainRouteReceipt`,
+`ExecutorAuthorizationReceipt`, attempt-ledger and optional BudgetGenius
+canary influence records. Selection, authorization, attempt and recorded
+completion are separate claims; completion is **not independently verified**.
+The React inspector recognizes the resulting redacted schema without treating
+it as live or as an executor grant. No production HTML bytes are changed.

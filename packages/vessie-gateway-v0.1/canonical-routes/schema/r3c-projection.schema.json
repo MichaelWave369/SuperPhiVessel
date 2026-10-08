@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superphivessel.local/packages/vessie-gateway-v0.1/canonical-routes/schema/r3c-projection.schema.json",
+  "title": "Vessie R3-C Canonical Routing Evidence Projection",
+  "type": "object",
+  "required": [
+    "schema",
+    "source",
+    "source_runtime",
+    "evidence_level",
+    "brain_route_present",
+    "executor_authorization_status",
+    "execution_record_status",
+    "source_authenticity_attested",
+    "independent_execution_confirmation",
+    "independently_verified_answer_quality",
+    "live_trace_export_connected",
+    "can_execute",
+    "authority_granted",
+    "projection_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "superphivessel.gateway.r3c.canonical-route-evidence.v0.1"
+    },
+    "source": {
+      "const": "VESSIE_CANONICAL_54_12_EXPORTED_RECORDS"
+    },
+    "source_runtime": {
+      "const": "v2.0-alpha.11.0.54.12"
+    },
+    "evidence_level": {
+      "const": "UNATTESTED_OPERATOR_EXPORTED_RECORDS"
+    },
+    "execution_record_status": {
+      "enum": [
+        "COMPLETION_RECORDED_UNVERIFIED",
+        "FAILURE_RECORDED",
+        "DISPATCH_STARTED_NO_FINAL_OUTCOME",
+        "EXECUTOR_DENIED",
+        "AUTHORIZED_NOT_OBSERVED_EXECUTING",
+        "ROUTE_INFLUENCE_NOT_EXECUTED",
+        "SELECTION_ONLY",
+        "FROZEN_RUN_ONLY"
+      ]
+    },
+    "source_authenticity_attested": {
+      "const": false
+    },
+    "independent_execution_confirmation": {
+      "const": false
+    },
+    "independently_verified_answer_quality": {
+      "const": false
+    },
+    "cryptographic_signature_verified": {
+      "const": false
+    },
+    "exact_model_artifact_attested": {
+      "const": false
+    },
+    "ga108_genius_identity_attested": {
+      "const": false
+    },
+    "browser_gateway_connected": {
+      "const": false
+    },
+    "live_trace_export_connected": {
+      "const": false
+    },
+    "can_execute": {
+      "const": false
+    },
+    "may_change_live_route": {
+      "const": false
+    },
+    "may_change_live_thresholds": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "projection_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "additionalProperties": true
+}

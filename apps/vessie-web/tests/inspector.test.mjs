@@ -85,3 +85,24 @@ test('BrainC configured model report never turns into a verified chat execution'
   assert.equal(data.executionPermitted,false);
   assert.ok(!JSON.stringify(data).includes('PRIVATE_PROMPT_NEVER_RENDER'));
 });
+
+test('R3-C native route projection remains untrusted even when completion is recorded',()=>{
+ const result=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
+  source:'VESSIE_CANONICAL_54_12_EXPORTED_RECORDS',
+  source_runtime:'v2.0-alpha.11.0.54.12',
+  evidence_level:'UNATTESTED_OPERATOR_EXPORTED_RECORDS',
+  execution_record_status:'COMPLETION_RECORDED_UNVERIFIED',
+  executor_authorized_observed:true,dispatch_attempt_observed:true,
+  independent_execution_confirmation:false,independently_verified_answer_quality:false,
+  source_authenticity_attested:false,authority_granted:false,
+  rawPrompt:'NEVER_LEAK_R3C_PROMPT'
+ }));
+ assert.equal(result.recognized,true);
+ assert.equal(result.label,'UNVERIFIED_IMPORT');
+ assert.equal(result.fields.execution_record_status,'COMPLETION_RECORDED_UNVERIFIED');
+ assert.equal(result.fields.independent_execution_confirmation,false);
+ assert.equal(result.executionPermitted,false);
+ assert.equal(result.verifiedCryptographically,false);
+ assert.ok(!JSON.stringify(result).includes('NEVER_LEAK_R3C_PROMPT'));
+});

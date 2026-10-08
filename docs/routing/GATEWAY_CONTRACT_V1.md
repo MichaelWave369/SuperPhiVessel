@@ -105,3 +105,19 @@ per-request Crane Fly/GA108/P1-C route receipt. The two surfaces must never be c
 
 R3-B remains operator-only localhost CLI, disconnected from the R2 browser gateway
 and canonical SuperPhiVessel router, with no switching/chat/actions or new authorization.
+
+## R3-C canonical execution-evidence projection (offline)
+
+R3-C now audits the **canonical `.54.12` runtime**, not just the BrainC v1 donor.
+The extracted [native route projector](../../packages/vessie-gateway-v0.1/canonical-routes/README.md)
+accepts operator-supplied frozen run, BrainRoute, Executor Authorization and
+attempt-ledger records, checks their identities and distinguishes selection,
+authorization, attempt and recorded completion. The BudgetGenius canary
+influence receipt is explicitly non-executing, with the final authorization
+receipt still required.
+
+R3-C is **not** a live export endpoint, source attestation, proof of model
+inference/answer quality, or a promotion of `.54.13`. Default output redacts
+model and provider names and omits all raw task/memory/approval IDs.
+
+The physically run R2 Windows/browser pairing pilot remains separately gated.
