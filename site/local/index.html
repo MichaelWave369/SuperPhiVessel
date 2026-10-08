@@ -20,13 +20,16 @@
 </div>
 <section class="card">
 <h2>Start in three steps</h2>
-<ol><li>Download the ZIP above and choose <strong>Extract All</strong>.</li><li>Open the folder and read <code>START_HERE.txt</code>. No installer or administrator account is needed.</li><li>Double-click <code>Start-Local-Vessie.cmd</code>, then press <strong>Discover my local models</strong> in the local browser.</li></ol>
+<ol><li>Download the ZIP above and choose <strong>Extract All</strong>.</li><li>Open the folder and read <code>START_HERE.txt</code>. No installer or administrator account is needed.</li><li>Double-click <code>Start-Local-Vessie.cmd</code> for the default <strong>read-only</strong> console, then press <strong>Discover my local models</strong>.</li></ol>
 <p>The local console opens at <code>http://127.0.0.1:8791/</code> and stops when you close its command window. Ollama must already be running on <code>127.0.0.1:11434</code> to show your models.</p>
 </section>
 <section class="card">
+<h2>Optional local one-shot experiment</h2>
+<p>Once you've discovered your models, you can optionally close the read-only process and launch <code>Start-Local-Trial.cmd</code>. It requires typing ENABLE at startup, then selecting a locally size-reported Ollama model, checking an explicit consent box, and confirming <strong>each</strong> prompt in the browser. Cloud-tagged references and unknown locations are excluded. Limited to six attempts per hour and 128 output tokens per trial. The generated answer stays in the local browser; an optional redacted receipt reports latency and token counts without saving the prompt.</p>
+<p>Local Ollama inference may use your CPU/GPU and can be slow; these observations aren't model admission or independent device attestations. Start the normal launcher again to return to read-only mode.</p>
 <h2>What stays protected</h2>
-<p>The server listens only on loopback, uses an ephemeral per-process read-only API secret, enforces an exact Host and same-origin policy, and has no model execution or memory/agent access endpoint.</p>
-<p><strong>This is a local model inventory console, not the full canonical SuperPhiVessel runtime.</strong> The hosted React website is separate and does not automatically gain access to this local dashboard. No model install, inference, paid calls, cloud upload, or routing approval occurs.</p>
+<p>The server listens only on loopback, uses an ephemeral per-process read-only API secret, enforces an exact Host and same-origin policy, and exposes no execution in the default read-only mode. The separately enabled one-shot local trial is bounded and requires per-prompt approval; it provides no memory/agent routing endpoint.</p>
+<p><strong>This is a local model inventory console, not the full canonical SuperPhiVessel runtime.</strong> The hosted React website is separate and does not automatically gain access to this local dashboard. No model install, paid calls, cloud upload, background execution, or routing approval occurs. Manual local inference is available only after a separate explicit opt-in.</p>
 <p>If Windows or your antivirus blocks a downloaded program, verify the origin and source. Do not disable device security to force it.</p>
 </section>
 <footer>Project source: <a href="https://github.com/MichaelWave369/SuperPhiVessel/tree/main/packages/vessie-local-console">local console</a> · <a href="https://github.com/MichaelWave369/SuperPhiVessel/tree/main/windows-local">Windows packaging</a> · <a href="../starter/">lighter browser starter</a></footer>
