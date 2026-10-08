@@ -20,6 +20,7 @@ const formatBytes=(size:number|null)=>
 
 export default function PairingPanel() {
   const [code,setCode]=useState('');
+  const [trialId,setTrialId]=useState('');
   const [session,setSession]=useState<string|null>(null);
   const [expiresAt,setExpiresAt]=useState<number|null>(null);
   const [models,setModels]=useState<GatewayModel[]|null>(null);
@@ -47,6 +48,10 @@ export default function PairingPanel() {
   },[session,expiresAt]);
 
   const pair=async()=>{
+    if(!/^[a-f0-9]{32}$/.test(trialId)){
+      setError('Enter a valid non-secret trial ID generated locally before pairing.');
+      return;
+    }
     setBusy(true);setError('');
     // A new pairing attempt must not inherit earlier trial PASS states.
     setChecks({...initialChecks});setObservedModelCount(null);
@@ -113,7 +118,11 @@ export default function PairingPanel() {
   };
 
   const exportPilot=()=>{
-    const receipt=makeR2BrowserReceipt(checks,{modelCount:observedModelCount});
+    if(!/^[a-f0-9]{32}$/.test(trialId)){
+      setError('A valid trial ID is required to export the R2 pilot report.');
+      return;
+    }
+    const receipt=makeR2BrowserReceipt(checks,{modelCount:observedModelCount,trialId});
     const blob=new Blob([JSON.stringify(receipt,null,2)+'\n'],{type:'application/json'});
     const url=URL.createObjectURL(blob);
     const anchor=document.createElement('a');
@@ -125,11 +134,20 @@ export default function PairingPanel() {
   return <section className="pairSection">
     <div className="laneTop"><strong>LOCAL MODEL TELEMETRY</strong><span className="laneTag">R2 EXPERIMENTAL HTTPS</span></div>
     <p className="smallNote">Pair with an operator-run gateway on <code>{LOCAL_GATEWAY}</code> to inspect installed and running Ollama models. Local TLS trust and browser private-network policies must allow this connection. Sessions live only in this tab's memory, expire after 15 minutes, and cannot execute models or read private memory.</p>
+    <div className="pairControls">
+      <label htmlFor="r2-trial-id">R2 TRIAL ID · NON-SECRET · 32 LOWERCASE HEX CHARACTERS</label>
+      <input id="r2-trial-id" type="text" value={trialId}
+        onChange={e=>{setTrialId(e.target.value.trim());setChecks({...initialChecks});
+          setObservedModelCount(null);setError('');}}
+        placeholder="From node pilots/new-trial.mjs" spellCheck={false}
+        autoComplete="off" disabled={Boolean(session)||busy}
+        maxLength={32}/>
+    </div>
     {!session?<div className="pairControls">
       <label htmlFor="pair-secret">ONE-TIME PAIRING SECRET</label>
       <input id="pair-secret" type="password" value={code} onChange={e=>setCode(e.target.value)}
         autoComplete="off" spellCheck={false} placeholder="64 hex characters from local terminal"/>
-      <button type="button" className="primaryButton" disabled={busy||!/^[a-f0-9]{64}$/i.test(code.trim())}
+      <button type="button" className="primaryButton" disabled={busy||!/^[a-f0-9]{64}$/i.test(code.trim())||!/^[a-f0-9]{32}$/.test(trialId)}
         onClick={pair}>{busy?'PAIRING…':'PAIR READ-ONLY →'}</button>
     </div>:<div className="pairActions">
       <span className="pairReady">READ-ONLY SESSION PAIRED</span>
@@ -148,14 +166,14 @@ export default function PairingPanel() {
     </div>}
     <div className="pilotPanel">
       <div className="laneTop"><strong>R2 WINDOWS/BROWSER PILOT</strong><span className="laneTag">UNATTESTED REPORT</span></div>
-      <p className="smallNote">These checks record only what this page observed, never prove certificate provenance or authorize routing. The revocation test requires the old bearer to receive HTTP 403 SESSION_DENIED after an acknowledged DELETE; failed network access is not counted as success. Export a redacted report alongside the separate PowerShell TLS trust report after testing on your own PC.</p>
+      <p className="smallNote">These checks record only what this page observed, never prove certificate provenance or authorize routing. The trial ID must match the separate Windows PowerShell receipt; it is an operator-supplied correlation label, not machine attestation. The revocation test requires the old bearer to receive HTTP 403 SESSION_DENIED after an acknowledged DELETE; failed network access is not counted as success. Export a redacted report alongside the separate PowerShell TLS trust report after testing on your own PC.</p>
       <dl className="pilotChecks">
         {Object.entries(checks).map(([name,result])=><div key={name}>
           <dt>{name.replaceAll('_',' ').toUpperCase()}</dt>
           <dd>{result}</dd>
         </div>)}
       </dl>
-      <button type="button" className="secondaryButton" onClick={exportPilot} disabled={busy}>
+      <button type="button" className="secondaryButton" onClick={exportPilot} disabled={busy||!/^[a-f0-9]{32}$/.test(trialId)}>
         EXPORT REDACTED BROWSER REPORT
       </button>
       <p className="smallNote">Report excludes secrets, tokens, usernames, device identity and model names. Gateway restart is required to invalidate a stranded session when the browser closes without disconnecting.</p>
