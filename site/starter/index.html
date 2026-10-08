@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SuperPhiVessel Windows Starter. Download one small ZIP; no local repository, Node.js or certificates required to begin.">
+  <title>SuperPhiVessel · Windows Starter</title>
+  <style>
+    :root{color-scheme:dark;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#090e19;color:#edf6ff}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 55% 0,#173b42 0,#0c1a2b 44%,#090e19 80%);min-height:100vh}
+    main{max-width:850px;margin:auto;padding:4.5rem 1.3rem 5rem}
+    .eyebrow{font-size:.74rem;letter-spacing:.19em;color:#89dec9;font-weight:800}
+    h1{font-size:clamp(2.15rem,6vw,4rem);line-height:1.08;margin:.8rem 0 1.5rem}
+    p{line-height:1.65;color:#d1dce9;font-size:1.05rem}
+    a{color:#a3fae5}a:focus-visible{outline:3px solid #b0f8ed;outline-offset:3px}
+    .actions{display:flex;gap:.9rem;flex-wrap:wrap;margin:2rem 0}
+    .button{display:inline-flex;align-items:center;gap:.6rem;border:1px solid #63d9c6;border-radius:.8rem;padding:.87rem 1.25rem;text-decoration:none;font-weight:800;background:#9af5dc;color:#102422}
+    .button.secondary{background:transparent;color:#bdfff0}
+    .panel{border:1px solid #385365;background:#121f32d9;border-radius:1rem;padding:1.5rem;margin:1.4rem 0}
+    ol{padding-left:1.5rem}li{padding:.45rem 0;line-height:1.55}
+    .note{color:#aebfd0;font-size:.9rem}
+    code{background:#223448;color:#d5fff4;border-radius:.3rem;padding:.08rem .35rem}
+    footer{margin-top:3rem;font-size:.89rem;color:#a2b3c7}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">ENTER THE FIELD · VESSIE R2 ONBOARDING</div>
+    <h1>Windows Starter.<br>From nothing to a first look.</h1>
+    <p>No Git clone. No Node.js setup. No TLS certificate required for this first step.
+       Download a small ZIP, inspect it, then double-click the launcher.
+       It checks for local Ollama <strong>read-only</strong> and opens Vessie's hosted React cockpit.</p>
+    <div class="actions">
+      <a class="button" href="../downloads/SuperPhiVessel-Windows-Starter.zip" download>Download Windows Starter ZIP ↓</a>
+      <a class="button secondary" href="../vessie/">Open Vessie online ↗</a>
+    </div>
+    <section class="panel">
+      <h2>Three steps</h2>
+      <ol>
+        <li>Download the ZIP and <strong>Extract All</strong> in Windows.</li>
+        <li>Read <code>START_HERE.txt</code> and review the launcher if you wish.</li>
+        <li>Double-click <code>Start-Vessie.cmd</code>. No administrator access needed.</li>
+      </ol>
+      <p class="note">If Windows blocks the downloaded script under its execution policy, do not change security settings to force it. You can still use the online Vessie cockpit directly.</p>
+    </section>
+    <section class="panel">
+      <h2>What this actually does</h2>
+      <p>The starter checks <code>127.0.0.1:11434/api/tags</code> for a local Ollama inventory, displays model names in your own terminal if available, and opens Vessie's public React page.</p>
+      <p><strong>It does not install the full SuperPhiVessel runtime or make the website run your local models.</strong>
+         Secure browser-to-local model discovery is a separate R2 field pilot that needs your later approval and trusted TLS setup.
+         It never sends your local model list or credentials to the website, starts an internet-facing server, or grants execution authority.</p>
+    </section>
+    <footer>Source and setup details: <a href="https://github.com/MichaelWave369/SuperPhiVessel/tree/main/windows-starter">Windows starter source</a>
+      · <a href="../manual/">Vessie manual</a></footer>
+  </main>
+</body>
+</html>

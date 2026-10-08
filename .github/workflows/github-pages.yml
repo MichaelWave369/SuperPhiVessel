@@ -6,6 +6,7 @@ on:
     paths:
       - "site/**"
       - "apps/vessie-web/**"
+      - "windows-starter/**"
       - "protocols/dlam-v0.1/genius-roster.json"
       - "protocols/routing-v2/model-candidates.json"
       - "runtime/MANIFEST.json"
@@ -70,6 +71,21 @@ jobs:
       - name: Build /vessie/ into existing static site
         working-directory: apps/vessie-web
         run: npm run build
+
+      - name: Build downloadable Windows starter archive
+        shell: bash
+        run: |
+          python3 windows-starter/build-package.py
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          from pathlib import Path
+          path=Path('site/downloads/SuperPhiVessel-Windows-Starter.zip')
+          with ZipFile(path) as z:
+              assert z.namelist()==['START_HERE.txt','Start-Vessie.cmd','Start-Vessie.ps1']
+              assert z.testzip() is None
+          assert Path('site/starter/index.html').is_file()
+          print('windows-starter-pages-download: PASS')
+          PY
 
       - name: Verify existing front door and searchable manual preserved
         shell: bash
