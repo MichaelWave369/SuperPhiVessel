@@ -1,50 +1,118 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   gatewayModels, gatewayStatus, pairGateway, revokeGateway,
   type GatewayModel, LOCAL_GATEWAY
 } from './pairing-client.mjs';
+import { makeR2BrowserReceipt } from './pilot-evidence.mjs';
 
+type Check = 'PASS' | 'FAIL' | 'NOT_RUN';
+type CheckKey = 'browser_https_pair' | 'browser_status_read' |
+  'browser_model_inventory' | 'session_revocation_request';
+const initialChecks: Record<CheckKey,Check> = {
+  browser_https_pair: 'NOT_RUN',
+  browser_status_read: 'NOT_RUN',
+  browser_model_inventory: 'NOT_RUN',
+  session_revocation_request: 'NOT_RUN',
+};
 const formatBytes=(size:number|null)=>
   size===null?'Unreported':(size/1024/1024/1024).toFixed(2)+' GiB';
 
 export default function PairingPanel() {
   const [code,setCode]=useState('');
   const [session,setSession]=useState<string|null>(null);
+  const [expiresAt,setExpiresAt]=useState<number|null>(null);
   const [models,setModels]=useState<GatewayModel[]|null>(null);
   const [status,setStatus]=useState('');
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
+  const [checks,setChecks]=useState<Record<CheckKey,Check>>(initialChecks);
+  const [observedModelCount,setObservedModelCount]=useState<number|null>(null);
+  const mark=(key:CheckKey, result:Check)=>{
+    setChecks(previous=>({...previous,[key]:result}));
+  };
+  useEffect(()=>{
+    if(!session||expiresAt===null)return;
+    const timeLeft=expiresAt-Date.now();
+    if(timeLeft<=0){
+      setSession(null);setExpiresAt(null);setModels(null);
+      setStatus('Session expired. Restart the local gateway to obtain another pairing code.');
+      return;
+    }
+    const timer=window.setTimeout(()=>{
+      setSession(null);setExpiresAt(null);setModels(null);
+      setStatus('Session expired. Restart the local gateway to re-pair.');
+    },timeLeft);
+    return ()=>window.clearTimeout(timer);
+  },[session,expiresAt]);
+
   const pair=async()=>{
     setBusy(true);setError('');
+    let provisionalKey:string|null=null;
     try{
       const key=await pairGateway(code.trim());
-      setSession(key);setCode('');
+      provisionalKey=key;
+      mark('browser_https_pair','PASS');
       const info=await gatewayStatus(key);
+      mark('browser_status_read','PASS');
+      setSession(key);
+      setExpiresAt(Date.now()+Math.min(900,Math.max(1,info.session_expires_in_seconds))*1000);
+      setCode('');
       setStatus(info.gateway_status+' · '+info.session_expires_in_seconds+'s maximum session');
     }catch{
-      setError('Pairing failed. Verify the local gateway, certificate trust, private-network permissions and pairing secret. No browser security settings should be disabled.');
+      mark('browser_https_pair',provisionalKey?'PASS':'FAIL');
+      mark('browser_status_read',provisionalKey?'FAIL':'NOT_RUN');
+      if(provisionalKey){try{await revokeGateway(provisionalKey);}catch{ /* Restart gateway to force expiry if revocation fails. */ }}
+      setSession(null);setExpiresAt(null);setModels(null);setCode('');
+      setError('Pairing failed. Check local TLS trust, Chrome private-network permission and the one-use secret. Do not disable security controls.');
     }finally{setBusy(false);}
   };
+
   const refresh=async()=>{
     if(!session)return;
     setBusy(true);setError('');
     try{
       const read=await gatewayModels(session);
       setModels(read.models);
+      setObservedModelCount(read.count);
+      mark('browser_model_inventory','PASS');
       setStatus('Ollama probe: '+read.probe_status+' · '+read.count+' discovered models');
     }catch{
+      mark('browser_model_inventory','FAIL');
       setModels(null);setStatus('Connection unavailable');
-      setError('Could not read live models. Session may have expired, Ollama may be unavailable, or private-network policy may block the request.');
+      setError('Could not read live models. Session may have expired, Ollama may be unavailable or private-network policy may block access.');
     }finally{setBusy(false);}
   };
+
   const disconnect=async()=>{
+    if(busy)return;
     const current=session;
-    setSession(null);setModels(null);setCode('');setStatus('Disconnected');setError('');
-    if(current){try{await revokeGateway(current);}catch{setError('Local session cleared; if revocation did not reach the gateway, restart it to invalidate the old session.');}}
+    setSession(null);setExpiresAt(null);setModels(null);setCode('');
+    setStatus('Local session cleared');setError('');
+    if(current){
+      try{
+        await revokeGateway(current);
+        mark('session_revocation_request','PASS');
+        setStatus('Local session revoked at gateway');
+      }catch{
+        mark('session_revocation_request','FAIL');
+        setError('The browser discarded its session, but gateway revocation was not confirmed. Restart the gateway to invalidate the previous session.');
+      }
+    }
   };
+
+  const exportPilot=()=>{
+    const receipt=makeR2BrowserReceipt(checks,{modelCount:observedModelCount});
+    const blob=new Blob([JSON.stringify(receipt,null,2)+'\n'],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const anchor=document.createElement('a');
+    anchor.href=url;anchor.download='vessie-r2-browser-pilot.json';
+    anchor.click();
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+
   return <section className="pairSection">
     <div className="laneTop"><strong>LOCAL MODEL TELEMETRY</strong><span className="laneTag">R2 EXPERIMENTAL HTTPS</span></div>
-    <p className="smallNote">Pair with an operator-run gateway on <code>{LOCAL_GATEWAY}</code> to inspect installed and running Ollama models. Local TLS trust and browser private-network policies must allow the connection. Sessions exist only in this tab's memory, expire after 15 minutes, and cannot run models or read memories.</p>
+    <p className="smallNote">Pair with an operator-run gateway on <code>{LOCAL_GATEWAY}</code> to inspect installed and running Ollama models. Local TLS trust and browser private-network policies must allow this connection. Sessions live only in this tab's memory, expire after 15 minutes, and cannot execute models or read private memory.</p>
     {!session?<div className="pairControls">
       <label htmlFor="pair-secret">ONE-TIME PAIRING SECRET</label>
       <input id="pair-secret" type="password" value={code} onChange={e=>setCode(e.target.value)}
@@ -54,7 +122,7 @@ export default function PairingPanel() {
     </div>:<div className="pairActions">
       <span className="pairReady">READ-ONLY SESSION PAIRED</span>
       <button type="button" className="primaryButton" onClick={refresh} disabled={busy}>{busy?'PROBING…':'DISCOVER LOCAL MODELS'}</button>
-      <button type="button" className="secondaryButton" onClick={disconnect}>DISCONNECT / REVOKE</button>
+      <button type="button" className="secondaryButton" onClick={disconnect} disabled={busy}>DISCONNECT / REVOKE</button>
     </div>}
     {status&&<p className="smallNote" role="status">{status}</p>}
     {error&&<p className="error" role="alert">{error}</p>}
@@ -66,6 +134,20 @@ export default function PairingPanel() {
         <td>{formatBytes(model.runtime_vram_bytes)}</td><td>NONE · DISCOVERY ONLY</td>
       </tr>)}</tbody></table>
     </div>}
-    <p className="smallNote">Certificate keys, credentials and authority never enter the static site. The short-lived session token is held only in React state, not localStorage or the repo. If browser security refuses the connection, keep using the R1 PowerShell probe.</p>
+    <div className="pilotPanel">
+      <div className="laneTop"><strong>R2 WINDOWS/BROWSER PILOT</strong><span className="laneTag">UNATTESTED REPORT</span></div>
+      <p className="smallNote">These checks record only what this page observed, never prove certificate provenance or authorize routing. Export a redacted report alongside the separate PowerShell TLS trust report after testing on your own PC.</p>
+      <dl className="pilotChecks">
+        {Object.entries(checks).map(([name,result])=><div key={name}>
+          <dt>{name.replaceAll('_',' ').toUpperCase()}</dt>
+          <dd>{result}</dd>
+        </div>)}
+      </dl>
+      <button type="button" className="secondaryButton" onClick={exportPilot}>
+        EXPORT REDACTED BROWSER REPORT
+      </button>
+      <p className="smallNote">Report excludes secrets, tokens, usernames, device identity and model names. Gateway restart is required to invalidate a stranded session when the browser closes without disconnecting.</p>
+    </div>
+    <p className="smallNote">Certificate keys, API keys and executor authority never enter the static site. If the browser blocks localhost access, do not disable security features. Use the R1 PowerShell probe until an approved topology works.</p>
   </section>;
 }

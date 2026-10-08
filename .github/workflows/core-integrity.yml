@@ -9,6 +9,23 @@ permissions:
   contents: read
 
 jobs:
+  vessie-r2-field-harness:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify redacted field assessment contract
+        run: node --test packages/vessie-gateway-v0.1/pilots/assess-field.test.mjs
+      - name: Parse PowerShell field script without changing Windows TLS settings
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('packages/vessie-gateway-v0.1/pilots/Windows-R2-LocalTrust.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          Write-Host 'field script syntax: PASS; no local gateway claim made'
   vessie-gateway-r2:
     runs-on: ubuntu-latest
     steps:

@@ -63,3 +63,7 @@ This is an experimental browser-pairing implementation. Exact allowed Origin is 
 CI uses a self-signed temporary certificate with TLS verification bypassed **inside the test client only**. The application code never disables TLS verification. Browser trust requires a properly trusted certificate.
 
 **No production/remote-exposure claim. Never port-forward the gateway, publish the pairing code, or use cloud/public TLS proxy for this local developer reference.**
+
+## R2 Windows field qualification pack
+
+A portable, privacy-minimized Windows pilot is now provided at [`pilots/README.md`](pilots/README.md). It includes a strict Windows OS TLS/denial check, an optional browser-exported self-report, and a two-receipt comparator. None of those creates cryptographic device attestation or grants execution. Both receipts must be collected on the operator's physical machine; Windows CI only validates harness syntax and fixture controls.
