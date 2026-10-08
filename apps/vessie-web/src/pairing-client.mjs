@@ -51,6 +51,27 @@ export async function gatewayModels(session,fetcher=fetch) {
   return {count:models.length,models,probe_status:result.probe_status};
 }
 export async function revokeGateway(session,fetcher=fetch){
-  if(!/^[a-f0-9]{64}$/i.test(session))return;
-  await safeResponse(await fetcher(LOCAL_GATEWAY+'/v1/session',init('DELETE',undefined,session)));
+  if(typeof session!=='string'||!/^[a-f0-9]{64}$/i.test(session))
+    throw new Error('Invalid local session for revocation');
+  const result=await safeResponse(await fetcher(
+    LOCAL_GATEWAY+'/v1/session',init('DELETE',undefined,session)));
+  if(result.session_status!=='REVOKED'||result.authority_granted!==false)
+    throw new Error('Gateway did not confirm session revocation');
+}
+
+// R2 field evidence: a successful DELETE alone does not establish that
+// the *same bearer* can no longer access the read-only gateway.
+// Treat transport/CORS/TLS failures as INCONCLUSIVE, never as a refusal PASS.
+export async function confirmRevokedGateway(session,fetcher=fetch){
+  if(typeof session!=='string'||!/^[a-f0-9]{64}$/i.test(session))
+    throw new Error('Invalid local session for revocation probe');
+  const response=await fetcher(
+    LOCAL_GATEWAY+'/v1/status',init('GET',undefined,session));
+  if(response.status!==403)
+    throw new Error('Revoked session was not denied with HTTP 403');
+  const result=await response.json();
+  if(!result||typeof result!=='object'||Array.isArray(result)||
+    result.error!=='SESSION_DENIED'||result.authority_granted!==false)
+    throw new Error('Revocation refusal contract mismatch');
+  return {confirmed:true,source:'HTTP_403_SESSION_DENIED',authority_granted:false};
 }
