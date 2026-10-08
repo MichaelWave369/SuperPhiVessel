@@ -298,8 +298,8 @@ export function createPhysicalObserverRuntime({
         runtimeContract: RUNTIME_CONTRACT,
         status: "DUPLICATE",
         errors: [],
-        view: latest ? clone(latest.view) : buildObserverView(packet),
-        receipt: latest ? clone(latest.receipt) : null,
+        view: latest?.handoffId === handoffId ? clone(latest.view) : null,
+        receipt: latest?.handoffId === handoffId ? clone(latest.receipt) : null,
         authorityGranted: false
       };
     }
@@ -357,6 +357,7 @@ export function createPhysicalObserverRuntime({
   }
 
   function clear() {
+    seen.clear();
     latest = null;
     emit(CLEARED_EVENT, {
       runtimeContract: RUNTIME_CONTRACT,
