@@ -1,0 +1,100 @@
+{
+  "schema": "superphivessel.routing.candidate-catalog.v0.1",
+  "date": "2026-10-08",
+  "evidence_status": "PUBLIC_PROVIDER_DOCS_AND_REPO_AUDIT_NOT_LOCAL_DEVICE_PROBE",
+  "installed_claim": false,
+  "activated_claim": false,
+  "catalog_status": "CANDIDATES_ONLY",
+  "local_candidates": [
+    {
+      "id": "granite4.2:3b",
+      "role": "Utility / classification",
+      "weights_approx_gb": 2.2,
+      "classification": "FAST_CHEAP",
+      "status": "DISCOVER_FIRST",
+      "quantization": "Q4_K_M",
+      "benchmark": "JSON correctness, tool schema, token latency",
+      "source": "https://ollama.com/library/granite4.2/tags"
+    },
+    {
+      "id": "granite4.2:8b",
+      "role": "Everyday assistant / JSON",
+      "weights_approx_gb": 5.3,
+      "classification": "RESIDENT_PRIMARY_CANDIDATE",
+      "status": "BENCHMARK",
+      "benchmark": "Quality, context-memory, VRAM headroom, tool results",
+      "source": "https://ollama.com/library/granite4.2/tags"
+    },
+    {
+      "id": "gemma4:e4b",
+      "role": "Compact multimodal",
+      "weights_approx_gb": null,
+      "classification": "VISION_SPECIALIST_CANDIDATE",
+      "status": "BENCHMARK",
+      "benchmark": "Vision, tool reliability, memory fit",
+      "source": "https://ollama.com/library/gemma4"
+    },
+    {
+      "id": "qwen3.8:27b",
+      "role": "Heavy reasoning / code",
+      "weights_approx_gb": 18,
+      "classification": "CPU_GPU_OFFLOAD_OPTIONAL",
+      "status": "OPTIONAL",
+      "benchmark": "Multi-minute tasks, offload throughput, quality uplift",
+      "source": "https://ollama.com/library/qwen3.8"
+    }
+  ],
+  "remote_candidates": [
+    {
+      "id": "GroqCloud",
+      "tier": "FREE_QUOTA",
+      "status": "UNCONFIGURED",
+      "use": "Fast remote reasoning fallbacks",
+      "data_policy": "EXPLICIT_CLOUD_DISCLOSURE_GRANT_REQUIRED",
+      "source": "https://console.groq.com/docs/rate-limits"
+    },
+    {
+      "id": "Google Gemini API",
+      "tier": "FREE_QUOTA",
+      "status": "UNCONFIGURED",
+      "use": "Multimodal fallback",
+      "data_policy": "FREE_TIER_DATA_HANDLING_REVIEW_REQUIRED",
+      "source": "https://ai.google.dev/gemini-api/docs/pricing"
+    },
+    {
+      "id": "OpenRouter",
+      "tier": "FREE_QUOTA",
+      "status": "UNCONFIGURED",
+      "use": "Dynamic free model discovery",
+      "data_policy": "MODEL_AND_UPSTREAM_PROVIDER_PRIVACY_REVIEW_REQUIRED",
+      "source": "https://openrouter.ai/pricing"
+    },
+    {
+      "id": "Cloudflare Workers AI",
+      "tier": "FREE_QUOTA",
+      "status": "UNCONFIGURED",
+      "use": "Hosted specialist utilities",
+      "data_policy": "MODEL_BILLING_AND_DATA_REVIEW_REQUIRED",
+      "source": "https://developers.cloudflare.com/workers-ai/platform/pricing/"
+    },
+    {
+      "id": "Cerebras Inference",
+      "tier": "FREE_QUOTA",
+      "status": "UNCONFIGURED",
+      "use": "Fast hosted challenger",
+      "data_policy": "ACCOUNT_LIMITS_AND_PRIVACY_REVIEW_REQUIRED",
+      "source": "https://inference-docs.cerebras.ai/support/pricing"
+    }
+  ],
+  "routing_rules": [
+    "DETERMINISTIC_CODE_BEFORE_MODEL",
+    "P1C_HARD_ELIGIBILITY_BEFORE_LEARNED_SCORE",
+    "LOCAL_FIRST_IF_QUALITY_AND_EVIDENCE_ADEQUATE",
+    "REMOTE_CONSENT_REQUIRED_FOR_PRIVATE_CONTENT",
+    "NO_PROVIDER_KEY_IN_STATIC_CLIENT",
+    "FREE_QUOTA_EXHAUSTION_FAILS_CLOSED",
+    "PAID_SPEND_REQUIRES_EXPLICIT_BUDGETPASS_AND_OPERATOR",
+    "UNVERIFIED_OUTCOME_DOES_NOT_TRAIN_WEIGHTS",
+    "P4_SHADOW_IS_NOT_LIVE"
+  ]
+}
