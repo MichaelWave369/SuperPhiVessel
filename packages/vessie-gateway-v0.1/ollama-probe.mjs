@@ -10,6 +10,30 @@ const boundedString = (value, max = 128) =>
 const bytes = (value) =>
   Number.isSafeInteger(value) && value >= 0 ? value : null;
 
+// Ollama's /api/tags includes remote_model/remote_host for remote entries.
+// A terminal "-cloud" or ":cloud" tag is only a naming hint: it is NOT
+// cloud connectivity, a billing statement, or trusted endpoint attestation.
+// A positive on-disk size without a remote signal is only a local file
+// SIZE REPORT, not proof a model can run or fit in any specific VRAM budget.
+export function classifyOllamaAvailability(raw, name) {
+  const remoteMetadata =
+    (typeof raw?.remote_host === 'string' && raw.remote_host.trim().length > 0) ||
+    (typeof raw?.remote_model === 'string' && raw.remote_model.trim().length > 0);
+  if (remoteMetadata) return {
+    execution_location: 'CLOUD_REFERENCE',
+    classification_basis: 'REMOTE_METADATA'
+  };
+  if (/(?:^|[-:])cloud$/i.test(name)) return {
+    execution_location: 'CLOUD_REFERENCE',
+    classification_basis: 'CLOUD_TAG_HINT'
+  };
+  if (bytes(raw?.size) > 0) return {
+    execution_location: 'LOCAL_WEIGHTS_REPORTED',
+    classification_basis: 'POSITIVE_SIZE_REPORT'
+  };
+  return {execution_location:'UNKNOWN',classification_basis:'INSUFFICIENT_METADATA'};
+}
+
 function sanitizeModel(raw, runningByName) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const name = boundedString(raw.name ?? raw.model);
@@ -17,8 +41,10 @@ function sanitizeModel(raw, runningByName) {
   const digest = boundedString(raw.digest, 160);
   const details = raw.details && typeof raw.details === 'object' ? raw.details : {};
   const current = runningByName.get(name);
+  const classification = classifyOllamaAvailability(raw, name);
   return {
     name,
+    ...classification,
     source: 'OLLAMA_LOCAL_PROBE',
     status: 'DISCOVERED_NOT_APPROVED',
     model_ref: null,
@@ -29,7 +55,9 @@ function sanitizeModel(raw, runningByName) {
     family: boundedString(details.family, 80),
     loaded: !!current,
     runtime_vram_bytes: current ? bytes(current.size_vram) : null,
-    locality: 'LOCAL',
+    // The discovery endpoint is local, but individual entries may be remote.
+    locality: classification.execution_location === 'LOCAL_WEIGHTS_REPORTED'
+      ? 'LOCAL_WEIGHTS_REPORTED' : classification.execution_location,
     execution_authorized: false,
     routing_approved: false,
   };
