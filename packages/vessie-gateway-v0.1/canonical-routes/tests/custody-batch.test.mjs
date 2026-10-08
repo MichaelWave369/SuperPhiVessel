@@ -49,7 +49,7 @@ test('F02 exact duplicate packet within batch flags replay without reward inflat
   assert.equal(r.distinct_signed_packet_ids,1);
   assert.equal(r.distinct_redacted_projection_hashes,1);
   assert.equal(r.issue_counts.DUPLICATE_SIGNED_PACKET_IN_BATCH,1);
-  assert.equal(r.issue_counts.REPEATED_REDACTED_PROJECTION_NOT_INDEPENDENT_SAMPLE,1);
+  assert.equal(r.issue_counts.REPEATED_REDACTED_PROJECTION_INDEPENDENCE_UNPROVEN,1);
 });
 test('F03 same source projection re-signed has distinct packet but not independent evidence',()=>{
   const a=signBundle(),b=signBundle();
@@ -57,7 +57,7 @@ test('F03 same source projection re-signed has distinct packet but not independe
   assert.equal(r.distinct_signed_packet_ids,2);
   assert.equal(r.distinct_redacted_projection_hashes,1);
   assert.equal(r.status,'REVIEW_REQUIRED');
-  assert.ok(r.issues.includes('REPEATED_REDACTED_PROJECTION_NOT_INDEPENDENT_SAMPLE'));
+  assert.ok(r.issues.includes('REPEATED_REDACTED_PROJECTION_INDEPENDENCE_UNPROVEN'));
 });
 test('F04 different recorded statuses yield distinct projections without claiming validity',()=>{
   const r=audit([signBundle('FAILED','r-1'),signBundle('COMPLETED','r-2')]);
@@ -112,7 +112,7 @@ test('F11 two independent signatures over same redacted fields do not become dou
   // Raw run IDs disappear from redacted projection; cannot assert identity.
   const r=audit([a,b]);
   assert.equal(r.distinct_redacted_projection_hashes,1);
-  assert.ok(r.issues.includes('REPEATED_REDACTED_PROJECTION_NOT_INDEPENDENT_SAMPLE'));
+  assert.ok(r.issues.includes('REPEATED_REDACTED_PROJECTION_INDEPENDENCE_UNPROVEN'));
   assert.equal(r.may_update_model_weights,false);
 });
 test('F12 report does not disclose prompt, private memory, model or raw IDs',()=>{
