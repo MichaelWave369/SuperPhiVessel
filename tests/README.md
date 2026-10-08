@@ -193,3 +193,5 @@ Historical tests should identify the runtime/protocol version they were written 
   - deterministic replay and receipt-tamper checks remain stable.
 
 - `packages/phibot-physical-observer-v0.3/acceptance.mjs` verifies the **canonical HTML candidate builder**, frozen original runtime preservation, isolated module compilation, hidden-until-opened panel, invalid-input refusal, ephemeral clearing, and nonauthoritative UI. CI uploads the candidate as a review artifact, not a canonical release.
+
+- `packages/phibot-physical-observer-v0.4/browser-qualification.mjs` exercises the **complete generated .54.13 standalone HTML in real headless Chromium** using actual pinned-NBG handoff packets and hostile variants, UI import/replay/refusal, safe text rendering, clear/reopen, desktop/mobile viewport bounds and screenshots. Passing is browser qualification only, not release promotion.
