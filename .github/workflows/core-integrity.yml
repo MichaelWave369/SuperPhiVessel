@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  vessie-r3e-operator-signature:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify operator-signed offline evidence envelope and negative controls
+        run: node --test packages/vessie-gateway-v0.1/canonical-routes/tests/operator-envelope.test.mjs
+
   vessie-r3c-native-route-evidence:
     runs-on: ubuntu-latest
     steps:
