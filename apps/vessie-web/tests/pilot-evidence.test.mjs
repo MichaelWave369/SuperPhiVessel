@@ -59,3 +59,20 @@ test('R2P06 omitted revoked session check remains NOT_RUN',()=>{
  assert.equal(report.checks.revoked_session_denied,'NOT_RUN');
  assert.equal(report.passed_checks,1);
 });
+
+test('R2P07 missing or malicious trial ID is not accepted into export',()=>{
+ const x=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'a'.repeat(32)+'PRIVATEKEY'
+ });
+ assert.equal(x.trial_id,null);
+ assert.equal(x.authority_granted,false);
+ const y=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'AAAABBBBCCCCDDDDEEEEFFFF00001111'
+ });
+ assert.equal(y.trial_id,null);
+ const z=makeR2BrowserReceipt({browser_https_pair:'PASS'},{
+   modelCount:3,trialId:'0'.repeat(32)
+ });
+ assert.equal(z.trial_id,'0'.repeat(32));
+ assert.equal(z.field_qualified,false);
+});
