@@ -1,26 +1,17 @@
-name: budgetgenius-canary-runtime-generate
+name: budgetgenius-canary-runtime-reproduce
 
 on:
-  push:
-    branches:
-      - feat/budgetgenius-live-canary-seam-v0-5
-    paths:
-      - scripts/build-budgetgenius-canary-runtime-v0.5.mjs
-      - packages/budgetgenius-bridge-v0.5/**
-      - .github/workflows/budgetgenius-canary-runtime-generate.yml
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  generate-and-verify:
+  reproduce-and-verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Super Phi.Vessel branch
+      - name: Checkout Super Phi.Vessel
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
-          fetch-depth: 0
 
       - name: Checkout pinned BudgetGenius
         uses: actions/checkout@v4
@@ -33,23 +24,15 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Generate canonical v0.5 runtime candidate
+      - name: Reproduce canonical v0.5 runtime candidate
         run: node scripts/build-budgetgenius-canary-runtime-v0.5.mjs
 
-      - name: Run v0.5 acceptance against generated canonical runtime
+      - name: Run v0.5 acceptance against reproduced canonical runtime
         env:
           BUDGETGENIUS_ROOT: ${{ github.workspace }}/_budgetgenius
         run: node packages/budgetgenius-bridge-v0.5/acceptance.mjs
 
-      - name: Commit generated runtime and manifest
+      - name: Prove reproduction is byte-identical
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add runtime/MANIFEST.json runtime/Super_PhiVessel_v2.0-alpha.11.0.54.11_BudgetGenius_Canary_Seam.html
-          if git diff --cached --quiet; then
-            echo "Generated runtime already committed."
-            exit 0
-          fi
-          git commit -m "build: generate canonical BudgetGenius v0.5 runtime [canary-generated]"
-          git push origin HEAD:${{ github.ref_name }}
+          git diff --exit-code -- runtime/MANIFEST.json runtime/Super_PhiVessel_v2.0-alpha.11.0.54.11_BudgetGenius_Canary_Seam.html
