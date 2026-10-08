@@ -71,7 +71,7 @@ test('F05 reused packet ID with different signed content is separately classifie
   const q=clone(signBundle('COMPLETED','r-02'));
   // Test-only signer deliberately reuses an earlier packet ID and re-signs.
   q.packet.packet_id=p.packet.packet_id;
-  q.signature_base64=sign(null,Buffer.from('PV-VESSIE-R3E-OPERATOR-SIGNATURE-V1\\n'+
+  q.signature_base64=sign(null,Buffer.from('PV-VESSIE-R3E-OPERATOR-SIGNATURE-V1\n'+
     JSON.stringify({packet:q.packet,signer:q.signer}),'utf8'),pair.privateKey).toString('base64');
   const r=audit([p,q]);
   assert.equal(r.status,'REVIEW_REQUIRED');
