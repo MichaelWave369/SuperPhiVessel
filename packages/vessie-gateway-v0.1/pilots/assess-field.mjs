@@ -3,17 +3,22 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const EXPECT_WINDOWS=['WINDOWS_OS_TLS_TRUST','UNAUTHORIZED_REFUSAL','WRONG_ORIGIN_REFUSAL'];
-const EXPECT_BROWSER=['browser_https_pair','browser_status_read','browser_model_inventory','session_revocation_request'];
+const EXPECT_BROWSER=['browser_https_pair','browser_status_read','browser_model_inventory','session_revocation_request','revoked_session_denied'];
 
 export function assessFieldReceipts(windows, browser) {
   const problems=[];
   if(!windows||windows.schema!=='superphivessel.gateway.r2.windows-pilot.v0.1' ||
      windows.observation_source!=='OPERATOR_WINDOWS_POWERSHELL_LOCAL_TEST' ||
-     windows.fixture!==false || !Array.isArray(windows.checks)){
+     windows.fixture!==false || windows.platform!=='WINDOWS' ||
+     windows.gateway_target!=='HTTPS_LOOPBACK' ||
+     windows.browser_pairing_qualified!==false ||
+     windows.operator_promotion_approved!==false ||
+     windows.authority_granted!==false || !Array.isArray(windows.checks)){
     problems.push('WINDOWS_RECEIPT_INVALID');
   }
-  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.1' ||
-     browser.observation_source!=='UNATTESTED_BROWSER_CLIENT'){
+  if(!browser||browser.schema!=='superphivessel.gateway.r2.browser-field-report.v0.2' ||
+     browser.observation_source!=='UNATTESTED_BROWSER_CLIENT' ||
+     browser.revocation_proof_scope!=='BROWSER_OBSERVED_DENIAL_NOT_MACHINE_ATTESTED'){
     problems.push('BROWSER_RECEIPT_INVALID');
   }
   if(problems.length===0){
@@ -21,17 +26,23 @@ export function assessFieldReceipts(windows, browser) {
       const matches=windows.checks.filter(item=>item&&item.check===check);
       if(matches.length!==1||matches[0].result!=='PASS')problems.push('WINDOWS_CHECK_INCOMPLETE_'+check);
     }
+    if(windows.check_count!==EXPECT_WINDOWS.length)
+      problems.push('WINDOWS_CHECK_COUNT_INVALID');
     if(windows.result!=='LOCAL_TLS_AND_REFUSAL_PASS_BROWSER_PENDING')problems.push('WINDOWS_TLS_NOT_READY');
     for(const check of EXPECT_BROWSER){
       if(browser.checks?.[check]!=='PASS')problems.push('BROWSER_CHECK_INCOMPLETE_'+check);
     }
+    if(browser.passed_checks!==EXPECT_BROWSER.length)
+      problems.push('BROWSER_CHECK_COUNT_INVALID');
     if(browser.model_count_observed===null ||
       !Number.isInteger(browser.model_count_observed)||browser.model_count_observed<0 ||
       browser.model_count_observed>256)problems.push('BROWSER_MODEL_COUNT_UNCONFIRMED');
     if(browser.status!=='OPERATOR_REVIEW_REQUIRED' ||
       browser.field_qualified!==false || browser.authority_granted!==false ||
       browser.secrets_included!==false || browser.credentials_included!==false ||
-      browser.model_names_included!==false || browser.host_identity_included!==false){
+      browser.model_names_included!==false || browser.host_identity_included!==false ||
+      browser.browser_restrictions_bypassed!==false ||
+      browser.installed_models_approved!==false){
       problems.push('BROWSER_PRIVACY_OR_AUTHORITY_BOUNDARY_BROKEN');
     }
     // Only structurally compare receipt dates. Cannot authenticate client clocks.
