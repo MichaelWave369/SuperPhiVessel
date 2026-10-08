@@ -463,6 +463,9 @@ test('L30 review requires a completed live trial and explicitly clicked export',
     assert.ok(js.includes("reviewSubmit.addEventListener('click'"));
     assert.ok(js.includes("reviewExport.addEventListener('click'"));
     assert.ok(js.includes('resetHumanReview();'));
+    assert.ok(js.includes("field.addEventListener('change'"));
+    assert.ok(js.includes('humanReviewReceipt=null;'));
+    assert.ok(js.includes('reviewExport.disabled=true;'));
     assert.ok(!js.includes('innerHTML'));
   });
 });
