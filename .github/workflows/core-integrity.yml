@@ -59,6 +59,34 @@ jobs:
       - name: Test offline route trace source and authority refusals
         run: python3 packages/vessie-gateway-v0.1/r3a_acceptance.py
 
+  vessie-r2-guided-pilot:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse guided Windows R2 physical-pilot wrapper
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          Write-Host 'guided R2 pilot syntax: PASS; no physical qualification implied'
+      - name: Refuse uncorrelated assess and stale Collect mode inputs
+        shell: pwsh
+        run: |
+          $path = 'packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1'
+          $out = & $path -Stage Assess 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: ASSESS_REQUIRES_TRIAL_ID') { throw 'ASSESS_FAIL_CLOSED_TEST_FAILED' }
+          $out = & $path -Stage Collect -TrialId ('a' * 32) 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: COLLECT_REQUIRES_FRESH_TRIAL_ID') { throw 'COLLECT_FAIL_CLOSED_TEST_FAILED' }
+          $id = 'f' * 32
+          $out = & $path -Stage Assess -TrialId $id 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 2 -or $out -notmatch 'BLOCKED_R2_PILOT: WINDOWS_RECEIPT_MISSING') { throw 'MISSING_RECEIPT_FAIL_CLOSED_TEST_FAILED' }
+          Write-Host 'R2 guided pilot failure-path tests: PASS; no gateway/browser contact made'
+
   vessie-r2-operator-preflight:
     runs-on: ubuntu-latest
     steps:
