@@ -1,0 +1,171 @@
+/* PHIBOT_PHYSICAL_OBSERVER_PANEL_V0_3_BEGIN */
+(function installPhysicalObserverPanel() {
+  const PANEL_ID = "pv-physical-observer-v03";
+  const MAX_PAYLOAD_CHARS = 262144;
+  const MAX_VISIBLE_PROMPTS = 8;
+  const observer = createPhysicalObserverRuntime();
+  const receipts = [];
+
+  function mount() {
+    if (!document.body || document.getElementById(PANEL_ID)) return;
+
+    const host = document.createElement("div");
+    host.id = PANEL_ID;
+    const shadow = host.attachShadow({ mode: "closed" });
+
+    const style = document.createElement("style");
+    style.textContent = [
+      ":host {all:initial; font:14px/1.45 system-ui,sans-serif; color:#d8f4ef}",
+      ".launcher {position:fixed;right:16px;bottom:16px;z-index:2147483646;background:#153c42;color:#c8fff2;border:1px solid #66bfa8;border-radius:999px;padding:11px 16px;font:600 13px system-ui;cursor:pointer;box-shadow:0 6px 25px #0008}",
+      ".panel {position:fixed;right:16px;bottom:70px;z-index:2147483646;box-sizing:border-box;width:min(390px,calc(100vw - 32px));max-height:min(75vh,680px);overflow:auto;background:#101d27;color:#e2f3f1;border:1px solid #467e79;border-radius:13px;padding:16px;box-shadow:0 18px 50px #000b;font:13px/1.5 system-ui}",
+      ".panel[hidden]{display:none}",
+      "h2{margin:0 0 8px;font-size:16px;color:#aefadd}",
+      "h3{margin:12px 0 4px;font-size:13px;color:#aefadd}",
+      "p{margin:5px 0 9px}",
+      ".caution{color:#ffdbab}",
+      "textarea{box-sizing:border-box;width:100%;min-height:104px;resize:vertical;background:#09141b;color:#ebfff5;border:1px solid #4c7f81;border-radius:6px;padding:9px;font:12px/1.3 monospace}",
+      "button{background:#1b4851;color:#d7fff4;border:1px solid #65a7a5;border-radius:7px;padding:7px 10px;cursor:pointer}",
+      "button:focus-visible,textarea:focus-visible{outline:2px solid #e3fbac;outline-offset:2px}",
+      ".actions{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}",
+      ".result{border-top:1px solid #355660;padding-top:8px;white-space:normal}",
+      ".item{border:1px solid #395962;border-radius:7px;padding:9px;margin:8px 0;background:#132833;overflow-wrap:anywhere}",
+      ".meta{font-size:11px;color:#b6d5d1;overflow-wrap:anywhere}",
+      ".status{font-weight:600;color:#d8ffcc}"
+    ].join("\n");
+
+    const launcher = document.createElement("button");
+    launcher.type = "button";
+    launcher.className = "launcher";
+    launcher.textContent = "Physical Observer";
+    launcher.setAttribute("aria-label", "Open physical observer");
+    launcher.setAttribute("aria-expanded", "false");
+
+    const panel = document.createElement("section");
+    panel.className = "panel";
+    panel.hidden = true;
+    panel.setAttribute("aria-label", "Physical experience observer");
+
+    const title = document.createElement("h2");
+    title.textContent = "PhiBot Physical Observer";
+
+    const description = document.createElement("p");
+    description.textContent =
+      "Operator-imported NBG advisory packets only. Read-only evidence and questions, never hardware commands.";
+
+    const caution = document.createElement("p");
+    caution.className = "caution";
+    caution.textContent =
+      "Import does not establish source authenticity, diagnosis, safety, or permission to use tools.";
+
+    const input = document.createElement("textarea");
+    input.maxLength = MAX_PAYLOAD_CHARS;
+    input.setAttribute("aria-label", "Paste NBG physical handoff JSON");
+    input.setAttribute("placeholder", "Paste an NBG PhiBot physical handoff JSON packet");
+    input.setAttribute("autocomplete", "off");
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const importButton = document.createElement("button");
+    importButton.type = "button";
+    importButton.textContent = "Review evidence";
+
+    const clearButton = document.createElement("button");
+    clearButton.type = "button";
+    clearButton.textContent = "Clear";
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.textContent = "Close";
+
+    const result = document.createElement("div");
+    result.className = "result";
+    result.setAttribute("aria-live", "polite");
+
+    function line(parent, content, className = "") {
+      const p = document.createElement("p");
+      p.textContent = String(content);
+      if (className) p.className = className;
+      parent.appendChild(p);
+      return p;
+    }
+
+    function setMessage(message) {
+      result.replaceChildren();
+      line(result, message, "status");
+    }
+
+    function showView(view, receipt) {
+      result.replaceChildren();
+      line(result, "ADVISORY ONLY: NO TOOL OR PHYSICAL AUTHORITY", "caution");
+      line(result, "Physical memory: " + String(view.queryMemoryId ?? "unknown"));
+      line(result, "Similar history records: " + String(view.historyMatchCount ?? 0));
+      for (const question of (view.questions ?? []).slice(0, MAX_VISIBLE_PROMPTS)) {
+        const item = document.createElement("div");
+        item.className = "item";
+        const h3 = document.createElement("h3");
+        h3.textContent = String(question.subject ?? "Observation");
+        item.appendChild(h3);
+        line(item, String(question.question ?? "No question supplied"));
+        line(item, String(question.readOnlyObservationSuggestion ?? "No read-only observation proposed"));
+        line(item, "Source records: " + (question.evidenceMemoryIds ?? []).slice(0, 6).join(", "), "meta");
+        line(item, "Evidence IDs: " + (question.evidenceIds ?? []).slice(0, 6).join(", "), "meta");
+        line(item, String(question.boundary ?? "No action authority"), "caution");
+        result.appendChild(item);
+      }
+      const uncertainties = view.uncertainty ?? [];
+      line(result, "Uncertainty: " + (uncertainties.join(", ") || "No additional marker"), "meta");
+      line(result, "Receipt SHA-256: " + String(receipt?.receiptSha256 ?? "not available"), "meta");
+    }
+
+    launcher.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      launcher.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+    closeButton.addEventListener("click", () => {
+      panel.hidden = true;
+      launcher.setAttribute("aria-expanded", "false");
+    });
+    clearButton.addEventListener("click", () => {
+      observer.clear();
+      receipts.length = 0;
+      input.value = "";
+      setMessage("Ephemeral physical observer view cleared.");
+    });
+
+    importButton.addEventListener("click", async () => {
+      importButton.disabled = true;
+      try {
+        if (!input.value || input.value.length > MAX_PAYLOAD_CHARS) {
+          setMessage("REFUSED: missing or oversized JSON packet.");
+          return;
+        }
+        const packet = JSON.parse(input.value);
+        const received = await observer.receive(packet);
+        if (received.status === "DISPLAYED_ADVISORY_ONLY" || received.status === "DUPLICATE") {
+          if (received.view) showView(received.view, received.receipt);
+          else setMessage("Duplicate packet already received; no new observer view.");
+        } else {
+          setMessage("REFUSED: " + (received.errors ?? [received.status]).join(", "));
+        }
+      } catch {
+        setMessage("REFUSED: invalid or unsupported physical handoff payload.");
+      } finally {
+        importButton.disabled = false;
+      }
+    });
+
+    actions.append(importButton, clearButton, closeButton);
+    panel.append(title, description, caution, input, actions, result);
+    shadow.append(style, launcher, panel);
+    document.body.appendChild(host);
+    setMessage("No physical handoff imported. No live telemetry connection.");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mount, { once: true });
+  } else {
+    mount();
+  }
+})();
+/* PHIBOT_PHYSICAL_OBSERVER_PANEL_V0_3_END */
