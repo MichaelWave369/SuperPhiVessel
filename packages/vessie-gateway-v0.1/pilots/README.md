@@ -4,6 +4,52 @@
 
 This pilot checks the HTTPS read-only pairing path. It cannot run inference, spend money, read memories, approve models, or change the canonical runtime.
 
+## Guided physical field-pilot helper
+
+Once #48 is merged, the existing Windows source preflight, trial ID
+generator, and TLS/refusal collector can be run together **on your own
+Windows PC**. Start the read-only HTTPS gateway separately with its
+operator-controlled certificate as described below, then, from your
+local repository root:
+
+```powershell
+.\packages\vessie-gateway-v0.1\pilots\Invoke-R2FieldPilot.ps1 -Stage Collect
+```
+
+The guided helper first runs the existing no-private-key-read
+`preflight.mjs`. It then generates a new, non-secret trial ID and
+calls the real Windows `Windows-R2-LocalTrust.ps1` to check strict
+Windows TLS trust, unauthenticated refusal, and wrong-origin refusal.
+A blocked preflight or Windows TLS check exits nonzero and does **not**
+pretend browser pairing succeeded.
+
+When the Windows collector passes, the local console prints the
+32-character **non-secret trial ID**. Copy the ID into the React
+**R2 Trial ID** field. Obtain the **separate** 64-character one-use
+pairing secret from the local gateway terminal; **never copy that
+secret into this helper or an issue**. In the browser, pair, discover
+models, revoke the session and confirm the old bearer is denied.
+Export `vessie-r2-browser-pilot.json` to Downloads.
+
+To assess both local redacted receipts:
+
+```powershell
+.\packages\vessie-gateway-v0.1\pilots\Invoke-R2FieldPilot.ps1 -Stage Assess -TrialId <the-32-character-trial-ID>
+```
+
+The helper uses the trial-specific Windows receipt stored in TEMP
+(`vessie-r2-windows-pilot-<id>.json`), plus the exported browser file.
+If Windows downloads have renamed the browser receipt, pass its local
+path explicitly with `-BrowserReceiptPath`. Both submitted JSON
+files remain **untrusted**, and a structurally passing comparison
+returns `OBSERVED_PENDING_OPERATOR_REVIEW` only.
+
+The helper does **not** install CAs, disable TLS/CORS/Private Network
+Access, connect to cloud models, store/reveal tokens, run inference,
+touch the canonical runtime, or activate routing. Its own Windows CI
+runs only syntax and fail-closed tests, **never** a real certificate,
+physical Chromium session, or Ollama qualification.
+
 ## Step 0 · Read-only Windows operator preflight
 
 **New local tool:** run from a Windows PowerShell session after setting the

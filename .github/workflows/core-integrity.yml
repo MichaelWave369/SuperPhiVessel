@@ -59,6 +59,38 @@ jobs:
       - name: Test offline route trace source and authority refusals
         run: python3 packages/vessie-gateway-v0.1/r3a_acceptance.py
 
+  vessie-r2-guided-pilot:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse guided Windows R2 physical-pilot wrapper
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          Write-Host 'guided R2 pilot syntax: PASS; no physical qualification implied'
+      - name: Refuse uncorrelated assess and stale Collect mode inputs
+        shell: pwsh
+        run: |
+          $path = (Resolve-Path 'packages/vessie-gateway-v0.1/pilots/Invoke-R2FieldPilot.ps1').Path
+          $shell = (Get-Process -Id $PID).Path
+          function Assert-Blocked([string[]]$PilotArgs, [string]$Expected) {
+            $out = & $shell -NoProfile -NonInteractive -File $path @PilotArgs 2>&1 | Out-String
+            if ($LASTEXITCODE -ne 2 -or $out -notmatch [regex]::Escape("BLOCKED_R2_PILOT: $Expected")) {
+              throw "R2_NEGATIVE_CONTROL_FAILED_$Expected"
+            }
+          }
+          Assert-Blocked @('-Stage','Assess') 'ASSESS_REQUIRES_TRIAL_ID'
+          Assert-Blocked @('-Stage','Collect','-TrialId',('a' * 32)) 'COLLECT_REQUIRES_FRESH_TRIAL_ID'
+          Assert-Blocked @('-Stage','Assess','-TrialId',('f' * 32)) 'WINDOWS_RECEIPT_MISSING'
+          Write-Host 'R2 guided pilot subprocess failure-path tests: PASS; no gateway/browser contact made'
+          exit 0
+
   vessie-r2-operator-preflight:
     runs-on: ubuntu-latest
     steps:
