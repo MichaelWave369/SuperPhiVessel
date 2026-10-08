@@ -55,7 +55,7 @@ export function auditOperatorCustodyBatch(envelopes,trustedPublicKeyPem){
       else note('REUSED_PACKET_ID_DIFFERENT_SIGNED_CONTENT');
     } else seenPackets.set(id,wholeDigest);
     if(seenProjections.has(projection))
-      note('REPEATED_REDACTED_PROJECTION_NOT_INDEPENDENT_SAMPLE');
+      note('REPEATED_REDACTED_PROJECTION_INDEPENDENCE_UNPROVEN');
     else seenProjections.set(projection,true);
 
     const ts=Date.parse(envelope.packet.created_at);
@@ -88,7 +88,8 @@ export function auditOperatorCustodyBatch(envelopes,trustedPublicKeyPem){
     issues:[...issues].sort(),
     issue_counts:Object.fromEntries(Object.keys(issueCounts).sort().map(k=>[k,issueCounts[k]])),
     operator_public_key_fingerprint_sha256:keyFingerprint,
-    verified_with_independently_supplied_key:true,
+    signature_checked_against_caller_supplied_key:true,
+    independent_key_trust_attested:false,
     cross_batch_replay_prevented:false,
     signed_data_runtime_origin_attested:false,
     independently_verified_execution:false,
