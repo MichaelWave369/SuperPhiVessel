@@ -308,3 +308,11 @@ inspector recognizes that projection **without** claiming a signature or authori
 
 No live BrainC telemetry, model execution or browser gateway trace endpoint
 is enabled. R2 field qualification remains an operator-owned prerequisite.
+
+## R3-B: BrainC donor configured-state telemetry (read-only)
+
+[R3-B source audit](packages/vessie-gateway-v0.1/brainc-donor/BRAINC_DONOR_AUDIT.md)
+pins the actual BrainC v1 model/chat code and provides a fixed-loopback local
+probe for `/models` and `/models/active`. The CLI defaults to a redacted
+review report. This is **not** an executed chat-model or Crane Fly route receipt,
+and it does not connect BrainC to the React HTTPS gateway.
