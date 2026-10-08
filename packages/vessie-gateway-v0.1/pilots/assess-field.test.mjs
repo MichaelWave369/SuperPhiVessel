@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {assessFieldReceipts} from '../assess-field.mjs';
+import {assessFieldReceipts} from './assess-field.mjs';
 
 const win=()=>({
  schema:'superphivessel.gateway.r2.windows-pilot.v0.1',
