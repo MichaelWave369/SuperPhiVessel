@@ -112,6 +112,35 @@ test('R3-D flags status-conflict even if imported conflict boolean is false',()=
  assert.equal(x.label,'REVIEW_REQUIRED');
  assert.equal(x.executionPermitted,false);
 });
+test('R3-E imported operator envelope is never browser-verified or executable',()=>{
+ const result=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3e.operator-envelope.v0.1',
+  packet:{authority_granted:false,can_execute:false,
+   projection:{execution_record_status:'COMPLETION_RECORDED_UNVERIFIED',
+     raw_prompt:'SECRET_R3E_PROMPT'}},
+  operator_signature_verified:true,
+  raw_private_key:'SECRET_R3E_KEY'
+ }));
+ assert.equal(result.recognized,true);
+ assert.equal(result.label,'UNVERIFIED_IMPORT');
+ assert.equal(result.verifiedCryptographically,false);
+ assert.equal(result.executionPermitted,false);
+ assert.ok(result.issues.some(x=>x.includes('Signature NOT verified')));
+ assert.ok(!JSON.stringify(result).includes('SECRET_R3E_PROMPT'));
+ assert.ok(!JSON.stringify(result).includes('SECRET_R3E_KEY'));
+});
+test('R3-E imported envelope with nested authority or mixed result requires review',()=>{
+ const result=inspectReceipt(JSON.stringify({
+  schema:'superphivessel.gateway.r3e.operator-envelope.v0.1',
+  packet:{can_execute:true,projection:{
+   terminal_outcomes_conflict:true,
+   execution_record_status:'MIXED_TERMINAL_RECORDS_UNRESOLVED'}}
+ }));
+ assert.equal(result.label,'REVIEW_REQUIRED');
+ assert.equal(result.verifiedCryptographically,false);
+ assert.equal(result.executionPermitted,false);
+ assert.ok(result.issues.some(x=>x.includes('Mixed terminal')));
+});
 test('R3-C native route projection remains untrusted even when completion is recorded',()=>{
  const result=inspectReceipt(JSON.stringify({
   schema:'superphivessel.gateway.r3c.canonical-route-evidence.v0.1',
