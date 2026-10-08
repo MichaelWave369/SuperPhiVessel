@@ -1,6 +1,6 @@
 # Vessie Gateway v0.1 · proposed connection contract
 
-**Status:** DESIGN ONLY · NOT DEPLOYED · NOT IMPLEMENTED
+**Status:** R1 LOCAL READ-ONLY REFERENCE AVAILABLE · BROWSER PAIRING, HOSTED BACKEND AND TASK EXECUTION UNIMPLEMENTED
 
 GitHub Pages hosts HTML/CSS/JS, not an authorized memory/router/executor. A public React site must never contain remote API secrets or automatically connect to local Ollama.
 
@@ -46,3 +46,17 @@ All routes default to DENIED/UNAVAILABLE until the operator has paired the gatew
 
 The first React deployment is functional as a GA108 explorer, model-candidate inventory, topology view and locally bounded receipt inspector. It makes **zero model calls** and has no chat claim.
 Before connecting any new service, independently verify canonical runtime `.54.12` permissions and `.54.13` hold; do not expose an old unrestricted endpoint for convenience.
+
+
+## R1 concrete read-only reference
+
+The first local gateway reference now lives in
+[`packages/vessie-gateway-v0.1/`](../../packages/vessie-gateway-v0.1/).
+
+It probes fixed loopback Ollama GET endpoints with bounded, sanitized results and
+offers token-gated CLI-accessible `GET /v1/status` and `GET /v1/models` only.
+It refuses all cross-origin browser requests, including GitHub Pages, until
+a separately qualified HTTPS pairing path exists.
+
+R1 is **not** the browser-capable gateway described by the target contract.
+No BrainC, task routing, private memory or remote-provider secrets are connected.
