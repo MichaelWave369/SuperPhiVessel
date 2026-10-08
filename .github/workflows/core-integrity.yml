@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  vessie-r3b-brainc-donor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test BrainC donor configured-state versus executed-model separation
+        run: node --test packages/vessie-gateway-v0.1/brainc-donor/tests/config-probe.test.mjs
+
   vessie-r3a-trace:
     runs-on: ubuntu-latest
     steps:
