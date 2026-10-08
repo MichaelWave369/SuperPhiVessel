@@ -2,6 +2,7 @@ const MAX_BYTES = 131072;
 const KNOWN = new Set([
   'superphivessel.dlam.route-decision.p1c.v0.1',
   'superphivessel.gateway.r3a.routing-trace.v0.1',
+  'superphivessel.gateway.r3b.brainc-configuration.v0.1',
   'superphivessel.dlam.p3a.v0.1',
   'superphivessel.dlam.p3a.scorecards.v0.1',
   'superphivessel.dlam.p3b.replay-report.v0.1',
@@ -33,14 +34,17 @@ export function inspectReceipt(input) {
   for (const key of ['decision_id','route_decision_id','observation_id','snapshot_id','qualification_id','packet_id',
     'task_id','task_class','profile_ref','model_ref','routing_mode','status','disposition','evidence_class',
     'snapshot_hash','qualification_hash','receipt_hash','policy_frontier_ref',
-    'route_receipt_hash','projection_hash']) {
+    'route_receipt_hash','projection_hash',
+    'source','probe_status','per_request_effective_model']) {
     const value = text(obj, key);
     if (value !== null) fields[key] = value;
   }
   for (const key of ['authority_granted','authorityGranted','activation_allowed','may_change_live_route',
     'may_change_live_thresholds','p4_evaluation_allowed','selection_is_live',
     'self_hash_consistent','external_signature_verified','source_authenticity_attested',
-    'live_brainc_connected','browser_gateway_connected','can_execute']) {
+    'live_brainc_connected','browser_gateway_connected','can_execute',
+    'configuration_only','execution_observed','brainc_routing_trace_verified',
+    'model_artifacts_qualified','configured_active_in_inventory','can_change_active_model']) {
     const value = boolean(obj,key);
     if (value !== null) fields[key] = value;
   }
