@@ -38,7 +38,8 @@ try {
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/review-evidence.mjs');To='ui/review-evidence.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/evidence-bench.mjs');To='ui/evidence-bench.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/portable-bench.mjs');To='ui/portable-bench.mjs'},
-    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/trial-protocols.mjs');To='ui/trial-protocols.mjs'}
+    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/trial-protocols.mjs');To='ui/trial-protocols.mjs'},
+    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/protocol-cohorts.mjs');To='ui/protocol-cohorts.mjs'}
   )
   foreach ($entry in $Map) {
     if (-not (Test-Path -LiteralPath $entry.From -PathType Leaf)) { throw 'ALLOWLIST_INPUT_MISSING' }
@@ -71,7 +72,7 @@ try {
     $expected=@(
       'LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd','Start-Local-Trial.cmd',
       'node.exe','ollama-probe.mjs','server.mjs','trial-runner.mjs','ui/app.js',
-      'ui/index.html','ui/style.css','ui/review-evidence.mjs','ui/evidence-bench.mjs','ui/portable-bench.mjs','ui/trial-protocols.mjs'
+      'ui/index.html','ui/style.css','ui/review-evidence.mjs','ui/evidence-bench.mjs','ui/portable-bench.mjs','ui/trial-protocols.mjs','ui/protocol-cohorts.mjs'
     ) | Sort-Object
     if ((Compare-Object $names $expected).Count -ne 0) { throw 'ARCHIVE_ALLOWLIST_MISMATCH' }
   } finally { $archive.Dispose() }
