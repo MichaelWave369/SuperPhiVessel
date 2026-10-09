@@ -12,7 +12,7 @@ const fixed=(obj)=>Object.freeze(obj);
 const meanIndependent=false;
 
 function median(values){
-  const valid=values.filter(nonnegativeSafe).sort((a,b)=>a-b);
+  const valid=values.filter(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0).sort((a,b)=>a-b);
   if(!valid.length)return null;
   const i=Math.floor(valid.length/2);
   return valid.length%2?valid[i-0]:(valid[i-1]+valid[i])/2;
