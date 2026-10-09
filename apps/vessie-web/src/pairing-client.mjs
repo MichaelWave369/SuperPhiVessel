@@ -50,6 +50,13 @@ export async function gatewayModels(session,fetcher=fetch) {
   })).filter(x=>x.name);
   return {count:models.length,models,probe_status:result.probe_status};
 }
+export async function gatewayScoutHandoff(session,fetcher=fetch){
+  if(typeof session!=='string'||!/^[a-f0-9]{64}$/i.test(session))
+    throw new Error('Invalid local session');
+  // The gateway cannot accept model prompts or client-chosen file paths.
+  return safeResponse(await fetcher(LOCAL_GATEWAY+'/v1/scout',init('GET',undefined,session)));
+}
+
 export async function revokeGateway(session,fetcher=fetch){
   if(typeof session!=='string'||!/^[a-f0-9]{64}$/i.test(session))
     throw new Error('Invalid local session for revocation');

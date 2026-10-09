@@ -18,3 +18,5 @@ export function revokeGateway(session:string):Promise<void>;
 export function confirmRevokedGateway(session:string):Promise<{
   confirmed:true;source:'HTTP_403_SESSION_DENIED';authority_granted:false
 }>;
+
+export function gatewayScoutHandoff(session:string):Promise<unknown>;

@@ -18,11 +18,16 @@ const initialChecks: Record<CheckKey,Check> = {
 const formatBytes=(size:number|null)=>
   size===null?'Unreported':(size/1024/1024/1024).toFixed(2)+' GiB';
 
-export default function PairingPanel() {
+export default function PairingPanel({
+  session,setSession,expiresAt,setExpiresAt
+}:{
+  session:string|null;
+  setSession:(value:string|null)=>void;
+  expiresAt:number|null;
+  setExpiresAt:(value:number|null)=>void;
+}) {
   const [code,setCode]=useState('');
   const [trialId,setTrialId]=useState('');
-  const [session,setSession]=useState<string|null>(null);
-  const [expiresAt,setExpiresAt]=useState<number|null>(null);
   const [models,setModels]=useState<GatewayModel[]|null>(null);
   const [status,setStatus]=useState('');
   const [busy,setBusy]=useState(false);
