@@ -68,6 +68,18 @@
         <section id="human-review" class="review-panel" aria-labelledby="human-review-heading" hidden>
           <h3 id="human-review-heading">Human answer review</h3>
           <p class="classification-note">Rate the answer you just saw. This is your subjective assessment, not an automatic quality score. The model response and prompt will never be included in this review export.</p>
+          <section id="protocol-human-reference" class="protocol-reference" aria-labelledby="protocol-human-reference-title" hidden>
+            <h4 id="protocol-human-reference-title">Fixed protocol · operator review reference</h4>
+            <p class="classification-note">The following is a public human review guide, not a machine grade or a verified verdict. It stays hidden until you deliberately reveal it after a completed, recognized public-protocol trial.</p>
+            <button type="button" id="protocol-human-reveal" class="secondary">Reveal operator answer reference</button>
+            <div id="protocol-human-reference-content" hidden>
+              <h4 id="protocol-human-heading"></h4>
+              <p id="protocol-human-expected"></p>
+              <ul id="protocol-human-checks"></ul>
+              <p class="classification-note" id="protocol-human-caution"></p>
+              <p class="footnote">Evaluate the actual answer yourself. The checklist does not change ratings, verification labels, evidence receipts, model routing or execution authority.</p>
+            </div>
+          </section>
           <label class="trial-label" for="review-helpfulness">Usefulness for the task</label>
           <select class="trial-field" id="review-helpfulness">
             <option value="">Select your assessment</option>
