@@ -30,9 +30,10 @@ function parseCert(certPem) {
 
 export async function startBrowserGateway({
   tlsKey, tlsCert, port=8790, pairCode=freshSecret(), probe=discoverOllama,
-  now=()=>Date.now(),
+  scoutRead=null, now=()=>Date.now(),
 } = {}) {
   if(!tlsKey || !tlsCert) throw new Error('Locally trusted TLS certificate and key required');
+  if(scoutRead!==null && typeof scoutRead!=='function') throw new Error('Scout must be an optional local read function');
   parseCert(tlsCert);
   if(!isHexSecret(pairCode)) throw new Error('Pairing secret must contain 64 hex characters');
   if(!Number.isInteger(port) || port<0 || port>65535) throw new Error('Invalid gateway port');
@@ -43,6 +44,8 @@ export async function startBrowserGateway({
   const failures=[];
   let modelReads=[];
   let probeInProgress=false;
+  let scoutReads=[];
+  let scoutBusy=false;
 
   function headers(origin=null,extra={}) {
     return {
@@ -99,7 +102,8 @@ export async function startBrowserGateway({
         const asked=(req.headers['access-control-request-headers']||'').toLowerCase()
           .split(',').map(x=>x.trim()).filter(Boolean);
         if(!['POST','GET','DELETE'].includes(method) || asked.some(x=>!['content-type','authorization'].includes(x)) ||
-           !['/v1/pair','/v1/status','/v1/models','/v1/session'].includes(route)) {
+           !['/v1/pair','/v1/status','/v1/models','/v1/session',
+             ...(scoutRead?['/v1/scout']:[])].includes(route)) {
           send(res,403,errorBody('PREFLIGHT_DENIED'),PAIRED_ORIGIN);return;
         }
         res.writeHead(204,{
@@ -142,7 +146,7 @@ export async function startBrowserGateway({
         send(res,200,{
           schema:'superphivessel.gateway.browser-session.v0.1',
           session_token:session,expires_in_seconds:SESSION_MS/1000,
-          capabilities:['models.read','gateway.status.read'],
+          capabilities:['models.read','gateway.status.read',...(scoutRead?['scout.receipt.read']:[])],
           scope:'LOCAL_MODEL_DISCOVERY_ONLY',
           authority_granted:false,
           can_execute:false,
@@ -192,7 +196,51 @@ export async function startBrowserGateway({
         }finally{probeInProgress=false;}
         return;
       }
-      if(['/v1/status','/v1/models','/v1/session'].includes(route)){
+      if(route==='/v1/scout' && scoutRead && req.method==='GET'){
+        if(!authenticated(req,res))return;
+        scoutReads=scoutReads.filter(t=>now()-t<60000);
+        if(scoutBusy||scoutReads.length>=6){
+          send(res,429,errorBody('SCOUT_RATE_LIMITED'),PAIRED_ORIGIN);return;
+        }
+        scoutReads.push(now());scoutBusy=true;
+        try{
+          const data=await scoutRead();
+          // Whitelist a complete *unprivileged* self-reported handoff schema.
+          // Revalidate even an injected callback: no arbitrary output bytes.
+          if(!data || typeof data!=='object' || Array.isArray(data) ||
+            Object.keys(data).sort().join('|')!==[
+              'schema','evidence_class','mode','qualification_result','source_run_id',
+              'source_mission_id','local_model','qualified_at','source_expires_at',
+              'review_freshness','receipt_digest_sha256','integrity',
+              'public_source_authenticated','identity_authenticated','signer_authenticated',
+              'independent_execution_attested','reality_gate_granted',
+              'tool_calls_authorized','memory_admitted','agent_spawned',
+              'phios_isolation_qualified','vessie_connected','routing_influence',
+            ].sort().join('|') ||
+            data.schema!=='phibot.scout-vessie-handoff.v0.1' ||
+            data.evidence_class!=='LOCAL_SELF_REPORTED_FORMAT_AND_DIGEST_ONLY' ||
+            data.mode!=='MANUAL_OPERATOR_COPY_ONLY' ||
+            data.qualification_result!=='PASS_LOCAL_SCOUT_SHADOW' ||
+            data.source_mission_id!=='phibot.scout.public-repo-health.v1' ||
+            data.routing_influence!=='NONE' ||
+            data.integrity!=='DOMAIN_SEPARATED_DIGEST_MATCH' ||
+            !['CURRENT_WITHIN_SOURCE_WINDOW','HISTORICAL_EXPIRED_OR_NOT_YET_CURRENT'].includes(data.review_freshness) ||
+            !/^[1-9][0-9]{0,18}$/.test(data.source_run_id) ||
+            !/^[a-zA-Z0-9][a-zA-Z0-9_.:/-]{0,79}$/.test(data.local_model) ||
+            !/^[a-f0-9]{64}$/.test(data.receipt_digest_sha256) ||
+            !['public_source_authenticated','identity_authenticated','signer_authenticated',
+              'independent_execution_attested','reality_gate_granted',
+              'tool_calls_authorized','memory_admitted','agent_spawned',
+              'phios_isolation_qualified','vessie_connected'].every(k=>data[k]===false)){
+            send(res,503,errorBody('SCOUT_INVALID'),PAIRED_ORIGIN);return;
+          }
+          send(res,200,data,PAIRED_ORIGIN);
+        }catch{
+          send(res,503,errorBody('SCOUT_UNAVAILABLE'),PAIRED_ORIGIN);
+        }finally{scoutBusy=false;}
+        return;
+      }
+      if(['/v1/status','/v1/models','/v1/session','/v1/scout'].includes(route)){
         send(res,405,errorBody('METHOD_DENIED'),PAIRED_ORIGIN);return;
       }
       send(res,404,errorBody('NOT_AVAILABLE'),PAIRED_ORIGIN);
