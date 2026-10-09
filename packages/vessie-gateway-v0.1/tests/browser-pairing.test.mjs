@@ -190,9 +190,9 @@ test('R216 certificate bytes are never hard-coded as app credentials',async()=>{
 });
 test.after(()=>rmSync(dir,{recursive:true,force:true}));
 
-test('R217 optional Scout endpoint is disabled and has no unpaired access',async()=>{
+test('R217 optional Scout endpoint is disabled and returns not available, regardless of session',async()=>{
   await run(async g=>{
-    assert.equal((await call(g.port,'/v1/scout')).status,403);
+    assert.equal((await call(g.port,'/v1/scout')).status,404);
     const paired=await pair(g);
     assert.deepEqual(paired.body.capabilities,['models.read','gateway.status.read']);
     const read=await call(g.port,'/v1/scout',{headers:auth(paired.body.session_token)});
