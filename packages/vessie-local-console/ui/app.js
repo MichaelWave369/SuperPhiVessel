@@ -1,5 +1,6 @@
 import {makeHumanReview} from './review-evidence.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
+import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
@@ -29,6 +30,7 @@ const benchAddReview = document.getElementById('bench-add-review');
 const benchImport = document.getElementById('bench-import');
 const benchImportSelected = document.getElementById('bench-import-selected');
 const benchExport = document.getElementById('bench-export');
+const benchSavePortable = document.getElementById('bench-save-portable');
 const benchClear = document.getElementById('bench-clear');
 let benchEntries = [];
 const reviewPanel = document.getElementById('human-review');
@@ -324,6 +326,7 @@ function renderBench(){
   const summary=buildBenchSummary(benchEntries);
   benchCount.textContent=benchEntries.length+' of '+MAX_BENCH_ENTRIES+' entries in memory';
   benchExport.disabled=benchEntries.length===0;
+  benchSavePortable.disabled=benchEntries.length===0;
   benchClear.disabled=benchEntries.length===0;
   syncBenchButtons();
   benchRows.replaceChildren();
@@ -398,14 +401,19 @@ benchImportSelected.addEventListener('click',async()=>{
     if(files.length>MAX_BENCH_ENTRIES)throw new Error('TOO_MANY_FILES');
     let next=benchEntries;
     for(const file of files){
-      if(file.size>16384||file.size===0)throw new Error('FILE_SIZE_DENIED');
+      if(file.size>MAX_BUNDLE_BYTES||file.size===0)throw new Error('FILE_SIZE_DENIED');
       const parsed=JSON.parse(await file.text());
-      next=addBenchEvidence(next,parsed);
+      if(parsed?.schema===BUNDLE_SCHEMA){
+        next=importPortableBench(next,parsed);
+      }else{
+        if(file.size>16384)throw new Error('SINGLE_RECEIPT_SIZE_DENIED');
+        next=addBenchEvidence(next,parsed);
+      }
     }
     const imported=next.length-benchEntries.length;
     benchEntries=next;
     renderBench();
-    benchStatus.textContent=imported+' redacted observation(s) accepted from explicitly selected local files. No upload, history or model execution.';
+    benchStatus.textContent=imported+' redacted observation(s) accepted from explicitly selected local receipts/bundles. No upload, automatic persistence or model execution.';
   }catch{benchError();}
   finally{benchImportSelected.disabled=false;benchImport.value='';}
 });
@@ -418,6 +426,24 @@ benchExport.addEventListener('click',()=>{
   a.href=url;a.download='vessie-evidence-bench-redacted-summary.json';
   a.click();URL.revokeObjectURL(url);
   benchStatus.textContent='Redacted, descriptive comparison exported by your explicit action. No routing decisions made.';
+});
+benchSavePortable.addEventListener('click',()=>{
+  if(benchEntries.length===0)return;
+  try{
+    const bundle=exportPortableBench(benchEntries);
+    const serialized=JSON.stringify(bundle,null,2)+'\n';
+    // Preserve the documented import limit for a round-trippable bundle.
+    if(new Blob([serialized]).size>MAX_BUNDLE_BYTES)
+      throw new Error('BUNDLE_TOO_LARGE_TO_REIMPORT');
+    const blob=new Blob([serialized],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='vessie-local-evidence-bench-portable.json';
+    a.click();URL.revokeObjectURL(url);
+    benchStatus.textContent='Portable redacted bench saved on your device by explicit click. Re-import this file next session to restore evidence. No background persistence.';
+  }catch{
+    benchStatus.textContent='Portable bundle could not be exported. No data was stored or uploaded.';
+  }
 });
 benchClear.addEventListener('click',()=>{
   if(!window.confirm('Clear all in-memory comparison evidence from this tab? Existing exported files are unchanged.'))return;
