@@ -43,7 +43,7 @@ export function safeProtocolId(value){
   return typeof value==='string'&&protocolIsKnown(value)?value:null;
 }
 export function isFixedProtocolCandidate(value){
-  return value&&typeof value==='object'&&!Array.isArray(value)&&
+  return value!==null&&typeof value==='object'&&!Array.isArray(value)&&
     own(value,'id')&&own(value,'prompt')&&own(value,'max_output_tokens')&&
     exactProtocolMatch(value.id,value.prompt,value.max_output_tokens);
 }
