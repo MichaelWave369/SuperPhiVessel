@@ -650,3 +650,34 @@ test('L39 protocol cohort table is descriptive, filtered and cannot launch or au
     assert.equal((await request(g.port,'/api/protocol-cohorts',{method:'POST'})).code,405);
   });
 });
+
+
+test('L40 human reviewer answer guide asset obeys exact localhost same-origin restrictions',async()=>{
+  await withServer(async g=>{
+    const r=await request(g.port,'/human-review-guides.mjs');
+    assert.equal(r.code,200);
+    assert.match(r.headers['content-type'],/javascript/);
+    assert.equal(r.headers['access-control-allow-origin'],undefined);
+    assert.match(r.text,/export function guideForCompletedTrial/);
+    assert.equal((await request(g.port,'/ui/human-review-guides.mjs')).code,404);
+    assert.equal((await request(g.port,'/human-review-guides.mjs',{
+      headers:{Origin:'https://not-local.test'}
+    })).code,403);
+  });
+});
+test('L41 reviewer guidance requires explicit reveal and is reset per trial without any grade change',async()=>{
+  await withServer(async g=>{
+    const page=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.match(page,/id="protocol-human-reference"[^>]*hidden/);
+    assert.match(page,/id="protocol-human-reference-content"[^>]*hidden/);
+    assert.ok(page.includes('id="protocol-human-reveal"'));
+    assert.ok(js.includes("protocolHumanReveal.addEventListener('click'"));
+    assert.ok(js.includes('activeHumanGuide=guideForCompletedTrial(data.receipt)'));
+    assert.ok(js.includes('resetProtocolHumanGuide();'));
+    assert.ok(js.includes("protocolHumanChecks.replaceChildren();"));
+    assert.ok(!js.includes('innerHTML'));
+    assert.equal((await request(g.port,'/api/grade')).code,404);
+    assert.equal((await request(g.port,'/api/grade',{method:'POST'})).code,405);
+  });
+});
