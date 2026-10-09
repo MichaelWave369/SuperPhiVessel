@@ -91,3 +91,7 @@ continues to require operator review.
 ## R2 Windows field qualification pack
 
 A portable, privacy-minimized Windows pilot is now provided at [`pilots/README.md`](pilots/README.md). It includes a strict Windows OS TLS/denial check, an optional browser-exported self-report, and a two-receipt comparator. None of those creates cryptographic device attestation or grants execution. Both receipts must be collected on the operator's physical machine; Windows CI only validates harness syntax and fixture controls.
+
+## SPV-SCOUT-02 optional read-only Scout receipt
+
+With an explicit `VESSIE_SCOUT_RECEIPT_DIR` set to **one** already-saved `scout-*` local qualification folder, the paired R2 gateway additionally allows **GET /v1/scout** under the same origin/host/TLS/15-minute bearer. It returns only a redacted, bounded `phibot.scout-vessie-handoff.v0.1` metadata projection after locally checking the two files and domain-separated SHA-256. The endpoint is otherwise disabled; it never runs a model or agent. See [operator guide](../../docs/SCOUT_PAIRED_READ_V0_1.md).

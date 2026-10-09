@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import roster from '../../../protocols/dlam-v0.1/genius-roster.json';
 import runtimeManifest from '../../../runtime/MANIFEST.json';
 import catalog from '../../../protocols/routing-v2/model-candidates.json';
@@ -38,6 +38,19 @@ const LANES = [
 
 function App() {
   const [view,setView]=useState<View>('overview');
+  // One ephemeral gateway session across Model Fabric and Scout tabs.
+  // No localStorage, remote token transmission, auto-pair or background probe.
+  const [gatewaySession,setGatewaySession]=useState<string|null>(null);
+  const [gatewayExpiresAt,setGatewayExpiresAt]=useState<number|null>(null);
+  useEffect(()=>{
+    if(!gatewaySession || gatewayExpiresAt===null)return;
+    const remaining=gatewayExpiresAt-Date.now();
+    if(remaining<=0){setGatewaySession(null);setGatewayExpiresAt(null);return;}
+    const handle=window.setTimeout(()=>{
+      setGatewaySession(null);setGatewayExpiresAt(null);
+    },remaining);
+    return ()=>window.clearTimeout(handle);
+  },[gatewaySession,gatewayExpiresAt]);
   const [search,setSearch]=useState('');
   const [category,setCategory]=useState('ALL');
   const [selectedId,setSelectedId]=useState('ga108:001');
@@ -161,7 +174,8 @@ function App() {
             <h1>Model <em>Fabric.</em></h1>
             <p className="lede">A routing shortlist for benchmarking, not an installed-model list. The candidate catalog stays independent of your installed models. Optional local HTTPS pairing can read the actual Ollama inventory without approving or executing a model.</p>
             <div className="notice"><strong>Discovery is not model approval</strong><p>Only a separately started, operator-controlled HTTPS gateway can report live Ollama model metadata. BrainC, memory access, execution and remote provider keys remain disconnected. Pairing never grants any of those permissions.</p></div>
-            <PairingPanel />
+            <PairingPanel session={gatewaySession} setSession={setGatewaySession}
+              expiresAt={gatewayExpiresAt} setExpiresAt={setGatewayExpiresAt} />
             <div className="modelTableWrap"><table className="modelTable"><thead><tr><th>Candidate</th><th>Responsibility</th><th>Tier</th><th>Constraint</th><th>Status</th></tr></thead>
               <tbody>{MODELS.map(m=><tr key={m.model}><td><strong>{m.model}</strong></td><td>{m.role}</td><td>{m.tier}</td><td>{m.fit}</td><td><span className="smallPill">{m.state}</span></td></tr>)}</tbody></table></div>
             <p className="smallNote">Cloud free tiers are conditional and can change. Provider access requires account verification, acceptable data-sharing policy, remaining quota and explicit operator approval.</p>
@@ -177,7 +191,7 @@ function App() {
             <div className="eyebrow">LOCAL SCOUT / HUMAN IMPORT / NO LIVE AUTHORITY</div>
             <h1>Scout <em>Handoff.</em></h1>
             <p className="lede">Display an operator-copied PhiBot Scout qualification as self-reported evidence. No model routing, memory, action authority or live bot connection is enabled.</p>
-            <ScoutHandoffPanel />
+            <ScoutHandoffPanel gatewaySession={gatewaySession} />
           </section>}
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>

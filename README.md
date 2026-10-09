@@ -575,3 +575,7 @@ it as live or as an executor grant. No production HTML bytes are changed.
 ### Manual Scout qualification handoff (SPV-SCOUT-01)
 
 The React Vessie cockpit includes a **SCOUT HANDOFF** tab to review operator-pasted `phibot.scout-vessie-handoff.v0.1` JSON from a real Windows PhiBot Scout qualification. The UI recomputes source freshness but **does not verify the SHA digest** (it has no original receipt bytes), authenticate model execution, or grant any capability. No network, model, routing or memory connection is implemented. See [operator guide](docs/SCOUT_HANDOFF_REACT.md).
+
+### SPV-SCOUT-02 optional paired Scout receipt read
+
+The **SCOUT HANDOFF** React tab can now read a previously qualified, redacted PhiBot Scout receipt from the existing optional local HTTPS pairing gateway. The operator must explicitly configure one local `scout-*` receipt directory at gateway startup. Default disabled; no model, tool, memory, routing or agent invocation. Pair under MODEL FABRIC, then perform one explicit read in SCOUT HANDOFF. Browser session remains in memory across tabs for at most 15 minutes. See [Windows operator guide](docs/SCOUT_PAIRED_READ_V0_1.md).

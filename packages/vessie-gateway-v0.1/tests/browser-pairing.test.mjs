@@ -189,3 +189,78 @@ test('R216 certificate bytes are never hard-coded as app credentials',async()=>{
   });
 });
 test.after(()=>rmSync(dir,{recursive:true,force:true}));
+
+test('R217 optional Scout endpoint is disabled and returns not available, regardless of session',async()=>{
+  await run(async g=>{
+    assert.equal((await call(g.port,'/v1/scout')).status,404);
+    const paired=await pair(g);
+    assert.deepEqual(paired.body.capabilities,['models.read','gateway.status.read']);
+    const read=await call(g.port,'/v1/scout',{headers:auth(paired.body.session_token)});
+    assert.notEqual(read.status,200);
+  });
+});
+test('R218 Scout is read-only via the existing one-use pairing; no action rights',async()=>{
+  const safe={
+    schema:'phibot.scout-vessie-handoff.v0.1',evidence_class:'LOCAL_SELF_REPORTED_FORMAT_AND_DIGEST_ONLY',
+    mode:'MANUAL_OPERATOR_COPY_ONLY',qualification_result:'PASS_LOCAL_SCOUT_SHADOW',
+    source_run_id:'37851619515',source_mission_id:'phibot.scout.public-repo-health.v1',
+    local_model:'qwen3:4b',qualified_at:'2026-10-09T01:23:40.042Z',
+    source_expires_at:'2026-10-09T06:09:12+00:00',
+    review_freshness:'CURRENT_WITHIN_SOURCE_WINDOW',receipt_digest_sha256:'a'.repeat(64),
+    integrity:'DOMAIN_SEPARATED_DIGEST_MATCH',public_source_authenticated:false,
+    identity_authenticated:false,signer_authenticated:false,
+    independent_execution_attested:false,reality_gate_granted:false,
+    tool_calls_authorized:false,memory_admitted:false,agent_spawned:false,
+    phios_isolation_qualified:false,vessie_connected:false,routing_influence:'NONE',
+  };
+  let count=0;
+  await run(async g=>{
+    assert.equal((await call(g.port,'/v1/scout')).status,403);
+    const p=await pair(g), token=p.body.session_token;
+    assert.deepEqual(p.body.capabilities,['models.read','gateway.status.read','scout.receipt.read']);
+    const a=auth(token);
+    const read=await call(g.port,'/v1/scout',{headers:a});
+    assert.equal(read.status,200);
+    assert.deepEqual(read.body,safe);
+    assert.equal(count,1);
+    assert.equal(read.headers['cache-control'],'no-store, private');
+    assert.equal((await call(g.port,'/v1/scout',{method:'POST',headers:a,body:{task:'execute'}})).status,405);
+    assert.equal((await call(g.port,'/v1/scout',{headers:{...a,Origin:'https://evil.example'}})).status,403);
+    assert.equal((await call(g.port,'/v1/session',{method:'DELETE',headers:a})).status,200);
+    assert.equal((await call(g.port,'/v1/scout',{headers:a})).status,403);
+    assert.equal(count,1);
+  },{scoutRead:async()=>{count++;return safe;}});
+});
+test('R219 malformed or authority-claiming injected Scout reads fail closed',async()=>{
+  for(const violation of [
+    {schema:'bad'},
+    {schema:'phibot.scout-vessie-handoff.v0.1',authority_granted:true},
+  ]){
+    await run(async g=>{
+      const p=await pair(g),a=auth(p.body.session_token);
+      const r=await call(g.port,'/v1/scout',{headers:a});
+      assert.equal(r.status,503);
+      assert.equal(r.body.authority_granted,false);
+    },{scoutRead:async()=>violation});
+  }
+});
+test('R220 Scout probe limited to six reads per minute under same session',async()=>{
+  const safe={
+    schema:'phibot.scout-vessie-handoff.v0.1',evidence_class:'LOCAL_SELF_REPORTED_FORMAT_AND_DIGEST_ONLY',
+    mode:'MANUAL_OPERATOR_COPY_ONLY',qualification_result:'PASS_LOCAL_SCOUT_SHADOW',
+    source_run_id:'37851619515',source_mission_id:'phibot.scout.public-repo-health.v1',
+    local_model:'qwen3:4b',qualified_at:'2026-10-09T01:23:40.042Z',
+    source_expires_at:'2026-10-09T06:09:12+00:00',
+    review_freshness:'CURRENT_WITHIN_SOURCE_WINDOW',receipt_digest_sha256:'a'.repeat(64),
+    integrity:'DOMAIN_SEPARATED_DIGEST_MATCH',public_source_authenticated:false,
+    identity_authenticated:false,signer_authenticated:false,
+    independent_execution_attested:false,reality_gate_granted:false,
+    tool_calls_authorized:false,memory_admitted:false,agent_spawned:false,
+    phios_isolation_qualified:false,vessie_connected:false,routing_influence:'NONE',
+  };
+  await run(async g=>{
+    const p=await pair(g),a=auth(p.body.session_token);
+    for(let i=0;i<6;i++)assert.equal((await call(g.port,'/v1/scout',{headers:a})).status,200);
+    assert.equal((await call(g.port,'/v1/scout',{headers:a})).status,429);
+  },{scoutRead:async()=>safe});
+});
