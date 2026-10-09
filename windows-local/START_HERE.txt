@@ -24,6 +24,18 @@ you will see an unavailable/empty report. No model gets installed.
 Optional Ollama installer: https://ollama.com/download/windows
 
 OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
+- Optional fixed comparison cards: after discovery, select a public
+  Governance, Logic or Code protocol and click Load selected protocol.
+  This only fills the prompt; it NEVER runs a model.
+- To compare models, keep the public protocol prompt and selected
+  token cap exactly the same, then deliberately select and approve
+  each eligible local model one at a time. No automatic multi-model
+  runs, cloud calls or routing approvals.
+- If you edit the loaded prompt or token cap, a protocol-labeled
+  execution is blocked; re-load the protocol or select Custom.
+- Approved fixed-protocol receipts record a public versioned
+  protocol_id. This ID is not proof of model quality or hardware
+  execution. Custom and older receipts remain protocol-unlabeled.
 - Stop the read-only console first.
 - Double-click Start-Local-Trial.cmd, read its warning, and enter
   the exact word ENABLE. No administrative access needed.
