@@ -33,3 +33,12 @@
 .cloudTaskOk{color:#7cf3bc}.cloudTaskError{color:#ffb09b}
 .cloudActions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px}
 @media(max-width:600px){.cloudEvidenceFacts{grid-template-columns:1fr}.cloudPanel{padding:14px}}
+
+/* SPV-SCOUT-01: operator-only, read-only Scout handoff display */
+.scoutPanel{border:1px solid #345257;background:#101f2a;padding:22px}
+.scoutPanel code{color:#b4f8d2;word-break:break-word}
+.scoutFacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:20px}
+.scoutFacts>div{border:1px solid #2b424c;padding:14px;min-width:0}
+.scoutFacts small{display:block;font:10px 'DM Mono',monospace;letter-spacing:.07em;color:#8bb9b5}
+.scoutFacts strong{display:block;font:13px 'DM Mono',monospace;color:#ccf5df;margin-top:10px;overflow-wrap:anywhere}
+@media(max-width:700px){.scoutPanel{padding:14px}.scoutFacts{grid-template-columns:1fr}.scoutPanel .inspectActions{flex-wrap:wrap}}
