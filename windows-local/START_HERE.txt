@@ -79,6 +79,16 @@ OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
   of origin. Check what you run and avoid sensitive prompts.
 
 LOCAL EVIDENCE BENCH (AVAILABLE EVEN IN DEFAULT READ-ONLY MODE):
+- The Protocol Cohorts table below the main bench groups existing
+  fixed-protocol evidence by public protocol + model and presents
+  receipt/review counts, median reported timings, and missing-evidence
+  flags. Choose a public protocol from the display filter if useful.
+- This view NEVER runs a model, ranks candidates, or grants BrainC
+  authority. Single observations are explicitly sparse evidence.
+- Old custom receipts stay in the main bench only. A purported fixed
+  protocol with a mismatched token cap is not counted as comparable.
+- All imported JSON remains unauthenticated and human ratings remain
+  subjective; medians do not establish repeatability or GPU fit.
 - This bench compares redacted performance receipts with human self-
   reports. It NEVER runs a model, creates a rank or approves routing.
 - After a completed trial, click Keep current performance receipt.

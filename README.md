@@ -139,6 +139,19 @@ human-reviewed, unranked comparisons. No automatic batch runs or
 model routing. See
 [trial protocol operator guide](packages/vessie-local-console/TRIAL_PROTOCOL_CARDS_GUIDE.md).
 
+### Evidence Bench · protocol-specific coverage (descriptive only)
+
+The Local Evidence Bench now includes **Protocol Cohorts**, a pure
+read-only view of existing redacted observations grouped by public
+protocol and model. It shows sample counts, matching operator review
+counts, reported median timings/throughput and evidence gaps.
+A fixed-protocol label with a mismatched output-token limit is
+excluded rather than treated as a comparable trial. Custom/legacy
+unlabeled receipts remain in the original comparison table.
+The view neither runs tests nor ranks/qualifies models, and source
+JSON is unauthenticated. See
+[Protocol Cohort Guide](packages/vessie-local-console/PROTOCOL_COHORT_GUIDE.md).
+
 ## Current canonical runtime
 
 **Version:** v2.0-alpha.11.0.54.12 — BudgetGenius Canonical Outcome Handoff

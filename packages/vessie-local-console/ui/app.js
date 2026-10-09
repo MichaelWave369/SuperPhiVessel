@@ -2,6 +2,7 @@ import {makeHumanReview} from './review-evidence.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
+import {buildProtocolCohorts} from './protocol-cohorts.mjs';
 
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
@@ -58,6 +59,15 @@ const benchCount = document.getElementById('bench-count');
 const benchRows = document.getElementById('bench-rows');
 const benchStatus = document.getElementById('bench-status');
 const benchFootnote = document.getElementById('bench-footnote');
+const cohortFilter = document.getElementById('cohort-protocol-filter');
+const cohortRows = document.getElementById('cohort-rows');
+const cohortStatus = document.getElementById('cohort-status');
+for(const p of TRIAL_PROTOCOLS){
+  const option=document.createElement('option');
+  option.value=p.id;
+  option.textContent=p.title;
+  cohortFilter.append(option);
+}
 const benchAddPerformance = document.getElementById('bench-add-performance');
 const benchAddReview = document.getElementById('bench-add-review');
 const benchImport = document.getElementById('bench-import');
@@ -409,12 +419,61 @@ function renderBench(){
       ' · Human review evidence is a self-report, not independent verification.';
     benchRows.append(tr);
   }
+  renderProtocolCohorts();
   benchFootnote.textContent=
     summary.performance_receipt_count+' performance receipts · '+
     summary.human_review_receipt_count+' human self-reports · '+
     summary.unpaired_human_reviews+' unpaired reviews. '+
     'Rows are not ranked. A shared model+output hash links a human review to an answer, not to verified hardware or route authority. Imported JSON is user-selected and unauthenticated.';
 }
+function fmtCohortMedianMs(value){
+  return typeof value==='number'&&Number.isFinite(value)&&value>=0
+    ?(value/1000).toFixed(2)+' s':'Not reported';
+}
+function renderProtocolCohorts(){
+  const result=buildProtocolCohorts(benchEntries);
+  const selected=cohortFilter.value;
+  const shown=result.groups.filter(g=>selected==='ALL'||g.protocol_id===selected);
+  cohortRows.replaceChildren();
+  if(shown.length===0){
+    const row=document.createElement('tr');
+    const cell=document.createElement('td');
+    cell.colSpan=8;
+    cell.textContent='No qualifying public-protocol observations for this filter.';
+    row.append(cell);cohortRows.append(row);
+  }
+  for(const cohort of shown){
+    const row=document.createElement('tr');
+    const gaps=cohort.evidence_gaps.length
+      ? cohort.evidence_gaps.join(', ').replaceAll('_',' ').toLowerCase()
+      : 'No listed reporting gaps; not a qualification';
+    const values=[
+      cohort.protocol_title,cohort.model,
+      String(cohort.observation_count),
+      cohort.human_reviewed_observation_count+' / '+cohort.observation_count+
+        ' (rated: '+cohort.usefulness_rated_observation_count+
+        ', fact checks reported: '+cohort.operator_reported_claims_checked_count+')',
+      fmtCohortMedianMs(cohort.median_wall_ms),fmtCohortMedianMs(cohort.median_load_ms),
+      cohort.median_generation_tokens_per_sec===null
+        ? 'Not reported'
+        : cohort.median_generation_tokens_per_sec.toFixed(1)+' tokens/s',
+      gaps
+    ];
+    for(const value of values){
+      const cell=document.createElement('td');
+      cell.textContent=value;row.append(cell);
+    }
+    cohortRows.append(row);
+  }
+  cohortStatus.textContent=
+    result.labeled_comparable_receipt_count+' eligible labeled receipt(s), '+
+    result.cohort_count+' unranked model/protocol cohort(s), '+
+    result.unlabeled_performance_receipt_count+' custom/unlabeled receipt(s), '+
+    result.inconsistent_protocol_cap_receipt_count+' mismatched protocol/cap receipt(s) excluded. '+
+    'Medians are descriptive. Review claims are operator self-reports. Neither imported files nor protocol IDs independently attest execution or correctness.';
+}
+cohortFilter.addEventListener('change',renderProtocolCohorts);
+
 function benchError(){
   benchStatus.textContent='Evidence was not accepted: missing/invalid redacted fields, oversized file, or full bench. No information was uploaded or persisted.';
 }
