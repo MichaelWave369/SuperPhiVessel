@@ -78,6 +78,16 @@ LOCAL EVIDENCE BENCH (AVAILABLE EVEN IN DEFAULT READ-ONLY MODE):
 - The first exported performance-only receipt can be imported even
   if its answer was not retained. It will show No review; no answer
   quality is invented or guessed from token throughput.
+- Click Save portable bench JSON to export the actual, strictly
+  redacted observation set for explicit restore in another session.
+  Keep this file privately: model IDs, timestamps and output hashes
+  may still be sensitive even with prompt and answer text omitted.
+- To restore later, reopen Vessie (read-only mode is sufficient),
+  choose the portable JSON file and click Read selected local files.
+  Up to 64 KiB per bundle; up to 16 KiB per standalone receipt.
+  Any invalid batch is refused without partially replacing the bench.
+- The Export descriptive comparison JSON is VIEW-ONLY and cannot be
+  reimported as a portable bench. They serve different purposes.
 - The bench matches a review only on model name plus output SHA-256.
   A matching review remains a human assertion, not verified truth.
 - Explicitly click Export redacted comparison to download a JSON
