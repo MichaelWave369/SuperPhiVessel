@@ -176,3 +176,15 @@ test('EB09 no background or inference side effect: evidence processing accepts o
   assert.equal(summary.automatic_ranking_performed,false);
   assert.equal(summary.cloud_execution_approved,false);
 });
+
+
+test('EB10 fixed protocol label preserved, unknown labels refused and legacy receipts remain unlabeled',()=>{
+  const selected=performance({protocol_id:'governance-one-sentence-v1'});
+  const row=buildBenchSummary(add(selected)).rows[0];
+  assert.equal(row.protocol_id,'governance-one-sentence-v1');
+  assert.equal(row.no_routing_approval,true);
+  const legacy=buildBenchSummary(add(performance())).rows[0];
+  assert.equal(legacy.protocol_id,null);
+  assert.throws(()=>sanitizeBenchEvidence(performance({protocol_id:'forge-cloud'})),
+    /BENCH_INVALID_PROTOCOL_ID/);
+});
