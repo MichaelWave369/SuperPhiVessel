@@ -152,6 +152,18 @@ The view neither runs tests nor ranks/qualifies models, and source
 JSON is unauthenticated. See
 [Protocol Cohort Guide](packages/vessie-local-console/PROTOCOL_COHORT_GUIDE.md).
 
+### Human protocol reference checks (optional, not grading)
+
+After a successfully completed, server-labeled public protocol trial,
+the local Human Answer Review panel can reveal a **human-only public
+answer reference and three review checks** by a separate operator click.
+Governance, sock-drawer logic and JavaScript indexing references help
+an operator inspect correctness before voluntarily recording the
+existing subjective review. There is no automatic grade, new exported
+rating, answer parsing, AI judge or routing permission. Custom,
+unlabeled or failed trials show no answer reference. See
+[Human Protocol Reference Guide](packages/vessie-local-console/HUMAN_PROTOCOL_REFERENCE_GUIDE.md).
+
 ## Current canonical runtime
 
 **Version:** v2.0-alpha.11.0.54.12 — BudgetGenius Canonical Outcome Handoff

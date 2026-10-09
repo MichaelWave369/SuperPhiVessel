@@ -130,7 +130,7 @@ jobs:
           z=ZipFile('site/downloads/SuperPhiVessel-Local-Console-Windows.zip')
           names={n.replace('\\','/') for n in z.namelist() if not n.endswith('/')}
           required={'node.exe','LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd','Start-Local-Trial.cmd',
-                    'server.mjs','ollama-probe.mjs','trial-runner.mjs','ui/index.html','ui/style.css','ui/app.js','ui/review-evidence.mjs','ui/evidence-bench.mjs','ui/portable-bench.mjs','ui/trial-protocols.mjs','ui/protocol-cohorts.mjs'}
+                    'server.mjs','ollama-probe.mjs','trial-runner.mjs','ui/index.html','ui/style.css','ui/app.js','ui/review-evidence.mjs','ui/evidence-bench.mjs','ui/portable-bench.mjs','ui/trial-protocols.mjs','ui/protocol-cohorts.mjs','ui/human-review-guides.mjs'}
           assert names == required, (names-required,required-names)
           assert z.testzip() is None
           print('windows-local-console-pages-download: PASS')

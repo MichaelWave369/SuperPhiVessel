@@ -60,6 +60,12 @@ OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
   to unload weights after the request. Do not treat separate
   approved trials as a continuous warm-cache speed benchmark.
 - Export the redacted performance receipt only if you explicitly choose to.
+- For a completed public fixed-protocol response, the Human Review
+  panel offers Reveal operator answer reference. Click it after
+  reading the actual model response to see a short expected answer
+  and three manual inspection checks. Reference visibility resets
+  on a new trial. Custom/unlabeled responses have no answer key.
+  Revealing does NOT auto-grade or change your recorded rating.
 - Optionally, after a completed response, record a HUMAN answer review:
   usefulness 1-5 or not assessed, whether the answer appears complete,
   and whether YOU separately checked factual claims. This is a human

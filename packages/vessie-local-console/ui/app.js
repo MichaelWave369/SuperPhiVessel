@@ -3,6 +3,7 @@ import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-b
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
 import {buildProtocolCohorts} from './protocol-cohorts.mjs';
+import {guideForCompletedTrial} from './human-review-guides.mjs';
 
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
@@ -77,6 +78,41 @@ const benchSavePortable = document.getElementById('bench-save-portable');
 const benchClear = document.getElementById('bench-clear');
 let benchEntries = [];
 const reviewPanel = document.getElementById('human-review');
+const protocolHumanReference = document.getElementById('protocol-human-reference');
+const protocolHumanReveal = document.getElementById('protocol-human-reveal');
+const protocolHumanContent = document.getElementById('protocol-human-reference-content');
+const protocolHumanHeading = document.getElementById('protocol-human-heading');
+const protocolHumanExpected = document.getElementById('protocol-human-expected');
+const protocolHumanChecks = document.getElementById('protocol-human-checks');
+const protocolHumanCaution = document.getElementById('protocol-human-caution');
+let activeHumanGuide = null;
+protocolHumanReveal.addEventListener('click',()=>{
+  // Never compute a model grade or modify submitted human ratings.
+  if(!activeHumanGuide || protocolHumanReference.hidden)return;
+  protocolHumanHeading.textContent=activeHumanGuide.title;
+  protocolHumanExpected.textContent=activeHumanGuide.expected_answer;
+  protocolHumanCaution.textContent=activeHumanGuide.caution;
+  protocolHumanChecks.replaceChildren();
+  for(const check of activeHumanGuide.checks){
+    const item=document.createElement('li');
+    item.textContent=check;
+    protocolHumanChecks.append(item);
+  }
+  protocolHumanContent.hidden=false;
+  protocolHumanReveal.disabled=true;
+  protocolHumanReveal.textContent='Reference revealed for this completed trial';
+});
+function resetProtocolHumanGuide(){
+  activeHumanGuide=null;
+  protocolHumanReference.hidden=true;
+  protocolHumanContent.hidden=true;
+  protocolHumanReveal.disabled=false;
+  protocolHumanReveal.textContent='Reveal operator answer reference';
+  protocolHumanHeading.textContent='';
+  protocolHumanExpected.textContent='';
+  protocolHumanCaution.textContent='';
+  protocolHumanChecks.replaceChildren();
+}
 const reviewHelpfulness = document.getElementById('review-helpfulness');
 const reviewCompleteness = document.getElementById('review-completeness');
 const reviewVerification = document.getElementById('review-verification');
@@ -88,6 +124,7 @@ let lastPerformanceReceipt = null;
 let humanReviewReceipt = null;
 
 function resetHumanReview() {
+  resetProtocolHumanGuide();
   lastPerformanceReceipt = null;
   humanReviewReceipt = null;
   reviewPanel.hidden = true;
@@ -302,6 +339,8 @@ trialRun.addEventListener('click',async()=>{
     trialOutput.textContent=data.response || '(Model returned an empty response)';
     exportedReceipt=data.receipt;
     lastPerformanceReceipt=data.receipt;
+    activeHumanGuide=guideForCompletedTrial(data.receipt);
+    protocolHumanReference.hidden=activeHumanGuide===null;
     syncBenchButtons();
     reviewPanel.hidden=false;
     reviewStatus.textContent='Answer available for your optional human review. Nothing is rated automatically.';
