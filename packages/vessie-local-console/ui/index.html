@@ -36,6 +36,15 @@
       <div class="panel-top"><h2 id="trial-heading">One-shot local inference trial</h2><span class="tiny">OFF by default</span></div>
       <p id="trial-help" class="classification-note">To run a single local model with explicit approval, stop the read-only console and launch <code>Start-Local-Trial.cmd</code>. No cloud references are eligible.</p>
       <div id="trial-controls" hidden>
+        <fieldset class="protocol-box">
+          <legend>Optional repeatable trial protocol</legend>
+          <label class="trial-label" for="trial-protocol">Choose a public fixed prompt</label>
+          <select class="trial-field" id="trial-protocol">
+            <option value="">Custom one-shot prompt · no protocol label</option>
+          </select>
+          <p id="trial-protocol-info" class="classification-note">Select a card and click Load. Loading never executes a model.</p>
+          <button id="trial-protocol-load" type="button" class="secondary">Load selected protocol into prompt</button>
+        </fieldset>
         <label class="trial-label" for="trial-model">Locally size-reported model</label>
         <select id="trial-model" class="trial-field"><option value="">Choose a model after discovery</option></select>
         <label class="trial-label" for="trial-prompt">Prompt (max 2,000 characters, never saved by this console)</label>
@@ -114,11 +123,11 @@
       <div class="bench-scroll">
         <table class="bench-table" aria-label="Unranked local evidence comparison">
           <thead><tr>
-            <th>Model and date</th><th>Wall time</th><th>Load</th><th>Prompt evaluation</th>
+            <th>Model and date</th><th>Protocol</th><th>Wall time</th><th>Load</th><th>Prompt evaluation</th>
             <th>Generation</th><th>Output tokens / generation rate</th>
             <th>Human usefulness</th><th>Apparent completeness</th><th>Facts independently checked?</th>
           </tr></thead>
-          <tbody id="bench-rows"><tr><td colspan="9">No performance receipts compared yet.</td></tr></tbody>
+          <tbody id="bench-rows"><tr><td colspan="10">No performance receipts compared yet.</td></tr></tbody>
         </table>
       </div>
       <p id="bench-footnote" class="footnote">No automatic winner, no benchmark grade, no quality gate. A human review may only match a response by its model and output hash. Timing data is Ollama-reported, not hardware-attested.</p>

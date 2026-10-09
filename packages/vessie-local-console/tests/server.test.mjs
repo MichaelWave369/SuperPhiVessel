@@ -544,3 +544,77 @@ test('L34 bench bundle export/import is user-selected without server route or ba
     assert.equal((await request(g.port,'/api/bench-bundle',{method:'POST'})).code,405);
   });
 });
+
+
+test('L35 protocol-labeled local trial requires exact public text and cap, never auto-runs',async()=>{
+  const {TRIAL_PROTOCOLS}=await import('../ui/trial-protocols.mjs');
+  const protocol=TRIAL_PROTOCOLS[0];
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const body=(extra={})=>JSON.stringify({
+      model:'qwen3:4b',prompt:protocol.prompt,
+      max_output_tokens:protocol.max_output_tokens,
+      approve_once:true,protocol_id:protocol.id,...extra
+    });
+    const send=async value=>request(g.port,'/api/local-trial',{
+      method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify(value)
+    });
+    const valid=JSON.parse(body());
+    assert.equal((await send({...valid,prompt:valid.prompt+' bad'})).code,400);
+    assert.equal((await send({...valid,max_output_tokens:128})).code,400);
+    assert.equal((await send({...valid,protocol_id:'untrusted-v1'})).code,400);
+    assert.equal((await send({...valid,endpoint:'https://cloud.example'})).code,400);
+    assert.equal(calls,0);
+    const r=await send(valid);
+    assert.equal(r.code,200);
+    const data=JSON.parse(r.text);
+    assert.equal(calls,1);
+    assert.equal(data.receipt.protocol_id,protocol.id);
+    assert.equal(data.receipt.protocol_evidence,'PUBLIC_FIXED_PROMPT_ONLY_NOT_INDEPENDENT_BENCHMARK');
+    assert.equal(data.receipt.authority_granted,false);
+    assert.equal(data.receipt.model_routing_approved,false);
+    assert.equal(data.receipt.cloud_execution_approved,false);
+    assert.ok(!r.text.includes(protocol.prompt));
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async args=>{
+    calls++;return fakeTrial(args);
+  }});
+});
+test('L36 freeform old four-field trials remain unlabeled and read-only mode still refuses',async()=>{
+  let calls=0;
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,200);
+    const data=JSON.parse(r.text);
+    assert.equal(data.receipt.protocol_id,null);
+    assert.equal(calls,1);
+  },{trialEnabled:true,probe:async()=>localFixture(),trialRunner:async args=>{
+    calls++;return fakeTrial(args);
+  }});
+  await withServer(async g=>{
+    const key=token((await request(g.port)).text);
+    const r=await trialRequest(g.port,key);
+    assert.equal(r.code,403);
+  },{trialEnabled:false,probe:async()=>localFixture()});
+});
+test('L37 protocol definitions are allowlisted local static assets; loading never executes',async()=>{
+  await withServer(async g=>{
+    const r=await request(g.port,'/trial-protocols.mjs');
+    assert.equal(r.code,200);
+    assert.match(r.headers['content-type'],/javascript/);
+    assert.equal(r.headers['access-control-allow-origin'],undefined);
+    assert.ok(r.text.includes('export const TRIAL_PROTOCOLS'));
+    assert.equal((await request(g.port,'/ui/trial-protocols.mjs')).code,404);
+    assert.equal((await request(g.port,'/trial-protocols.mjs',{
+      headers:{Origin:'https://example.com'}
+    })).code,403);
+    const js=(await request(g.port,'/app.js')).text;
+    const html=(await request(g.port)).text;
+    assert.ok(js.includes("trialProtocolLoad.addEventListener('click'"));
+    assert.ok(js.includes('exactProtocolMatch('));
+    assert.ok(html.includes('id="trial-protocol"'));
+    assert.ok(html.includes('id="trial-protocol-load"'));
+  });
+});
