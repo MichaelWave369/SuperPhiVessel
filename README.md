@@ -109,6 +109,15 @@ self-report is linked to a performance observation by model and output
 SHA-256, not by presumed hardware or a routing endorsement.
 Old performance-only receipts are supported, but no model answer quality
 is invented. See [Evidence Bench Guide](packages/vessie-local-console/EVIDENCE_BENCH_GUIDE.md).
+
+The bench can now be deliberately saved as a **portable, redacted
+evidence bundle** and restored in a later session by selecting that JSON
+file manually. The earlier descriptive-comparison export remains
+available, but is deliberately not reimportable. The portable bundle
+contains only up to 24 validated, normalized observations; it never
+contains prompts, model answers, bearer secrets, or routing approvals.
+No automatic disk save, cloud sync, retention, or import on startup.
+See [Portable Bench Guide](packages/vessie-local-console/PORTABLE_BENCH_GUIDE.md).
 New optional receipt timing fields and careful interpretation of cold load
 versus prompt processing and generation are documented in
 [performance receipt guide](packages/vessie-local-console/PERFORMANCE_RECEIPT_GUIDE.md).

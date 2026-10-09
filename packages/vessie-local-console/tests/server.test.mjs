@@ -509,3 +509,38 @@ test('L32 evidence bench requires deliberate in-memory import/export and never a
     assert.equal((await request(g.port,'/api/import-evidence',{method:'POST'})).code,405);
   });
 });
+
+test('L33 portable evidence helper only served on allowlisted same-origin route',async()=>{
+  await withServer(async g=>{
+    const r=await request(g.port,'/portable-bench.mjs');
+    assert.equal(r.code,200);
+    assert.match(r.headers['content-type'],/javascript/);
+    assert.equal(r.headers['access-control-allow-origin'],undefined);
+    assert.match(r.text,/export function exportPortableBench/);
+    assert.match(r.text,/export function importPortableBench/);
+    assert.equal((await request(g.port,'/ui/portable-bench.mjs')).code,404);
+    assert.equal((await request(g.port,'/portable-bench.mjs',{headers:{
+      Origin:'https://michaelwave369.github.io'
+    }})).code,403);
+  });
+});
+test('L34 bench bundle export/import is user-selected without server route or background persistence',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.ok(html.includes('id="bench-save-portable"'));
+    assert.ok(html.includes('64 KiB maximum'));
+    assert.ok(js.includes("import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench}"));
+    assert.ok(js.includes("benchSavePortable.addEventListener('click'"));
+    assert.ok(js.includes("benchImportSelected.addEventListener('click'"));
+    assert.ok(js.includes('file.size>MAX_BUNDLE_BYTES'));
+    assert.ok(js.includes('file.size>16384'));
+    assert.ok(js.includes('if(parsed?.schema===BUNDLE_SCHEMA)'));
+    assert.ok(!js.includes('localStorage'));
+    assert.ok(!js.includes('indexedDB'));
+    assert.ok(!js.includes('setInterval('));
+    assert.ok(!js.includes('innerHTML'));
+    assert.equal((await request(g.port,'/api/bench-bundle')).code,404);
+    assert.equal((await request(g.port,'/api/bench-bundle',{method:'POST'})).code,405);
+  });
+});

@@ -101,12 +101,13 @@
         <button id="bench-add-performance" type="button" class="secondary" disabled>Keep current performance receipt</button>
         <button id="bench-add-review" type="button" class="secondary" disabled>Keep current human review</button>
       </div>
-      <label class="trial-label" for="bench-import">Optional: import redacted performance or human-review JSON files from your PC</label>
+      <label class="trial-label" for="bench-import">Import exported redacted trial receipts, human reviews, or a portable bench JSON bundle</label>
       <input id="bench-import" type="file" class="trial-field" accept=".json,application/json" multiple />
-      <p class="footnote">At most 24 redacted observations in browser memory, 16 KiB per imported file. Importing reads only files you explicitly select. JSON is strictly projected to known fields. An imported file is not independently authenticated.</p>
+      <p class="footnote">At most 24 redacted observations in browser memory. Single receipts: 16 KiB maximum. Portable bench bundle: 64 KiB maximum. The comparison summary is view-only and cannot restore a bench. Imports are selected manually, never uploaded, and are not independently authenticated.</p>
       <div class="actions">
         <button id="bench-import-selected" type="button" class="secondary">Read selected local files</button>
-        <button id="bench-export" type="button" class="secondary" disabled>Export redacted comparison</button>
+        <button id="bench-export" type="button" class="secondary" disabled>Export descriptive comparison</button>
+        <button id="bench-save-portable" type="button" class="secondary" disabled>Save portable bench JSON</button>
         <button id="bench-clear" type="button" class="secondary" disabled>Clear this bench</button>
       </div>
       <div id="bench-status" class="status" role="status" aria-live="polite">Bench empty. Add a current redacted receipt or manually choose JSON evidence files.</div>
