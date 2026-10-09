@@ -5,8 +5,9 @@ import catalog from '../../../protocols/routing-v2/model-candidates.json';
 import { inspectReceipt } from './inspector.mjs';
 import PairingPanel from './PairingPanel';
 import CloudEvidencePanel from './CloudEvidencePanel';
+import ScoutHandoffPanel from './ScoutHandoffPanel';
 
-type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud';
+type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout';
 type Inspection = ReturnType<typeof inspectReceipt>;
 const PAGES = [
   ['overview','OVERVIEW','01'],
@@ -15,6 +16,7 @@ const PAGES = [
   ['models','MODEL FABRIC','04'],
   ['evidence','RECEIPT INSPECTOR','05'],
   ['cloud','CLOUD EVIDENCE','06'],
+  ['scout','SCOUT HANDOFF','07'],
 ] as const;
 const MODELS = [
   ...catalog.local_candidates.map((x)=>({
@@ -170,6 +172,12 @@ function App() {
             <h1>Cloud <em>Evidence.</em></h1>
             <p className="lede">Read the actual FieldCloudWorker status from GitHub, compare with the associated run and inspect a metadata-only projection. None of this starts a model or grants action authority.</p>
             <CloudEvidencePanel />
+          </section>}
+          {view==='scout'&&<section>
+            <div className="eyebrow">LOCAL SCOUT / HUMAN IMPORT / NO LIVE AUTHORITY</div>
+            <h1>Scout <em>Handoff.</em></h1>
+            <p className="lede">Display an operator-copied PhiBot Scout qualification as self-reported evidence. No model routing, memory, action authority or live bot connection is enabled.</p>
+            <ScoutHandoffPanel />
           </section>}
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>
