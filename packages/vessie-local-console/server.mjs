@@ -23,6 +23,7 @@ const STATIC = new Map([
   ['/portable-bench.mjs', { file: join(HERE, 'ui', 'portable-bench.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/trial-protocols.mjs', { file: join(HERE, 'ui', 'trial-protocols.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/protocol-cohorts.mjs', { file: join(HERE, 'ui', 'protocol-cohorts.mjs'), type:'text/javascript; charset=utf-8' }],
+  ['/human-review-guides.mjs', { file: join(HERE, 'ui', 'human-review-guides.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/style.css', { file: join(HERE, 'ui', 'style.css'), type:'text/css; charset=utf-8' }]
 ]);
 
