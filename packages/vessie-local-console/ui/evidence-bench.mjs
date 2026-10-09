@@ -1,5 +1,6 @@
 // Pure browser/Node evidence comparison. No I/O, persistence, model
 // invocation, routing, cloud service, ranking or quality automation.
+import {safeProtocolId} from './trial-protocols.mjs';
 export const MAX_BENCH_ENTRIES=24;
 const PERF='superphivessel.local-console.trial.receipt.v0.1';
 const REVIEW='superphivessel.local-console.human-review.v0.1';
@@ -25,11 +26,14 @@ export function sanitizeBenchEvidence(raw) {
       raw.generated_text_included===false,'BENCH_INVALID_AUTHORITY');
     required(raw.route==='LOCAL_LOOPBACK_FIXED'&&hash(raw.generated_text_sha256)&&
       iso(raw.timestamp),'BENCH_INVALID_PERFORMANCE_REFERENCE');
+    required(raw.protocol_id===undefined || raw.protocol_id===null ||
+      safeProtocolId(raw.protocol_id)!==null,'BENCH_INVALID_PROTOCOL_ID');
     required(Number.isInteger(raw.max_output_tokens_requested)&&
       raw.max_output_tokens_requested>=1&&raw.max_output_tokens_requested<=128,
       'BENCH_INVALID_OUTPUT_LIMIT');
     return frozen({
       kind:'PERFORMANCE_RECEIPT',
+      protocol_id:safeProtocolId(raw.protocol_id),
       model:raw.model,
       output_sha256:raw.generated_text_sha256,
       observed_at:raw.timestamp,
@@ -103,6 +107,7 @@ export function buildBenchSummary(entries) {
       ?Math.round(generated*1e10/genNs)/10:null;
     return frozen({
       model:entry.model,observed_at:entry.observed_at,
+      protocol_id:entry.protocol_id??null,
       output_sha256:entry.output_sha256,
       wall_ms:entry.trial_elapsed_ms,
       model_load_ms:entry.model_load_ns===null?null:Math.round(entry.model_load_ns/1e6),
