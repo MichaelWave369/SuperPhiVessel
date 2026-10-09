@@ -618,3 +618,35 @@ test('L37 protocol definitions are allowlisted local static assets; loading neve
     assert.ok(html.includes('id="trial-protocol-load"'));
   });
 });
+
+
+test('L38 cohort module is explicitly allowlisted on loopback with same-origin protections',async()=>{
+  await withServer(async g=>{
+    const valid=await request(g.port,'/protocol-cohorts.mjs');
+    assert.equal(valid.code,200);
+    assert.match(valid.headers['content-type'],/javascript/);
+    assert.equal(valid.headers['access-control-allow-origin'],undefined);
+    assert.match(valid.text,/export function buildProtocolCohorts/);
+    assert.equal((await request(g.port,'/ui/protocol-cohorts.mjs')).code,404);
+    assert.equal((await request(g.port,'/protocol-cohorts.mjs',{
+      headers:{Origin:'https://example.com'}
+    })).code,403);
+  });
+});
+test('L39 protocol cohort table is descriptive, filtered and cannot launch or authorize models',async()=>{
+  await withServer(async g=>{
+    const html=(await request(g.port)).text;
+    const js=(await request(g.port,'/app.js')).text;
+    assert.ok(html.includes('id="cohort-protocol-filter"'));
+    assert.ok(html.includes('id="cohort-rows"'));
+    assert.ok(html.includes('id="cohort-status"'));
+    assert.ok(js.includes('buildProtocolCohorts(benchEntries)'));
+    assert.ok(js.includes("cohortFilter.addEventListener('change'"));
+    assert.ok(js.includes("renderProtocolCohorts();"));
+    assert.ok(js.includes('cohort.evidence_gaps'));
+    assert.ok(!js.includes('innerHTML'));
+    assert.ok(!js.includes('setInterval('));
+    assert.equal((await request(g.port,'/api/protocol-cohorts')).code,404);
+    assert.equal((await request(g.port,'/api/protocol-cohorts',{method:'POST'})).code,405);
+  });
+});
