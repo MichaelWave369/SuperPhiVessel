@@ -124,6 +124,21 @@ versus prompt processing and generation are documented in
 A trial reaching the requested token count is not automatically a
 complete, correct answer or a benchmark of GPU residency.
 
+### Repeatable local trial protocol cards (operator-approved only)
+
+The Windows Local Console offers three public fixed-prompt cards for
+governance, basic logic and code review. Clicking **Load** only fills the
+prompt editor; it cannot execute a model. The separately enabled trial
+runner still requires a locally size-reported model, a per-prompt
+checkbox and a separate browser confirmation. The local server
+accepts a `protocol_id` in its redacted receipt **only** after
+validating the exact versioned public prompt and output-token cap.
+Old custom trials remain valid and explicitly unlabeled. The evidence
+bench and portable bundles preserve allowed protocol IDs for
+human-reviewed, unranked comparisons. No automatic batch runs or
+model routing. See
+[trial protocol operator guide](packages/vessie-local-console/TRIAL_PROTOCOL_CARDS_GUIDE.md).
+
 ## Current canonical runtime
 
 **Version:** v2.0-alpha.11.0.54.12 — BudgetGenius Canonical Outcome Handoff
