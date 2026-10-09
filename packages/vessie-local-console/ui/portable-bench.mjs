@@ -1,6 +1,7 @@
 // Pure manual export/import of redacted bench evidence.
 // Not signed, encrypted, persisted, uploaded, or a route authorization.
 import {MAX_BENCH_ENTRIES} from './evidence-bench.mjs';
+import {safeProtocolId} from './trial-protocols.mjs';
 export const BUNDLE_SCHEMA='superphivessel.local-console.evidence-bench.bundle.v0.1';
 export const MAX_BUNDLE_BYTES=65536;
 
@@ -11,6 +12,7 @@ const perfKeys=[
  'token_cap_requested','token_cap_reached','stop_reason','provenance',
  'prompt_included','generated_text_included','authority_granted'
 ].sort();
+const perfKeysWithProtocol=[...perfKeys,'protocol_id'].sort();
 const reviewKeys=[
  'kind','model','output_sha256','observed_at','helpfulness','completeness',
  'verification','provenance','prompt_included','generated_text_included',
@@ -47,13 +49,15 @@ export function sanitizePortableEntry(raw){
   requireValue(raw&&typeof raw==='object'&&!Array.isArray(raw),'BUNDLE_ENTRY_INVALID');
   const isPerf=raw.kind===PERF;
   const isReview=raw.kind===REVIEW;
-  requireValue((isPerf&&exactKeys(raw,perfKeys))||
+  requireValue((isPerf&&(exactKeys(raw,perfKeys)||exactKeys(raw,perfKeysWithProtocol)))||
     (isReview&&exactKeys(raw,reviewKeys)),'BUNDLE_ENTRY_FIELDS_INVALID');
   requireValue(validModel(raw.model)&&validHash(raw.output_sha256)&&
     validIso(raw.observed_at)&&raw.prompt_included===false&&
     raw.generated_text_included===false&&raw.authority_granted===false,
     'BUNDLE_ENTRY_PRIVACY_OR_REF_INVALID');
   if(isPerf){
+    requireValue(raw.protocol_id===undefined||raw.protocol_id===null||
+      safeProtocolId(raw.protocol_id)!==null,'BUNDLE_PROTOCOL_INVALID');
     requireValue(raw.provenance==='IMPORTED_OR_OPERATOR_CAPTURED_UNATTESTED'&&
       [raw.trial_elapsed_ms,raw.model_load_ns,raw.prompt_eval_ns,
        raw.generation_eval_ns,raw.generated_tokens,raw.prompt_tokens].every(safeNullableInt)&&
@@ -62,6 +66,7 @@ export function sanitizePortableEntry(raw){
       stops.includes(raw.stop_reason),'BUNDLE_PERFORMANCE_INVALID');
     return Object.freeze({
       kind:PERF,model:raw.model,output_sha256:raw.output_sha256,observed_at:raw.observed_at,
+      protocol_id:safeProtocolId(raw.protocol_id),
       trial_elapsed_ms:raw.trial_elapsed_ms,model_load_ns:raw.model_load_ns,
       prompt_eval_ns:raw.prompt_eval_ns,generation_eval_ns:raw.generation_eval_ns,
       generated_tokens:raw.generated_tokens,prompt_tokens:raw.prompt_tokens,
