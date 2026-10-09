@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { discoverOllama } from './ollama-probe.mjs';
 import {runLocalTrial} from './trial-runner.mjs';
+import {exactProtocolMatch} from './ui/trial-protocols.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PORT = 8791;
@@ -20,6 +21,7 @@ const STATIC = new Map([
   ['/review-evidence.mjs', { file: join(HERE, 'ui', 'review-evidence.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/evidence-bench.mjs', { file: join(HERE, 'ui', 'evidence-bench.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/portable-bench.mjs', { file: join(HERE, 'ui', 'portable-bench.mjs'), type:'text/javascript; charset=utf-8' }],
+  ['/trial-protocols.mjs', { file: join(HERE, 'ui', 'trial-protocols.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/style.css', { file: join(HERE, 'ui', 'style.css'), type:'text/css; charset=utf-8' }]
 ]);
 
@@ -64,7 +66,9 @@ async function readTrialBody(req) {
   try{data=JSON.parse(Buffer.concat(chunks).toString('utf8'));}
   catch{throw new Error('INVALID_JSON');}
   if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('INVALID_JSON');
-  if(Object.keys(data).sort().join(',')!=='approve_once,max_output_tokens,model,prompt')
+  const fields=Object.keys(data).sort().join(',');
+  if(fields!=='approve_once,max_output_tokens,model,prompt' &&
+     fields!=='approve_once,max_output_tokens,model,prompt,protocol_id')
     throw new Error('UNKNOWN_TRIAL_FIELDS');
   if(data.approve_once!==true ||
      typeof data.model!=='string'||data.model.length<1||data.model.length>128||
@@ -73,6 +77,9 @@ async function readTrialBody(req) {
      /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(data.prompt)||
      !Number.isInteger(data.max_output_tokens)||data.max_output_tokens<1||
      data.max_output_tokens>128)throw new Error('INVALID_TRIAL_FIELDS');
+  if('protocol_id' in data &&
+     !exactProtocolMatch(data.protocol_id,data.prompt,data.max_output_tokens))
+    throw new Error('TRIAL_PROTOCOL_MISMATCH');
   return data;
 }
 
@@ -153,6 +160,11 @@ export async function createLocalConsole({
               route:'LOCAL_LOOPBACK_FIXED',
               experiment_mode:'OPERATOR_ONE_SHOT',
               max_output_tokens_requested:input.max_output_tokens,
+              // The optional identifier is assigned only after verifying
+              // the request's exact PUBLIC prompt and output cap. Freeform
+              // prompts remain private and get protocol_id:null.
+              protocol_id:typeof input.protocol_id==='string'?input.protocol_id:null,
+              protocol_evidence:'PUBLIC_FIXED_PROMPT_ONLY_NOT_INDEPENDENT_BENCHMARK',
               elapsed_wall_ms:safe(receipt.elapsed_wall_ms),
               ollama_total_duration_ns:safe(receipt.ollama_total_duration_ns),
               ollama_load_duration_ns:safe(receipt.ollama_load_duration_ns),
