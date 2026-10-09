@@ -209,7 +209,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate HTTPS certificate fixtures and browser pairing contract
-        run: node --test packages/vessie-gateway-v0.1/tests/browser-pairing.test.mjs
+        run: node --test packages/vessie-gateway-v0.1/tests/browser-pairing.test.mjs packages/vessie-gateway-v0.1/tests/scout-receipt-reader.test.mjs
 
   vessie-gateway-r1:
     runs-on: ubuntu-latest

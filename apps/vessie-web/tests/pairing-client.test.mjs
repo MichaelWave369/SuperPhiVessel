@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,revokeGateway,confirmRevokedGateway}
+import {LOCAL_GATEWAY,pairGateway,gatewayStatus,gatewayModels,gatewayScoutHandoff,revokeGateway,confirmRevokedGateway}
   from '../src/pairing-client.mjs';
 
 const session='f'.repeat(64);
@@ -102,4 +102,24 @@ test('P10 invalid or missing bearer cannot be treated as confirmed revoked',asyn
  await assert.rejects(revokeGateway('',async()=>answer({
    session_status:'REVOKED',authority_granted:false
  })),/Invalid local session/);
+});
+
+test('P11 opt-in Scout fetch reuses same short-lived HTTPS bearer, no arbitrary file paths',async()=>{
+  const output=await gatewayScoutHandoff(session,async(url,options)=>{
+    assert.equal(url,LOCAL_GATEWAY+'/v1/scout');
+    assert.equal(options.method,'GET');
+    assert.equal(options.body,undefined);
+    assert.equal(options.headers.Authorization,'Bearer '+session);
+    assert.equal(options.credentials,'omit');
+    assert.equal(options.redirect,'error');
+    assert.equal(options.cache,'no-store');
+    return answer({schema:'phibot.scout-vessie-handoff.v0.1',authority_granted:false});
+  });
+  assert.equal(output.schema,'phibot.scout-vessie-handoff.v0.1');
+});
+test('P12 Scout read cannot use invalid or revoked bearer',async()=>{
+  await assert.rejects(gatewayScoutHandoff('wrong',async()=>answer({})),/Invalid local session/);
+  await assert.rejects(gatewayScoutHandoff(session,async()=>answer({
+    error:'SESSION_DENIED',authority_granted:false
+  },403)),/refused/);
 });
