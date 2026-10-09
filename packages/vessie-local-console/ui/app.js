@@ -1,6 +1,7 @@
 import {makeHumanReview} from './review-evidence.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
+import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
 
 const session = document.querySelector('meta[name="vessie-readonly-token"]')?.content ?? '';
 const button = document.getElementById('scan');
@@ -13,6 +14,38 @@ const trialControls = document.getElementById('trial-controls');
 const trialHelp = document.getElementById('trial-help');
 const trialModel = document.getElementById('trial-model');
 const trialPrompt = document.getElementById('trial-prompt');
+const trialProtocol = document.getElementById('trial-protocol');
+const trialProtocolLoad = document.getElementById('trial-protocol-load');
+const trialProtocolInfo = document.getElementById('trial-protocol-info');
+let loadedProtocolId=null;
+for(const protocol of TRIAL_PROTOCOLS){
+  const opt=document.createElement('option');
+  opt.value=protocol.id;
+  opt.textContent=protocol.title+' · '+protocol.max_output_tokens+' tokens';
+  trialProtocol.append(opt);
+}
+trialProtocolLoad.addEventListener('click',()=>{
+  const protocol=getTrialProtocol(trialProtocol.value);
+  if(!protocol){
+    loadedProtocolId=null;
+    trialProtocolInfo.textContent='Select a public protocol first. Custom prompts remain available.';
+    return;
+  }
+  loadedProtocolId=protocol.id;
+  trialPrompt.value=protocol.prompt;
+  trialLimit.value=String(protocol.max_output_tokens);
+  trialApprove.checked=false;
+  trialProtocolInfo.textContent=protocol.title+' · '+protocol.lane+
+    ' · public fixed protocol version '+protocol.version+
+    '. Loaded but NOT executed. Select a local model and approve each prompt separately.';
+});
+trialProtocol.addEventListener('change',()=>{
+  loadedProtocolId=null;
+  trialApprove.checked=false;
+  trialProtocolInfo.textContent=trialProtocol.value
+    ? 'Protocol selected, not loaded. Click Load to place its exact public prompt in the editor.'
+    : 'Custom prompt mode. No fixed protocol label will be attached.';
+});
 const trialLimit = document.getElementById('trial-limit');
 const trialApprove = document.getElementById('trial-approve');
 const trialRun = document.getElementById('trial-run');
@@ -197,8 +230,15 @@ async function scan() {
 button.addEventListener('click',scan);
 
 function jsonForTrial(model,prompt){
-  return JSON.stringify({model,prompt,approve_once:true,
-    max_output_tokens:Number(trialLimit.value)});
+  const max_output_tokens=Number(trialLimit.value);
+  const payload={model,prompt,approve_once:true,max_output_tokens};
+  if(trialProtocol.value){
+    if(loadedProtocolId!==trialProtocol.value ||
+       !exactProtocolMatch(trialProtocol.value,prompt,max_output_tokens))
+      throw new Error('TRIAL_PROTOCOL_CHANGED');
+    payload.protocol_id=trialProtocol.value;
+  }
+  return JSON.stringify(payload);
 }
 trialRun.addEventListener('click',async()=>{
   if(!trialModeEnabled)return;
@@ -212,6 +252,15 @@ trialRun.addEventListener('click',async()=>{
   }
   if(!trialApprove.checked){
     trialStatus.textContent='Check the explicit approval box for this one prompt.';return;
+  }
+  // Fail before opening the confirmation dialog if a selected protocol
+  // was not loaded or its fixed prompt/output limit was changed.
+  if(trialProtocol.value &&
+     (loadedProtocolId!==trialProtocol.value ||
+      !exactProtocolMatch(trialProtocol.value,prompt,Number(trialLimit.value)))){
+    trialStatus.textContent='Selected protocol is missing or edited. Load its exact prompt again, or select Custom.';
+    trialApprove.checked=false;
+    return;
   }
   if(!window.confirm(`Send this ONE prompt to local Ollama model "${model}"? No cloud calls or automatic follow-ups are authorized.`))
     return;
