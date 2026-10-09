@@ -571,3 +571,7 @@ canary influence records. Selection, authorization, attempt and recorded
 completion are separate claims; completion is **not independently verified**.
 The React inspector recognizes the resulting redacted schema without treating
 it as live or as an executor grant. No production HTML bytes are changed.
+
+### Manual Scout qualification handoff (SPV-SCOUT-01)
+
+The React Vessie cockpit includes a **SCOUT HANDOFF** tab to review operator-pasted `phibot.scout-vessie-handoff.v0.1` JSON from a real Windows PhiBot Scout qualification. The UI recomputes source freshness but **does not verify the SHA digest** (it has no original receipt bytes), authenticate model execution, or grant any capability. No network, model, routing or memory connection is implemented. See [operator guide](docs/SCOUT_HANDOFF_REACT.md).
