@@ -131,6 +131,23 @@
         </table>
       </div>
       <p id="bench-footnote" class="footnote">No automatic winner, no benchmark grade, no quality gate. A human review may only match a response by its model and output hash. Timing data is Ollama-reported, not hardware-attested.</p>
+      <h3 id="cohort-heading">Protocol cohorts · descriptive coverage</h3>
+      <p class="classification-note">Only observations labeled with a known public protocol and its original token limit are grouped. These are counts and medians, not fair-test certification, independent samples, a leaderboard or BrainC selection.</p>
+      <label class="trial-label" for="cohort-protocol-filter">Show protocol</label>
+      <select id="cohort-protocol-filter" class="trial-field">
+        <option value="ALL">All fixed public protocols</option>
+      </select>
+      <div class="bench-scroll">
+        <table class="bench-table" aria-labelledby="cohort-heading">
+          <thead><tr>
+            <th>Protocol</th><th>Model</th><th>Receipt count</th><th>Human reviews</th>
+            <th>Median wall</th><th>Median load</th><th>Median generation rate</th>
+            <th>Evidence gaps (advisory)</th>
+          </tr></thead>
+          <tbody id="cohort-rows"><tr><td colspan="8">No labeled protocol observations in this bench.</td></tr></tbody>
+        </table>
+      </div>
+      <p id="cohort-status" role="status" aria-live="polite" class="footnote">No protocol cohort observations yet. Older custom receipts remain visible above.</p>
     </section>
     <section class="scope">
       <h2>Connected, but governed</h2>
