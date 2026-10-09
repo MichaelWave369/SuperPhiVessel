@@ -180,3 +180,20 @@ test('PB10 no network, persistence, automatic sorting winner, or non-redacted ou
   assert.equal(typeof data.entries[0].response,'undefined');
   assert.ok(Object.isFrozen(data));
 });
+
+
+test('PB11 fixed protocol identity roundtrips; legacy bundles without protocol fields still import',()=>{
+  const tagged=sanitizeBenchEvidence(rawPerformance({protocol_id:'governance-one-sentence-v1'}));
+  assert.equal(tagged.protocol_id,'governance-one-sentence-v1');
+  const b=bundle([tagged]);
+  const restored=importPortableBench([],JSON.parse(JSON.stringify(b)));
+  assert.equal(restored[0].protocol_id,'governance-one-sentence-v1');
+  const legacy=JSON.parse(JSON.stringify(bundle([sanitizeBenchEvidence(rawPerformance())])));
+  delete legacy.entries[0].protocol_id;
+  const old=importPortableBench([],legacy);
+  assert.equal(old[0].protocol_id,null);
+  assert.equal(buildBenchSummary(old).rows[0].protocol_id,null);
+  const poisoned=JSON.parse(JSON.stringify(b));
+  poisoned.entries[0].protocol_id='PAID-CLOUD-OVERRIDE';
+  assert.throws(()=>importPortableBench([],poisoned),/BUNDLE_PROTOCOL_INVALID/);
+});
