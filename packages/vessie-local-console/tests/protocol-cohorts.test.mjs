@@ -113,7 +113,8 @@ test('PC04 custom older receipts stay visible in main bench but not protocol coh
   assert.equal(result.labeled_comparable_receipt_count,0);
 });
 test('PC05 public protocol label with wrong output cap is explicitly excluded',()=>{
-  const mislabeled=p({protocol_id:'code-bug-v1',max_output_tokens_requested:64});
+  const mislabeled=p({protocol_id:'code-bug-v1',max_output_tokens_requested:64,
+    generated_text_sha256:B,timestamp:'2026-10-08T22:47:00.000Z'});
   const result=buildProtocolCohorts([mislabeled,p()]);
   assert.equal(result.inconsistent_protocol_cap_receipt_count,1);
   assert.equal(result.labeled_comparable_receipt_count,1);
