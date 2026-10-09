@@ -382,7 +382,7 @@ function renderBench(){
   if(summary.rows.length===0){
     const tr=document.createElement('tr');
     const td=document.createElement('td');
-    td.colSpan=9;
+    td.colSpan=10;
     td.textContent='No performance receipts yet. Human reviews without matching performance receipts remain unpaired.';
     tr.append(td);benchRows.append(tr);
   }
@@ -390,6 +390,7 @@ function renderBench(){
     const tr=document.createElement('tr');
     const colValues=[
       row.model+' · '+row.observed_at.slice(0,16).replace('T',' ')+' UTC',
+      row.protocol_id??'Unlabeled/custom',
       fmtMs(row.wall_ms),
       fmtMs(row.model_load_ms),
       fmtMs(row.prompt_eval_ms),
