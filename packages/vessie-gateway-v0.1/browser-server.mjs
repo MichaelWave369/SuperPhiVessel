@@ -240,7 +240,7 @@ export async function startBrowserGateway({
         }finally{scoutBusy=false;}
         return;
       }
-      if(['/v1/status','/v1/models','/v1/session','/v1/scout'].includes(route)){
+      if(['/v1/status','/v1/models','/v1/session',...(scoutRead?['/v1/scout']:[])].includes(route)){
         send(res,405,errorBody('METHOD_DENIED'),PAIRED_ORIGIN);return;
       }
       send(res,404,errorBody('NOT_AVAILABLE'),PAIRED_ORIGIN);
