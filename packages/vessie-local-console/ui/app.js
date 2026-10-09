@@ -426,6 +426,10 @@ function renderBench(){
     summary.unpaired_human_reviews+' unpaired reviews. '+
     'Rows are not ranked. A shared model+output hash links a human review to an answer, not to verified hardware or route authority. Imported JSON is user-selected and unauthenticated.';
 }
+function fmtCohortMedianMs(value){
+  return typeof value==='number'&&Number.isFinite(value)&&value>=0
+    ?(value/1000).toFixed(2)+' s':'Not reported';
+}
 function renderProtocolCohorts(){
   const result=buildProtocolCohorts(benchEntries);
   const selected=cohortFilter.value;
@@ -447,8 +451,9 @@ function renderProtocolCohorts(){
       cohort.protocol_title,cohort.model,
       String(cohort.observation_count),
       cohort.human_reviewed_observation_count+' / '+cohort.observation_count+
-        ' (ratings: '+cohort.usefulness_rated_observation_count+')',
-      fmtMs(cohort.median_wall_ms),fmtMs(cohort.median_load_ms),
+        ' (rated: '+cohort.usefulness_rated_observation_count+
+        ', fact checks reported: '+cohort.operator_reported_claims_checked_count+')',
+      fmtCohortMedianMs(cohort.median_wall_ms),fmtCohortMedianMs(cohort.median_load_ms),
       cohort.median_generation_tokens_per_sec===null
         ? 'Not reported'
         : cohort.median_generation_tokens_per_sec.toFixed(1)+' tokens/s',
