@@ -1,6 +1,8 @@
 import {useRef,useState} from 'react';
 import {createBundle,appendEvent,inspectBundle,importBundle,closureReceipt} from './anti-m.mjs';
 import type {AntiMBundle,AntiMState} from './anti-m.mjs';
+import {validateAntiMProposal} from './company-anti-m-handoff.mjs';
+import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
 const ACTIONS=['REPO_WRITE','DEPLOY','EXTERNAL_POST','SPEND','CREDENTIAL_USE','OTHER_EFFECT'] as const;
 const METHODS=['CI_RUN','HUMAN_TEST','ARTIFACT_HASH','OTHER'] as const;
@@ -10,7 +12,9 @@ function saveJSON(data:unknown,name:string){
   document.body.appendChild(link);link.click();link.remove();
   window.setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-export default function AntiMPanel(){
+export default function AntiMPanel({handoffProposal,onHandoffConsumed}:{
+  handoffProposal:AntiMProposal|null;onHandoffConsumed:()=>void;
+}){
   const [bundle,setBundle]=useState<AntiMBundle|null>(null);
   const [view,setView]=useState<AntiMState|null>(null);
   const [busy,setBusy]=useState(false);
@@ -60,6 +64,30 @@ export default function AntiMPanel(){
     </div>
     <div className="notice"><strong>Local verification is not proof of external success</strong>
       <p>VERIFIED_DONE_LOCAL means the operator reviewed passing evidence and the journal replays with a valid local SHA-256 chain. URLs and CI outcomes are operator-entered, not fetched or authenticated here. No real deployment, credential access, spending, or agent execution happens from this tab.</p></div>
+    {handoffProposal&&<div className="antiMCard antiMForm" aria-label="Pending Company Mode proposal">
+      <div className="antiMCardTitle"><h3>Company Mode → Anti-M draft proposal</h3><span>NOT AN APPROVAL OR RECEIPT</span></div>
+      <p className="antiMDeliverable">From {handoffProposal.source.company} / {handoffProposal.source.nodeId}: {handoffProposal.draft.title}</p>
+      <p className="smallNote">Proposed deliverable: {handoffProposal.draft.deliverable}. Check: {handoffProposal.draft.criteria[0]}.</p>
+      <p className="smallNote">Dependencies: {handoffProposal.source.dependencies.join(', ')||'none'} (NOT verified here).
+        Consequential action: {handoffProposal.source.risk} (NOT approved here).
+        No evidence, previous reviews, budget authority or permissions transfer.</p>
+      {bundle&&<p className="smallNote">An Anti-M contract is already open. Export or close it and start another before using this proposal.</p>}
+      <div className="antiMButtons">
+        <button type="button" disabled={!!bundle||busy} onClick={()=>{
+          try{
+            const p=validateAntiMProposal(handoffProposal);
+            setTitle(p.draft.title);setDeliverable(p.draft.deliverable);
+            setCriteria(p.draft.criteria.join('\n'));
+            if(p.source.risk!=='NONE'){
+              setKind(p.source.risk);setActionText(p.draft.deliverable);
+            }
+            setError('');onHandoffConsumed();
+          }catch{setError('ANTIM_HANDOFF_REJECTED');}
+        }}>COPY DRAFT INTO EMPTY CONTRACT FORM →</button>
+        <button type="button" onClick={onHandoffConsumed}>DISMISS PROPOSAL</button>
+      </div>
+      <p className="smallNote">Copies draft text only. After freezing a new Anti-M contract, declare any consequential action and independently enter and review fresh evidence. This is a manual step.</p>
+    </div>}
     {!bundle?<form className="antiMCard antiMForm" onSubmit={e=>{
       e.preventDefault();
       const lines=criteria.split('\n').map(x=>x.trim()).filter(Boolean);
