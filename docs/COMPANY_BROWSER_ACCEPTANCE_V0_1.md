@@ -13,7 +13,7 @@ This is an executable **Chromium Playwright acceptance suite** for the actual Ve
 7. Reload the page. Verify there is no automatic unlock or workspace restore, then check that the encrypted slot is present. Wrong-passphrase recovery must fail, preserving the empty workspace.
 8. Unlock with the correct passphrase, preview the replayed archive without restoring, and explicitly restore it. Verify the Company plan, human priority review and Anti-M local journal recover, but no external DONE or action authority is granted.
 9. Separate negative-control test changes a byte of stored ciphertext, reloads the app, and verifies correct-password decryption fails with no Company state mutation.
-10. Assert no external HTTP requests are triggered during the acceptance journey. The suite uses only synthetic operator-entered test data, never the founder's real plans, tokens or subscriptions.
+10. Assert no **unexpected external application/network endpoints** are reached during the acceptance journey. The existing Vessie CSS references Google's static font services (fonts.googleapis.com and fonts.gstatic.com), which are explicitly allowlisted, not mistaken for a new API call. The suite uses only synthetic operator-entered test data, never real plans, tokens or subscriptions.
 
 ## Execution
 
@@ -32,6 +32,7 @@ On Windows/macOS/Linux, local browser installation may require OS-specific prere
 
 ## Trust and scope
 
+- **Network observation:** Google's externally hosted fonts remain a separate pre-existing outbound request and may disclose normal browser request metadata. This suite does not establish a strict no-network offline mode or a privacy audit of these font services.
 - **Browser acceptance passing** means the selected operator-driven UI flow behaved correctly in a GitHub-hosted Chromium CI runner for that commit. It does not independently verify production Pages deployment, service-worker offline behavior, a customer's browser environment or real GitHub write/execution permissions.
 - The acceptance tests deliberately record self-reported mock operator approvals and evidence; the strings are test fixtures, not real-world attestations.
 - Tests cannot confer agent authority, validate source truth, or turn Anti-M `VERIFIED_DONE_LOCAL` into verified external work.
