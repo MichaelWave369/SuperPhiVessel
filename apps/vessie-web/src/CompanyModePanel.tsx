@@ -11,6 +11,9 @@ import RepoHealthDesk from './RepoHealthDesk';
 import {importHealthInvestigations} from './github-repo-health.mjs';
 import MissionControlDesk from './MissionControlDesk';
 import {importMissionCandidates} from './mission-control.mjs';
+import MissionPriorityQueue from './MissionPriorityQueue';
+import {createPriorityReviewSet} from './mission-priority.mjs';
+import type {PrioritySet} from './mission-priority.mjs';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -19,6 +22,7 @@ function saveJSON(plan:CompanyPlan){
 }
 export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMProposal)=>void}){
  const [plan,setPlan]=useState<CompanyPlan|null>(null),[error,setError]=useState('');
+ const [priorityReviews,setPriorityReviews]=useState<PrioritySet|null>(null);
  const [name,setName]=useState(''),[founder,setFounder]=useState(''),[product,setProduct]=useState('');
  const [customer,setCustomer]=useState(''),[goal,setGoal]=useState(''),[budget,setBudget]=useState('0');
  const [fn,setFn]=useState(''),[output,setOutput]=useState(''),[check,setCheck]=useState('');
@@ -50,7 +54,8 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
   <div className="notice"><strong>Local planning is not verified execution</strong>
    <p>Records and reviews are self-reported. Public GitHub portfolio, issue, and CI snapshots are fetched only when you click their scan or fetch controls. No agents run, no money is spent, and no deployments or messages are sent. Exported JSON is editable and is not a signed ledger or an Anti-M receipt.</p></div>
   {!plan?<form className="antiMCard antiMForm" onSubmit={e=>{e.preventDefault();try{
-    setPlan(createCompanyPlan({name,founder,product,customer,weeklyGoal:goal,budgetLimitUsd:Number(budget)}));setError('');
+    const next=createCompanyPlan({name,founder,product,customer,weeklyGoal:goal,budgetLimitUsd:Number(budget)});
+    setPlan(next);setPriorityReviews(createPriorityReviewSet(next));setError('');
    }catch(err){setError(err instanceof Error?err.message:'COMPANY_REFUSED')}}}>
    <div className="antiMCardTitle"><h3>01 / Founder's mission</h3><span>CREATE ONE PLAN</span></div>
    <label>COMPANY<input required value={name} maxLength={120} onChange={e=>setName(e.target.value)}/></label>
@@ -194,6 +199,8 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     </div>}
     {githubInfo&&<p className="smallNote" role="status">{githubInfo}</p>}
    </div>
+   <MissionPriorityQueue plan={plan} reviews={priorityReviews}
+    onChange={setPriorityReviews} onPropose={onPropose} />
    <MissionControlDesk slots={12-plan.nodes.length} onImport={(snapshot,keys)=>{
      setPlan(importMissionCandidates(plan,snapshot,keys));
    }} />
@@ -203,14 +210,14 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
    <div className="antiMCard"><div className="antiMCardTitle"><h3>05 / Manual handoff</h3><span>NO AUTOSAVE</span></div>
     <div className="antiMButtons">
      <button type="button" onClick={()=>saveJSON(plan)}>EXPORT PLAN JSON</button>
-     <button type="button" onClick={()=>{if(window.confirm('Discard the plan? Export first.')){setPlan(null);setSelectedId('');setError('')}}}>NEW PLAN</button>
+     <button type="button" onClick={()=>{if(window.confirm('Discard the plan? Export first.')){setPlan(null);setPriorityReviews(null);setSelectedId('');setError('')}}}>NEW PLAN</button>
     </div></div>
   </>}
   <div className="antiMCard antiMForm"><div className="antiMCardTitle"><h3>Import existing company plan</h3><span>EXPLICIT · MAX 32 KiB</span></div>
    <label>PASTE JSON<textarea rows={4} value={importText} onChange={e=>setImportText(e.target.value)}/></label>
    <button type="button" className="secondaryButton" disabled={!importText.trim()} onClick={()=>{
     if(plan&&!window.confirm('Replace current plan? Export first.'))return;
-    try{const p=importCompanyPlan(importText);setPlan(p);setSelectedId(p.nodes[0]?.id||'');setError('')}
+    try{const p=importCompanyPlan(importText);setPlan(p);setPriorityReviews(createPriorityReviewSet(p));setSelectedId(p.nodes[0]?.id||'');setError('')}
     catch(e){setError(e instanceof Error?e.message:'COMPANY_REFUSED')}
    }}>IMPORT + VALIDATE →</button>
   </div>
