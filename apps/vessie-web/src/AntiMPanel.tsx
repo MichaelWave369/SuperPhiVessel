@@ -39,7 +39,7 @@ export default function AntiMPanel(){
     }catch(e){setError(e instanceof Error&&/^ANTIM_[A-Z_]+$/.test(e.message)?e.message:'ANTIM_REFUSED');}
     finally{lock.current=false;setBusy(false);}
   }
-  function add(type:string,payload:object){
+  function add(type:string,payload:Record<string,unknown>){
     if(!bundle)return;
     void execute(()=>appendEvent(bundle,type,payload));
   }
