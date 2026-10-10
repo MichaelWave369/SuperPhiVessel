@@ -103,7 +103,7 @@ jobs:
         shell: bash
         run: |
           node --input-type=module <<'NODE'
-          import {writeFileSync,existsSync} from 'node:fs';
+          import {writeFileSync,readFileSync,existsSync} from 'node:fs';
           import {resolve} from 'node:path';
           const file=resolve('site/vessie/deploy-provenance.json');
           if(!existsSync('site/vessie/index.html'))throw Error('COCKPIT_BUILD_MISSING');
@@ -122,6 +122,11 @@ jobs:
             deployedBrowserVerified:false,
             independentlyAttestedExternalDone:false
           };
+          const htmlFile=resolve('site/vessie/index.html');
+          const html=readFileSync(htmlFile,'utf8');
+          if(!html.includes('</head>'))throw Error('COCKPIT_HEAD_MISSING');
+          writeFileSync(htmlFile,html.replace('</head>',
+            '<meta name="spv-pages-build-sha" content="'+sha+'"></head>'));
           writeFileSync(file,JSON.stringify(proof)+'\n');
           console.log('pages-provenance-generated: '+sha+' run '+runId);
           NODE
