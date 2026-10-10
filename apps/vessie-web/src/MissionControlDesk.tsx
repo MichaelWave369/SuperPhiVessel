@@ -41,7 +41,7 @@ export default function MissionControlDesk({slots,onImport}:{
       }finally{if(requestId.current===id)setBusy(false)}
     }}>{busy?'SCANNING PUBLIC REPOSITORIES…':'SCAN PORTFOLIO (GET ONLY) →'}</button>
    {snapshot&&<div className="missionResults">
-    <p className="smallNote">Coverage is limited to the first page from each API. **UNAVAILABLE** means a source failed to load, not that it is healthy or empty. Zero observed failures is not a green release gate.</p>
+    <p className="smallNote">Coverage is limited to the first page from each API. UNAVAILABLE means a source failed to load, not that it is healthy or empty. Zero observed failures is not a green release gate.</p>
     <div className="missionSummaryList">
       {summary.map(row=><div key={row.repository} className="missionRepo">
         <strong>{row.repository}</strong>
@@ -56,7 +56,7 @@ export default function MissionControlDesk({slots,onImport}:{
     </div>
     <div className="antiMCardTitle"><h3>Review candidate work</h3>
       <span>{candidates.length} OBSERVED CANDIDATES · {selected.length} SELECTED</span></div>
-    <p className="smallNote">Failed or timed-out latest sampled workflows appear before open issues within each repository. This is **not** a computed business priority ranking. Every selected item becomes a new, unapproved REPO_WRITE investigation or issue follow-up; none carries PASS evidence or prior approval.</p>
+    <p className="smallNote">Failed or timed-out latest sampled workflows appear before open issues within each repository. This is not a computed business priority ranking. Every selected item becomes a new, unapproved REPO_WRITE investigation or issue follow-up; none carries PASS evidence or prior approval.</p>
     <div className="githubIssueList missionCandidateList">
       {candidates.map(item=><label className="githubIssuePick" key={item.key}>
        <input type="checkbox" checked={selected.includes(item.key)}
