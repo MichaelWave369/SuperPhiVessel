@@ -136,3 +136,10 @@
 .completionJournal strong{color:#b9f0d5;font-size:12px}
 .completionJournal small{font:10px/1.5 'DM Mono',monospace;color:#c1d6ca;overflow-wrap:anywhere}
 .completionJournal code{overflow-wrap:anywhere;word-break:break-all}
+
+
+/* SPV-COMPANY-09: visible local archive checksum and file control. */
+.archiveHash{overflow-wrap:anywhere;word-break:break-all;user-select:all}
+.antiMForm input[type="file"]{width:100%;max-width:100%;min-width:0;background:#10242b;border:1px solid #3a555f;color:#c8ebdf;padding:11px;font:12px/1.5 'DM Mono',monospace}
+.antiMForm input[type="file"]::file-selector-button{background:#29493f;border:1px solid #659c84;color:#d4f9de;margin-right:12px;padding:7px 10px;cursor:pointer}
+.antiMForm input[type="file"]:focus-visible{outline:2px solid #a0ecc2;outline-offset:3px}
