@@ -6,8 +6,9 @@ import { inspectReceipt } from './inspector.mjs';
 import PairingPanel from './PairingPanel';
 import CloudEvidencePanel from './CloudEvidencePanel';
 import ScoutHandoffPanel from './ScoutHandoffPanel';
+import AntiMPanel from './AntiMPanel';
 
-type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout';
+type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m';
 type Inspection = ReturnType<typeof inspectReceipt>;
 const PAGES = [
   ['overview','OVERVIEW','01'],
@@ -17,6 +18,7 @@ const PAGES = [
   ['evidence','RECEIPT INSPECTOR','05'],
   ['cloud','CLOUD EVIDENCE','06'],
   ['scout','SCOUT HANDOFF','07'],
+  ['anti-m','ANTI-M / FINISH','08'],
 ] as const;
 const MODELS = [
   ...catalog.local_candidates.map((x)=>({
@@ -193,6 +195,7 @@ function App() {
             <p className="lede">Display an operator-copied PhiBot Scout qualification as self-reported evidence. No model routing, memory, action authority or live bot connection is enabled.</p>
             <ScoutHandoffPanel gatewaySession={gatewaySession} />
           </section>}
+          {view==='anti-m'&&<AntiMPanel />}
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>
             <h1>Receipt <em>Inspector.</em></h1>

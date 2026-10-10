@@ -42,3 +42,49 @@
 .scoutFacts small{display:block;font:10px 'DM Mono',monospace;letter-spacing:.07em;color:#8bb9b5}
 .scoutFacts strong{display:block;font:13px 'DM Mono',monospace;color:#ccf5df;margin-top:10px;overflow-wrap:anywhere}
 @media(max-width:700px){.scoutPanel{padding:14px}.scoutFacts{grid-template-columns:1fr}.scoutPanel .inspectActions{flex-wrap:wrap}}
+
+
+/* SPV-AM-01: operator-owned completion ledger, no runtime adapter. */
+.antiM{display:grid;gap:20px}.antiMHeading{display:flex;justify-content:space-between;align-items:center;gap:25px;flex-wrap:wrap}
+.antiMHeading h2{font-size:clamp(36px,4vw,60px);letter-spacing:-.06em;margin:0;color:#e5fff1}
+.antiMHeading h2 span{font-size:.45em;color:#8cf2bc;font-family:'DM Mono',monospace}
+.antiMHeading p:not(.eyebrow){font-size:13px;line-height:1.65;color:#92b1b2;max-width:610px}
+.antiMStatus{border:1px solid #3e766a;background:#10292a;padding:17px 20px;min-width:220px}
+.antiMStatus small,.antiMStatus span{display:block;color:#80aba6;font:10px 'DM Mono',monospace;letter-spacing:.06em}
+.antiMStatus strong{display:block;overflow-wrap:anywhere;color:#b6ffcb;font:16px 'DM Mono',monospace;margin:13px 0}
+.antiMCard{background:#0e1c28;border:1px solid #2e4a52;padding:23px;min-width:0}
+.antiMCardTitle{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:17px}
+.antiMCardTitle h3{font-size:17px;font-weight:600;margin:0;color:#dcffe7}
+.antiMCardTitle span{font:10px 'DM Mono',monospace;color:#7cb8aa;overflow-wrap:anywhere}
+.antiMForm{display:grid;gap:14px}
+.antiMForm label,.antiMReviewer{display:grid;gap:9px;color:#98c7b8;font:10px 'DM Mono',monospace;letter-spacing:.07em}
+.antiMForm input,.antiMForm textarea,.antiMForm select,.antiMReviewer input{width:100%;min-width:0;color:#dcfbea;border:1px solid #3b555c;background:#0b1822;padding:13px;font:12px/1.5 'DM Mono',monospace;outline:none}
+.antiMForm input:focus,.antiMForm textarea:focus,.antiMForm select:focus,.antiMReviewer input:focus{border-color:#9af7c3}
+.antiMForm textarea{resize:vertical}.antiMForm button{justify-self:start}
+.antiMColumns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:start}
+.antiMInline{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.antiMDeliverable{font-size:14px;line-height:1.6;color:#9cbeb5}
+.antiMCriteria{display:grid;gap:11px;margin-top:20px}
+.antiMCriterion{display:flex;gap:15px;align-items:start;border:1px solid #2d484f;padding:14px}
+.antiMCheck{font-size:22px;color:#728e90}.antiMCheck.pass{color:#a6f5bb}
+.antiMCriterion>div{min-width:0;flex:1}.antiMCriterion strong{font-size:13px;color:#d8f3e3;display:block}
+.antiMCriterion small{display:block;color:#91c1b0;font:10px 'DM Mono',monospace;margin:9px 0}
+.antiMCriterion p{font-size:12px;color:#a5b7b8;overflow-wrap:anywhere;line-height:1.6}
+.antiMCriterion code,.antiMFoot code{overflow-wrap:anywhere}
+.antiMButtons{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
+.antiMButtons button,.antiMAction button{background:#153d3b;border:1px solid #4d8372;color:#d7f3e3;padding:9px 12px;font:10px 'DM Mono',monospace}
+.antiMAction{border-top:1px solid #345058;padding:16px 0}
+.antiMAction strong{color:#a3efd1;font:11px 'DM Mono',monospace}
+.antiMAction p{color:#d7e8de;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.antiMAction small{color:#8cafaf;font:10px/1.6 'DM Mono',monospace}
+.antiMReadiness{margin:20px 0;background:#122932;border:1px solid #355359;padding:15px;color:#afe9d4;font-size:12px}
+.antiMReadiness ul{padding-left:20px;margin:0;line-height:1.9}.antiMReadiness strong{color:#b2f6c7}
+.antiMDone{border:1px solid #4a8466;background:#10382f;padding:18px;margin:15px 0;color:#c8f6dc}
+.antiMDone strong{font:16px 'DM Mono',monospace}.antiMDone p{font-size:12px;line-height:1.6}
+.antiMFoot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#7ca6a5;font:10px/1.5 'DM Mono',monospace;padding-top:18px;border-top:1px solid #29464b;margin-top:25px}
+.antiMHistory{border-top:1px solid #29464b;margin-top:22px;padding-top:15px;font-size:12px;color:#9ec5b9}
+.antiMHistory summary{cursor:pointer}.antiMHistory ol{padding-left:22px;line-height:2}
+.antiMHistory li{overflow-wrap:anywhere}.antiMHistory span{margin:0 10px;color:#87a7a6}
+.antiM button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:850px){.antiMColumns{grid-template-columns:1fr}}
+@media(max-width:600px){.antiMCard{padding:15px}.antiMInline{grid-template-columns:1fr}.antiMHeading h2{font-size:34px}}
