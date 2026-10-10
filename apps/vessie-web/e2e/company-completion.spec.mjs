@@ -26,7 +26,7 @@ async function createCompany(page){
  await box.getByLabel('CUSTOMER',{exact:true}).fill('Internal pilot');
  await box.getByLabel('WEEKLY GOAL',{exact:true}).fill('Demonstrate review and recovery');
  await box.getByRole('button',{name:/CREATE PLAN/}).click();
- await expect(box.getByText(COMPANY,{exact:true})).toBeVisible();
+ await expect(box.getByRole('heading',{name:'01 / '+COMPANY})).toBeVisible();
 }
 async function createNode(page){
  const box=company(page);
@@ -138,7 +138,7 @@ test('founder flow: human triage -> Anti-M local journal -> encrypted save -> re
  await expect(v.getByText(/Anti-M journals replayed: 1/)).toBeVisible();
  await expect(company(page).getByRole('button',{name:/CREATE PLAN/})).toBeVisible();
  await v.getByRole('button',{name:/RESTORE DECRYPTED WORKSPACE/}).click();
- await expect(company(page).getByText(COMPANY,{exact:true})).toBeVisible();
+ await expect(company(page).getByRole('heading',{name:'01 / '+COMPANY})).toBeVisible();
  await expect(priority(page).getByText(/1 reviewed active/)).toBeVisible();
  await expect(completion(page).getByText('Anti-M: VERIFIED_DONE_LOCAL')).toBeVisible();
  await expect(completion(page).getByText(/ACTION REVIEW HELD/).first()).toBeVisible();
