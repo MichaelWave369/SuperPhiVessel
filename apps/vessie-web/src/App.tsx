@@ -8,6 +8,7 @@ import CloudEvidencePanel from './CloudEvidencePanel';
 import ScoutHandoffPanel from './ScoutHandoffPanel';
 import AntiMPanel from './AntiMPanel';
 import CompanyModePanel from './CompanyModePanel';
+import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
 type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m' | 'company';
 type Inspection = ReturnType<typeof inspectReceipt>;
@@ -42,6 +43,8 @@ const LANES = [
 
 function App() {
   const [view,setView]=useState<View>('overview');
+  // Keep both offline workspaces alive across tab switches; neither is persisted after reload.
+  const [companyProposal,setCompanyProposal]=useState<AntiMProposal|null>(null);
   // One ephemeral gateway session across Model Fabric and Scout tabs.
   // No localStorage, remote token transmission, auto-pair or background probe.
   const [gatewaySession,setGatewaySession]=useState<string|null>(null);
@@ -197,8 +200,12 @@ function App() {
             <p className="lede">Display an operator-copied PhiBot Scout qualification as self-reported evidence. No model routing, memory, action authority or live bot connection is enabled.</p>
             <ScoutHandoffPanel gatewaySession={gatewaySession} />
           </section>}
-          {view==='anti-m'&&<AntiMPanel />}
-          {view==='company'&&<CompanyModePanel />}
+          <div style={{display:view==='anti-m'?'block':'none'}} aria-hidden={view!=='anti-m'}>
+            <AntiMPanel handoffProposal={companyProposal} onHandoffConsumed={()=>setCompanyProposal(null)} />
+          </div>
+          <div style={{display:view==='company'?'block':'none'}} aria-hidden={view!=='company'}>
+            <CompanyModePanel onPropose={proposal=>{setCompanyProposal(proposal);setView('anti-m');}} />
+          </div>
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>
             <h1>Receipt <em>Inspector.</em></h1>
