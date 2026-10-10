@@ -65,7 +65,9 @@ test('founder flow: human triage -> Anti-M local journal -> encrypted save -> re
  const outside=[];
  page.on('request',request=>{
   const target=new URL(request.url());
-  if(!['127.0.0.1','localhost'].includes(target.hostname))outside.push(request.url());
+  // Vessie's existing stylesheet uses Google Fonts; these are static assets, not app APIs.
+  const allowed=new Set(['127.0.0.1','localhost','fonts.googleapis.com','fonts.gstatic.com']);
+  if(!allowed.has(target.hostname))outside.push(request.url());
  });
  await page.goto('.');
  await createCompany(page);
