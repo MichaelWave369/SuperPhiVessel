@@ -3,6 +3,8 @@ import {createCompanyPlan,addCompanyNode,companyProjection,recordActionReview,re
 import type {CompanyPlan,CompanyRisk,CompanyMethod} from './company-mode.mjs';
 import {proposeAntiMFromCompany} from './company-anti-m-handoff.mjs';
 import type {AntiMProposal} from './company-anti-m-handoff.mjs';
+import {previewRepoRiderIntake,applyRepoRiderIntake} from './reporider-intake.mjs';
+import type {RepoRiderIntakePreview} from './reporider-intake.mjs';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -18,6 +20,8 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
  const [selectedId,setSelectedId]=useState(''),[method,setMethod]=useState<CompanyMethod>('CI_RUN');
  const [result,setResult]=useState<'PASS'|'FAIL'>('PASS'),[reference,setReference]=useState(''),[summary,setSummary]=useState('');
  const [importText,setImportText]=useState('');
+ const [repoRiderText,setRepoRiderText]=useState('');
+ const [repoRiderPreview,setRepoRiderPreview]=useState<RepoRiderIntakePreview|null>(null);
  const view=plan?companyProjection(plan):null;
  const activeId=selectedId||plan?.nodes[0]?.id||'';
  function apply(change:(p:CompanyPlan)=>CompanyPlan){
@@ -103,6 +107,31 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     <p className="smallNote">Recording a new check replaces the prior value and clears its review. This is not an append-only audit history.</p>
    </form>}
    <p className="smallNote">Company → Anti-M proposes only the selected node's function, output and check. Dependencies and action type remain informational; previous evidence, reviews and approvals never transfer. Anti-M still requires a separate founder click to freeze the contract.</p>
+   <div className="antiMCard antiMForm">
+    <div className="antiMCardTitle"><h3>RepoRider / Proposed task intake</h3><span>MANUAL MOCK RECEIPT · READ-ONLY SOURCE</span></div>
+    <p className="smallNote">Paste a typed RepoRider Ride Complete JSON receipt (format: reporider.ride-receipt.v1), not an OAuth token, raw repository ZIP, or live GitHub issue list. RepoRider's mock export only describes proposed work. The preview does not change this Company plan.</p>
+    <label>REPORIDER MOCK RECEIPT JSON · MAX 256 KiB
+     <textarea rows={5} spellCheck={false} value={repoRiderText} onChange={e=>{setRepoRiderText(e.target.value);setRepoRiderPreview(null);}} placeholder='{"format":"reporider.ride-receipt.v1", ...}' />
+    </label>
+    <button type="button" className="secondaryButton" disabled={!repoRiderText.trim()} onClick={()=>{
+     try{setRepoRiderPreview(previewRepoRiderIntake(repoRiderText));setError('')}
+     catch(err){setRepoRiderPreview(null);setError(err instanceof Error?err.message:'REPORIDER_INTAKE_REFUSED')}
+    }}>PREVIEW PROPOSED TASKS (NO CHANGES) →</button>
+    {repoRiderPreview&&<div className="antiMReadiness">
+      <strong>Self-reported mock source: {repoRiderPreview.repositoryUrl}</strong>
+      <p>Queued starter files: {repoRiderPreview.queuedFileCount}. Claimed local safety status: {repoRiderPreview.safetyStatus}. Neither claim is independently verified. Nothing has been created on GitHub.</p>
+      <p>These issue titles will become separate unapproved REPO_WRITE nodes. No evidence, approved state, or permission is transferred:</p>
+      <ol>{repoRiderPreview.titles.map((title,i)=><li key={i}>{title}</li>)}</ol>
+      <p>Available Company graph slots: {12-plan.nodes.length}. Incoming tasks: {repoRiderPreview.titles.length}.</p>
+      <button type="button" className="primaryButton" disabled={repoRiderPreview.titles.length>12-plan.nodes.length}
+       onClick={()=>{
+        try{
+         setPlan(applyRepoRiderIntake(plan,repoRiderPreview));
+         setRepoRiderPreview(null);setRepoRiderText('');setError('');
+        }catch(err){setError(err instanceof Error?err.message:'REPORIDER_INTAKE_REFUSED')}
+       }}>ADD PROPOSED TASKS TO GRAPH →</button>
+    </div>}
+   </div>
    <div className="antiMCard"><div className="antiMCardTitle"><h3>05 / Manual handoff</h3><span>NO AUTOSAVE</span></div>
     <div className="antiMButtons">
      <button type="button" onClick={()=>saveJSON(plan)}>EXPORT PLAN JSON</button>
