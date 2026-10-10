@@ -42,6 +42,8 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
  const [githubLoading,setGithubLoading]=useState(false);
  const [githubInfo,setGithubInfo]=useState('');
  const githubRequestId=useRef(0);
+ const latestPlanRef=useRef(plan);
+ latestPlanRef.current=plan;
  const view=plan?companyProjection(plan):null;
  const activeId=selectedId||plan?.nodes[0]?.id||'';
  function apply(change:(p:CompanyPlan)=>CompanyPlan){
@@ -206,7 +208,8 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
    <CompletionDashboard plan={plan} priorities={priorityReviews} links={journalLinks}
     onPropose={onPropose}
     onAttach={link=>{
-      validateCompletionLink(plan,link);
+      if(!latestPlanRef.current)throw Error('COMPLETION_PLAN_CHANGED');
+      validateCompletionLink(latestPlanRef.current,link);
       setJournalLinks(existing=>[...existing.filter(item=>item.node.id!==link.node.id),link]);
     }}
     onClear={id=>setJournalLinks(existing=>existing.filter(item=>item.node.id!==id))} />
