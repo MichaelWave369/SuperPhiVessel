@@ -1,0 +1,74 @@
+name: vessie-thinktank-two-app-acceptance
+
+on:
+  pull_request:
+    paths:
+      - "apps/vessie-web/e2e/two-app-thinktank-roundtrip.spec.mjs"
+      - "apps/vessie-web/playwright.two-app.config.mjs"
+      - "apps/vessie-web/playwright.acceptance.config.mjs"
+      - ".github/workflows/vessie-thinktank-two-app-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/vessie-web/e2e/two-app-thinktank-roundtrip.spec.mjs"
+      - "apps/vessie-web/playwright.two-app.config.mjs"
+      - "apps/vessie-web/playwright.acceptance.config.mjs"
+      - ".github/workflows/vessie-thinktank-two-app-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-repo-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout current SuperPhiVessel source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout reviewed immutable ThinkTank PR 34 merge revision
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/think-tank
+          ref: c2cdb112eeac0cb4b07b5b128299cabce9f8bfe6
+          path: think-tank
+          persist-credentials: false
+      - name: Verify exact ThinkTank revision pinned by test contract
+        working-directory: think-tank
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "c2cdb112eeac0cb4b07b5b128299cabce9f8bfe6"
+          test -f src/spvHandoff.ts
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Vessie dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-audit --no-fund
+      - name: Install pinned real Chromium acceptance runner
+        working-directory: apps/vessie-web
+        run: npm install --no-save --no-package-lock --no-audit --no-fund @playwright/test@1.56.1
+      - name: Install pinned ThinkTank application dependencies (NO API keys)
+        working-directory: think-tank
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium and system dependencies
+        working-directory: apps/vessie-web
+        run: npx playwright install --with-deps chromium
+      - name: Test REAL local two-app roundtrip, no provider bridge, no cloud models
+        working-directory: apps/vessie-web
+        env:
+          CI: "true"
+        run: npx playwright test --config=playwright.two-app.config.mjs
+      - name: Preserve browser failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spv-thinktank-two-app-browser-failures
+          path: |
+            apps/vessie-web/test-results
+            apps/vessie-web/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7

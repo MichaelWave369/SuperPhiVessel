@@ -3,6 +3,9 @@ import {defineConfig,devices} from '@playwright/test';
 export default defineConfig({
  testDir:'./e2e',
  testMatch:'*.spec.mjs',
+ // The cross-repo roundtrip requires a second real ThinkTank app.
+ // It has a separate pinned two-app workflow and server configuration.
+ testIgnore:'two-app-thinktank-roundtrip.spec.mjs',
  fullyParallel:false,
  retries:0,
  workers:1,
