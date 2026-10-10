@@ -1,0 +1,52 @@
+name: vessie-browser-acceptance
+
+on:
+  pull_request:
+    paths:
+      - "apps/vessie-web/**"
+      - ".github/workflows/vessie-browser-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/vessie-web/**"
+      - ".github/workflows/vessie-browser-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-company-completion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Vessie dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-audit --no-fund
+      - name: Install pinned real-browser test runner without changing app dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-save --no-package-lock --no-audit --no-fund @playwright/test@1.56.1
+      - name: Install Chromium and system dependencies
+        working-directory: apps/vessie-web
+        run: npx playwright install --with-deps chromium
+      - name: Run real Chromium Company + Anti-M recovery acceptance
+        working-directory: apps/vessie-web
+        env:
+          CI: "true"
+        run: npx playwright test --config=playwright.acceptance.config.mjs
+      - name: Upload failed-browser artifacts for diagnosis
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vessie-browser-failure-artifacts
+          path: |
+            apps/vessie-web/test-results
+            apps/vessie-web/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
