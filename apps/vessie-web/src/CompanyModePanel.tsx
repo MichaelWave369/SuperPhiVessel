@@ -19,6 +19,7 @@ import {validateCompletionLink} from './completion-dashboard.mjs';
 import type {CompletionLink} from './completion-dashboard.mjs';
 import PortableArchiveDesk from './PortableArchiveDesk';
 import type {WorkspaceJournalSource} from './workspace-archive.mjs';
+import EncryptedLocalVault from './EncryptedLocalVault';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -236,6 +237,15 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     </div></div>
   </>}
   <PortableArchiveDesk plan={plan} priorities={priorityReviews} sources={journalSources}
+   onRestore={validated=>{
+     setPlan(validated.plan);
+     setPriorityReviews(validated.priorities);
+     setJournalLinks(validated.links);
+     setJournalSources(validated.journals.map(j=>({nodeId:j.nodeId,ledger:JSON.stringify(j.bundle)})));
+     setSelectedId(validated.plan.nodes[0]?.id||'');
+     setError('');
+   }} />
+  <EncryptedLocalVault plan={plan} priorities={priorityReviews} sources={journalSources}
    onRestore={validated=>{
      setPlan(validated.plan);
      setPriorityReviews(validated.priorities);
