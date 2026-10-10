@@ -79,6 +79,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Reject escaped newline characters in static landing HTML
+        run: node --test tests/site-landing-text.test.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  site-landing-html-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject visible literal newline escapes in static landing links
+        run: node --test tests/site-landing-text.test.mjs
+
   vessie-local-console-windows-zip:
     runs-on: windows-latest
     steps:
