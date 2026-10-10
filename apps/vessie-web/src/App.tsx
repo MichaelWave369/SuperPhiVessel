@@ -7,8 +7,9 @@ import PairingPanel from './PairingPanel';
 import CloudEvidencePanel from './CloudEvidencePanel';
 import ScoutHandoffPanel from './ScoutHandoffPanel';
 import AntiMPanel from './AntiMPanel';
+import CompanyModePanel from './CompanyModePanel';
 
-type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m';
+type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m' | 'company';
 type Inspection = ReturnType<typeof inspectReceipt>;
 const PAGES = [
   ['overview','OVERVIEW','01'],
@@ -19,6 +20,7 @@ const PAGES = [
   ['cloud','CLOUD EVIDENCE','06'],
   ['scout','SCOUT HANDOFF','07'],
   ['anti-m','ANTI-M / FINISH','08'],
+  ['company','COMPANY MODE','09'],
 ] as const;
 const MODELS = [
   ...catalog.local_candidates.map((x)=>({
@@ -196,6 +198,7 @@ function App() {
             <ScoutHandoffPanel gatewaySession={gatewaySession} />
           </section>}
           {view==='anti-m'&&<AntiMPanel />}
+          {view==='company'&&<CompanyModePanel />}
           {view==='evidence'&&<section>
             <div className="eyebrow">LOCAL INSPECTION / NO UPLOAD</div>
             <h1>Receipt <em>Inspector.</em></h1>
