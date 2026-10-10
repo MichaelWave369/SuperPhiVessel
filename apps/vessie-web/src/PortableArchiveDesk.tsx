@@ -28,7 +28,7 @@ export default function PortableArchiveDesk({plan,priorities,sources,onRestore}:
    if(!plan)throw Error('WORKSPACE_ARCHIVE_NO_PLAN');
    const archive=await createWorkspaceArchive(plan,priorities,sources);
    if(seq!==runId.current)return;
-   downloadJson(JSON.stringify(archive,null,2)+'\n');
+   downloadJson(JSON.stringify(archive)+'\n');
    setNotice('Portable archive generated locally. Keep your downloaded file secure. Check your browser downloads to confirm it was saved.');
   }catch(e){if(seq===runId.current)setError(e instanceof Error?e.message:'WORKSPACE_ARCHIVE_EXPORT_REFUSED')}
   finally{if(seq===runId.current)setBusy(false)}
