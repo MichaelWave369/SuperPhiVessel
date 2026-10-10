@@ -64,7 +64,7 @@ test('ThinkTank SIM dossier imports with warnings, then only human-authored task
  await b.getByLabel(/I manually reviewed this dossier/).check();
  await add.click();
  await expect(company.getByText('ACTION_REVIEW_HELD',{exact:false}).first()).toBeVisible();
- await expect(company.getByText('Investigate release regression')).toBeVisible();
+ await expect(company.getByText('think1 / Investigate release regression',{exact:true}).first()).toBeVisible();
  await expect(b.getByText(/New Company proposal added with fresh null action review/)).toBeVisible();
 });
 test('tampered dossier basis fails closed and cannot generate a Company task',async({page})=>{
