@@ -92,7 +92,7 @@ test('rejects missing/extra data, bad JSON, and oversized file',async()=>{
  const p=plan();
  const valid=await createWorkspaceArchive(p,null,[]);
  const invalid=structuredClone(valid);invalid.payload.hidden=true;
- await assert.rejects(importWorkspaceArchive(JSON.stringify(invalid)),/HASH_MISMATCH/);
+ await assert.rejects(importWorkspaceArchive(JSON.stringify(invalid)),/FIELDS/);
  await assert.rejects(importWorkspaceArchive('{'),/WORKSPACE_ARCHIVE_JSON/);
  await assert.rejects(importWorkspaceArchive('x'.repeat(1800001)),/SIZE/);
  await assert.rejects(createWorkspaceArchive(p,null,[{nodeId:'first',ledger:'{'}]),/JOURNAL_JSON/);
