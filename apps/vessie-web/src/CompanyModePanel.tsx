@@ -9,6 +9,8 @@ import {readPublicIssues,importPublicIssueTasks} from './github-public-issues.mj
 import type {GithubPublicIssuesPreview} from './github-public-issues.mjs';
 import RepoHealthDesk from './RepoHealthDesk';
 import {importHealthInvestigations} from './github-repo-health.mjs';
+import MissionControlDesk from './MissionControlDesk';
+import {importMissionCandidates} from './mission-control.mjs';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -46,7 +48,7 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     <strong>{view?.complete?'LOCAL REVIEW COMPLETE':plan?'IN PROGRESS':'NO PLAN'}</strong>
     <span>NO EXECUTOR · NO AUTO-GRANTS</span></div></div>
   <div className="notice"><strong>Local planning is not verified execution</strong>
-   <p>Records and reviews are self-reported. Public GitHub issues and CI workflow snapshots are fetched only when you click the corresponding Fetch control. No agents run, no money is spent, and no deployments or messages are sent. Exported JSON is editable and is not a signed ledger or an Anti-M receipt.</p></div>
+   <p>Records and reviews are self-reported. Public GitHub portfolio, issue, and CI snapshots are fetched only when you click their scan or fetch controls. No agents run, no money is spent, and no deployments or messages are sent. Exported JSON is editable and is not a signed ledger or an Anti-M receipt.</p></div>
   {!plan?<form className="antiMCard antiMForm" onSubmit={e=>{e.preventDefault();try{
     setPlan(createCompanyPlan({name,founder,product,customer,weeklyGoal:goal,budgetLimitUsd:Number(budget)}));setError('');
    }catch(err){setError(err instanceof Error?err.message:'COMPANY_REFUSED')}}}>
@@ -192,6 +194,9 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     </div>}
     {githubInfo&&<p className="smallNote" role="status">{githubInfo}</p>}
    </div>
+   <MissionControlDesk slots={12-plan.nodes.length} onImport={(snapshot,keys)=>{
+     setPlan(importMissionCandidates(plan,snapshot,keys));
+   }} />
    <RepoHealthDesk availableSlots={12-plan.nodes.length} onImport={(snapshot,ids)=>{
      setPlan(importHealthInvestigations(plan,snapshot,ids));
    }} />
