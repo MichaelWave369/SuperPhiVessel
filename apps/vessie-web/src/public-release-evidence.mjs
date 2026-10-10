@@ -45,12 +45,13 @@ export function parsePublicPagesReceipt(s){
 function githubRun(json,expectName){
  fail(obj(json)&&posInt(json.id)&&json.name===expectName&&
   json.head_repository?.full_name===REPO&&sha(json.head_sha)&&
-  json.head_branch==='main'&&json.status==='completed'&&
-  ['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(json.conclusion)&&
+  json.head_branch==='main'&&['queued','in_progress','completed','waiting','requested','pending'].includes(json.status)&&
+  (json.conclusion===null||['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(json.conclusion))&&
+  (json.status!=='completed'||json.conclusion!==null)&&
   date(json.created_at)&&date(json.updated_at)&&isGitUrl(json.id,json.html_url),
   'GITHUB_RUN');
  return {
-  id:json.id,sha:json.head_sha,conclusion:json.conclusion,
+  id:json.id,sha:json.head_sha,status:json.status,conclusion:json.conclusion,
   createdAt:json.created_at,updatedAt:json.updated_at,url:json.html_url,event:json.event
  };
 }
@@ -110,11 +111,11 @@ export function validateReleaseEvidence(r){
  fail(r.exactWorkflowParentIndependentlyProven===false,'PARENT');
  exact(r.pages,['id','conclusion','url']);
  fail(posInt(r.pages.id)&&isGitUrl(r.pages.id,r.pages.url)&&
-  ['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(r.pages.conclusion),'PAGES');
+  (r.pages.conclusion===null||['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(r.pages.conclusion)),'PAGES');
  if(r.smoke!==null){
   exact(r.smoke,['id','conclusion','url']);
   fail(posInt(r.smoke.id)&&isGitUrl(r.smoke.id,r.smoke.url)&&
-   ['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(r.smoke.conclusion),'SMOKE');
+   (r.smoke.conclusion===null||['success','failure','cancelled','timed_out','skipped','neutral','action_required'].includes(r.smoke.conclusion)),'SMOKE');
  }
  fail(Number.isSafeInteger(r.sampledSmokeRuns)&&r.sampledSmokeRuns>=0&&r.sampledSmokeRuns<=20,'COUNT');
  const expected=r.pages.conclusion!=='success'?'PAGES_NOT_SUCCESS':
