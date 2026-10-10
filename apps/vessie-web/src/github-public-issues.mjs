@@ -92,7 +92,7 @@ export function importPublicIssueTasks(plan,preview,numbers){
  fail(selected.length===wanted.size,'SELECTION_UNKNOWN');
  fail(plan.nodes.length+selected.length<=12,'CAPACITY');
  // Refuse duplicate visible issue links already in this plan.
- for(const issue of selected)fail(!plan.nodes.some(n=>n.check.includes(issue.url)),'ALREADY_IMPORTED');
+ for(const issue of selected)fail(!plan.nodes.some(n=>n.check.includes(issue.url+' ')),'ALREADY_IMPORTED');
  let next=plan,index=1;
  for(const issue of selected){
   let id;
