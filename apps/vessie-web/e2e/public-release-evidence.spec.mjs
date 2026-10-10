@@ -42,7 +42,7 @@ test('explicit release scan checks only public GETs and never transfers authorit
  await desk.getByRole('button',{name:/CHECK LIVE RELEASE EVIDENCE/}).click();
  await expect(desk.getByText('Public observation: PUBLIC RELEASE OBSERVED')).toBeVisible();
  await expect(desk.getByText(/Public sources agree on this deployment revision/)).toBeVisible();
- await expect(desk.getByText(/does not independently prove the exact GitHub workflow parent relationship/)).toBeVisible();
+ await expect(desk.getByText(/do not independently prove the exact GitHub workflow parent relationship/)).toBeVisible();
  expect(evidenceRequests).toHaveLength(3);
  expect(evidenceRequests.every(x=>x.startsWith('GET '))).toBe(true);
  await expect(page.locator('section[aria-label="Company Mode"]').getByRole('button',{name:/CREATE PLAN/})).toBeVisible();
