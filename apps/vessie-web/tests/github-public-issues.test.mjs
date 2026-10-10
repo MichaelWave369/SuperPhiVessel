@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCompanyPlan,companyProjection} from '../src/company-mode.mjs';
+import {createCompanyPlan,companyProjection,addCompanyNode} from '../src/company-mode.mjs';
 import {parsePublicRepo,publicIssueApiUrl,previewPublicIssues,readPublicIssues,
  validatePublicIssuePreview,importPublicIssueTasks} from '../src/github-public-issues.mjs';
 const repo='MichaelWave369/reporider';
@@ -52,19 +52,24 @@ test('refuse cross-repo URL, closed state, malformed response, duplicate numbers
  assert.throws(()=>previewPublicIssues('{',repo),/JSON/);
  assert.throws(()=>previewPublicIssues('x'.repeat(2097153),repo),/SIZE/);
 });
-test('selection and import fail closed, no partial mutation',()=>{
+test('selection, overflow, and duplicates fail closed without partial mutation',()=>{
  const p=previewPublicIssues(response(),repo),original=company(),before=JSON.stringify(original);
  assert.throws(()=>importPublicIssueTasks(original,p,[]),/SELECTION/);
  assert.throws(()=>importPublicIssueTasks(original,p,[404]),/SELECTION_UNKNOWN/);
  assert.throws(()=>importPublicIssueTasks(original,p,[30,30]),/SELECTION_NUMBER/);
  assert.equal(JSON.stringify(original),before);
- for(let i=0;i<11;i++){
-  // independent unique records from a new preview
-  const q=previewPublicIssues(JSON.stringify([issue(100+i,'Existing '+i)]),repo);
-  const updated=importPublicIssueTasks(original,q,[100+i]);
-  // base original unaffected
-  assert.equal(updated.nodes.length,1);
- }
+ let full=company();
+ for(let i=0;i<11;i++)full=addCompanyNode(full,{
+  id:'n'+i,function:'work',output:'task',check:'Manual check '+i,dependsOn:[],risk:'NONE'
+ });
+ const unchanged=JSON.stringify(full);
+ assert.throws(()=>importPublicIssueTasks(full,p,[30,31]),/CAPACITY/);
+ assert.equal(JSON.stringify(full),unchanged);
+ const prefix=previewPublicIssues(JSON.stringify([issue(3,'Track issue three'),issue(30,'Track issue thirty')]),repo);
+ let graph=importPublicIssueTasks(company(),prefix,[30]);
+ graph=importPublicIssueTasks(graph,prefix,[3]);
+ assert.equal(graph.nodes.length,2,'Issue #3 must not be mistaken for existing #30');
+ assert.throws(()=>importPublicIssueTasks(graph,prefix,[3]),/ALREADY_IMPORTED/);
 });
 test('preview cannot forge authority, URLs, or secret issue title',()=>{
  const p=previewPublicIssues(response(),repo);
