@@ -20,6 +20,7 @@ import type {CompletionLink} from './completion-dashboard.mjs';
 import PortableArchiveDesk from './PortableArchiveDesk';
 import type {WorkspaceJournalSource} from './workspace-archive.mjs';
 import EncryptedLocalVault from './EncryptedLocalVault';
+import PublicReleaseEvidenceDesk from './PublicReleaseEvidenceDesk';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -236,6 +237,7 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
      <button type="button" onClick={()=>{if(window.confirm('Discard the plan? Export first.')){setPlan(null);setPriorityReviews(null);setJournalLinks([]);setJournalSources([]);setSelectedId('');setError('')}}}>NEW PLAN</button>
     </div></div>
   </>}
+  <PublicReleaseEvidenceDesk />
   <PortableArchiveDesk plan={plan} priorities={priorityReviews} sources={journalSources}
    onRestore={validated=>{
      setPlan(validated.plan);
