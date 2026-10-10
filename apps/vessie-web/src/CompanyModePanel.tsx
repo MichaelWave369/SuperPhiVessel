@@ -22,6 +22,7 @@ import type {WorkspaceJournalSource} from './workspace-archive.mjs';
 import EncryptedLocalVault from './EncryptedLocalVault';
 import PublicReleaseEvidenceDesk from './PublicReleaseEvidenceDesk';
 import ThinkTankDecisionBridge from './ThinkTankDecisionBridge';
+import ThinkTankLocalLaunchDesk from './ThinkTankLocalLaunchDesk';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -239,6 +240,7 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     </div></div>
   </>}
   <PublicReleaseEvidenceDesk />
+  <ThinkTankLocalLaunchDesk />
   <ThinkTankDecisionBridge plan={plan} onAdd={setPlan} />
   <PortableArchiveDesk plan={plan} priorities={priorityReviews} sources={journalSources}
    onRestore={validated=>{
