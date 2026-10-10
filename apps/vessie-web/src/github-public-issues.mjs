@@ -99,7 +99,7 @@ export function importPublicIssueTasks(plan,preview,numbers){
   do{id='gh'+index++}while(next.nodes.some(n=>n.id===id));
   next=addCompanyNode(next,{id,function:'GitHub issue follow-up',
    output:'#'+issue.number+' '+issue.title,
-   check:'Verify a resolution for '+issue.url+' with fresh passing test or manual QA evidence',
+   check:'Verify '+issue.url+' with fresh passing CI or QA evidence',
    dependsOn:[],risk:'REPO_WRITE'});
  }
  return next
