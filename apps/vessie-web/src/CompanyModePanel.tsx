@@ -23,6 +23,7 @@ import EncryptedLocalVault from './EncryptedLocalVault';
 import PublicReleaseEvidenceDesk from './PublicReleaseEvidenceDesk';
 import ThinkTankDecisionBridge from './ThinkTankDecisionBridge';
 import ThinkTankLocalLaunchDesk from './ThinkTankLocalLaunchDesk';
+import ThinkTankLocalCouncilContractDesk from './ThinkTankLocalCouncilContractDesk';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -241,6 +242,7 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
   </>}
   <PublicReleaseEvidenceDesk />
   <ThinkTankLocalLaunchDesk />
+  <ThinkTankLocalCouncilContractDesk />
   <ThinkTankDecisionBridge plan={plan} onAdd={setPlan} />
   <PortableArchiveDesk plan={plan} priorities={priorityReviews} sources={journalSources}
    onRestore={validated=>{
