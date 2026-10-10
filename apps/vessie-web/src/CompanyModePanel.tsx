@@ -1,13 +1,15 @@
 import {useState} from 'react';
 import {createCompanyPlan,addCompanyNode,companyProjection,recordActionReview,recordCompanyEvidence,reviewCompanyEvidence,importCompanyPlan,COMPANY_RISKS,COMPANY_METHODS} from './company-mode.mjs';
 import type {CompanyPlan,CompanyRisk,CompanyMethod} from './company-mode.mjs';
+import {proposeAntiMFromCompany} from './company-anti-m-handoff.mjs';
+import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
  const a=document.createElement('a');a.href=url;a.download='vessie-company-graph.json';
  document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-export default function CompanyModePanel(){
+export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMProposal)=>void}){
  const [plan,setPlan]=useState<CompanyPlan|null>(null),[error,setError]=useState('');
  const [name,setName]=useState(''),[founder,setFounder]=useState(''),[product,setProduct]=useState('');
  const [customer,setCustomer]=useState(''),[goal,setGoal]=useState(''),[budget,setBudget]=useState('0');
@@ -73,6 +75,10 @@ export default function CompanyModePanel(){
       <p>Dependencies: {n.dependsOn.join(', ')||'none'} · Action reviewed by: {n.actionReview?.reviewer||'nobody'}</p>
       {n.evidence&&<p>Operator-entered {n.evidence.result}: {n.evidence.summary} · <code>{n.evidence.reference}</code> · Review: {n.evidence.review?.decision||'pending'}</p>}
       <div className="antiMButtons">
+       <button type="button" onClick={()=>{
+        try{onPropose(proposeAntiMFromCompany(plan,n.id));setError('')}
+        catch(err){setError(err instanceof Error?err.message:'HANDOFF_REFUSED')}
+       }}>PROPOSE NEW ANTI-M CONTRACT →</button>
        {n.risk!=='NONE'&&!n.actionReview&&<button type="button" disabled={!reviewer.trim()} onClick={()=>apply(p=>recordActionReview(p,n.id,reviewer))}>RECORD ACTION REVIEW (NOT GRANT)</button>}
        {n.evidence&&!n.evidence.review&&<>
         <button type="button" disabled={!reviewer.trim()||n.evidence.result!=='PASS'} onClick={()=>apply(p=>reviewCompanyEvidence(p,n.id,reviewer,'ACCEPT'))}>ACCEPT CHECK</button>
@@ -96,6 +102,7 @@ export default function CompanyModePanel(){
     <button className="primaryButton" type="submit">RECORD CHECK →</button>
     <p className="smallNote">Recording a new check replaces the prior value and clears its review. This is not an append-only audit history.</p>
    </form>}
+   <p className="smallNote">Company → Anti-M proposes only the selected node's function, output and check. Dependencies and action type remain informational; previous evidence, reviews and approvals never transfer. Anti-M still requires a separate founder click to freeze the contract.</p>
    <div className="antiMCard"><div className="antiMCardTitle"><h3>05 / Manual handoff</h3><span>NO AUTOSAVE</span></div>
     <div className="antiMButtons">
      <button type="button" onClick={()=>saveJSON(plan)}>EXPORT PLAN JSON</button>
