@@ -120,3 +120,19 @@
 .priorityQueueScore{white-space:nowrap;color:#a5f1c8;font:700 12px/1.5 'DM Mono',monospace}
 .priorityQueueItem>small{display:block;margin:8px 0;color:#9fbbb8;overflow-wrap:anywhere}
 .priorityQueueItem p{overflow-wrap:anywhere;margin:9px 0}
+
+
+/* SPV-COMPANY-08: local completion lanes and independently viewed Anti-M status. */
+.completionMetrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:12px 0 16px}
+.completionMetrics>div{min-width:0;padding:12px;background:#10262e;border:1px solid #3b6066}
+.completionMetrics strong{display:block;color:#b5f1d1;font:700 23px/1.3 'Space Grotesk',sans-serif}
+.completionMetrics small{display:block;font:10px/1.4 'DM Mono',monospace;color:#b2c8c5}
+.completionRows{display:grid;gap:12px}
+.completionRow{min-width:0;border:1px solid #355860;background:#10232e;padding:16px}
+.completionRowTop{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px}
+.completionRowTop strong{max-width:650px;color:#ddfbe8;font-size:14px;overflow-wrap:anywhere}
+.completionStage{font:10px/1.5 'DM Mono',monospace;color:#c4e6d9;border:1px solid #577b75;padding:4px 7px}
+.completionJournal{display:grid;gap:6px;background:#15312e;border-left:3px solid #83ceae;padding:11px;margin:10px 0;min-width:0}
+.completionJournal strong{color:#b9f0d5;font-size:12px}
+.completionJournal small{font:10px/1.5 'DM Mono',monospace;color:#c1d6ca;overflow-wrap:anywhere}
+.completionJournal code{overflow-wrap:anywhere;word-break:break-all}
