@@ -1,10 +1,12 @@
-import {useState} from 'react';
+import {useRef,useState} from 'react';
 import {createCompanyPlan,addCompanyNode,companyProjection,recordActionReview,recordCompanyEvidence,reviewCompanyEvidence,importCompanyPlan,COMPANY_RISKS,COMPANY_METHODS} from './company-mode.mjs';
 import type {CompanyPlan,CompanyRisk,CompanyMethod} from './company-mode.mjs';
 import {proposeAntiMFromCompany} from './company-anti-m-handoff.mjs';
 import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 import {previewRepoRiderIntake,applyRepoRiderIntake} from './reporider-intake.mjs';
 import type {RepoRiderIntakePreview} from './reporider-intake.mjs';
+import {readPublicIssues,importPublicIssueTasks} from './github-public-issues.mjs';
+import type {GithubPublicIssuesPreview} from './github-public-issues.mjs';
 
 function saveJSON(plan:CompanyPlan){
  const url=URL.createObjectURL(new Blob([JSON.stringify(plan,null,2)+'\n'],{type:'application/json'}));
@@ -22,6 +24,12 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
  const [importText,setImportText]=useState('');
  const [repoRiderText,setRepoRiderText]=useState('');
  const [repoRiderPreview,setRepoRiderPreview]=useState<RepoRiderIntakePreview|null>(null);
+ const [githubRepo,setGithubRepo]=useState('MichaelWave369/reporider');
+ const [githubPreview,setGithubPreview]=useState<GithubPublicIssuesPreview|null>(null);
+ const [githubSelection,setGithubSelection]=useState<number[]>([]);
+ const [githubLoading,setGithubLoading]=useState(false);
+ const [githubInfo,setGithubInfo]=useState('');
+ const githubRequestId=useRef(0);
  const view=plan?companyProjection(plan):null;
  const activeId=selectedId||plan?.nodes[0]?.id||'';
  function apply(change:(p:CompanyPlan)=>CompanyPlan){
@@ -36,7 +44,7 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
     <strong>{view?.complete?'LOCAL REVIEW COMPLETE':plan?'IN PROGRESS':'NO PLAN'}</strong>
     <span>NO EXECUTOR · NO AUTO-GRANTS</span></div></div>
   <div className="notice"><strong>Local planning is not verified execution</strong>
-   <p>Records and reviews are self-reported. No agents run, links are not checked, no money is spent, and no deployments or messages are sent. Exported JSON is editable and is not a signed ledger or an Anti-M receipt.</p></div>
+   <p>Records and reviews are self-reported. A public GitHub issue lookup only occurs after you click Fetch. No agents run, no money is spent, and no deployments or messages are sent. Exported JSON is editable and is not a signed ledger or an Anti-M receipt.</p></div>
   {!plan?<form className="antiMCard antiMForm" onSubmit={e=>{e.preventDefault();try{
     setPlan(createCompanyPlan({name,founder,product,customer,weeklyGoal:goal,budgetLimitUsd:Number(budget)}));setError('');
    }catch(err){setError(err instanceof Error?err.message:'COMPANY_REFUSED')}}}>
@@ -131,6 +139,56 @@ export default function CompanyModePanel({onPropose}:{onPropose:(proposal:AntiMP
         }catch(err){setError(err instanceof Error?err.message:'REPORIDER_INTAKE_REFUSED')}
        }}>ADD PROPOSED TASKS TO GRAPH →</button>
     </div>}
+   </div>
+   <div className="antiMCard antiMForm">
+    <div className="antiMCardTitle"><h3>Public GitHub / Issue Scout</h3><span>READ-ONLY GET · OPERATOR TRIGGERED</span></div>
+    <p className="smallNote">Fetch the first page of up to 20 open issue records from one PUBLIC GitHub repository. Pull requests are excluded. No login, token, private repository access, background polling, or GitHub writes. RepoRider is prefilled as a starting point, not contacted automatically.</p>
+    <label>PUBLIC REPOSITORY · owner/repo
+      <input maxLength={145} value={githubRepo} onChange={e=>{
+        githubRequestId.current++;
+        setGithubRepo(e.target.value);setGithubPreview(null);setGithubSelection([]);
+        setGithubLoading(false);setGithubInfo('');
+      }} placeholder="MichaelWave369/reporider" />
+    </label>
+    <button type="button" className="secondaryButton" disabled={githubLoading||!githubRepo.trim()}
+     onClick={async()=>{
+      const id=++githubRequestId.current;
+      setGithubLoading(true);setGithubPreview(null);setGithubSelection([]);setGithubInfo('');setError('');
+      try{
+       const preview=await readPublicIssues(githubRepo);
+       if(id!==githubRequestId.current)return;
+       setGithubPreview(preview);
+       setGithubInfo(preview.issues.length===0?'No open issues found in this first page. This is not an exhaustive search.':'Fetched public issue metadata. No graph entries added.');
+      }catch(err){
+       if(id!==githubRequestId.current)return;
+       setError(err instanceof Error?err.message:'GITHUB_ISSUES_REQUEST_FAILED');
+      }finally{if(id===githubRequestId.current)setGithubLoading(false)}
+     }}>{githubLoading?'FETCHING PUBLIC ISSUES…':'FETCH OPEN ISSUES (GET ONLY) →'}</button>
+    {githubPreview&&<div className="antiMReadiness">
+      <strong>Public issue preview: {githubPreview.repository}</strong>
+      <p>Source: unauthenticated GitHub public API read. Data may be stale or incomplete, and is NOT attested execution, verification, or approval. First page only, maximum 20 results including any pull requests.</p>
+      {githubPreview.issues.length>0&&<>
+       <p>Select the issues to propose as unapproved REPO_WRITE nodes (zero selected by default). Source URLs are retained inside each node's observable check, not recorded as passing evidence.</p>
+       <div className="githubIssueList">{githubPreview.issues.map(item=><label className="githubIssuePick" key={item.number}>
+        <input type="checkbox" checked={githubSelection.includes(item.number)} onChange={e=>
+         setGithubSelection(current=>e.target.checked?[...current,item.number]:current.filter(n=>n!==item.number))
+        } />
+        <span><strong>#{item.number}: {item.title}</strong>
+         <a target="_blank" rel="noopener noreferrer" href={item.url} onClick={e=>e.stopPropagation()}>Inspect source issue ↗</a>
+        </span>
+       </label>)}</div>
+       <p>Selected: {githubSelection.length}; available graph slots: {12-plan.nodes.length}. Existing nodes and approvals are preserved.</p>
+       <button type="button" className="primaryButton"
+        disabled={githubSelection.length===0||githubSelection.length>12-plan.nodes.length}
+        onClick={()=>{
+         try{
+          setPlan(importPublicIssueTasks(plan,githubPreview,githubSelection));
+          setGithubSelection([]);setGithubPreview(null);setGithubInfo('Added proposal nodes only. Each requires fresh review and evidence.');setError('');
+         }catch(err){setError(err instanceof Error?err.message:'GITHUB_ISSUES_IMPORT_REFUSED')}
+        }}>ADD SELECTED TASK PROPOSALS →</button>
+      </>}
+    </div>}
+    {githubInfo&&<p className="smallNote" role="status">{githubInfo}</p>}
    </div>
    <div className="antiMCard"><div className="antiMCardTitle"><h3>05 / Manual handoff</h3><span>NO AUTOSAVE</span></div>
     <div className="antiMButtons">
