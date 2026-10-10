@@ -88,3 +88,13 @@
 .antiM button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:850px){.antiMColumns{grid-template-columns:1fr}}
 @media(max-width:600px){.antiMCard{padding:15px}.antiMInline{grid-template-columns:1fr}.antiMHeading h2{font-size:34px}}
+
+
+/* COMPANY-04: selectable public issue preview, no automatic approvals. */
+.githubIssueList{display:grid;gap:9px;margin:14px 0;max-height:420px;overflow-y:auto}
+.antiMForm .githubIssuePick{display:flex;align-items:flex-start;gap:12px;border:1px solid #325058;padding:13px;background:#0e202a;font:12px/1.5 'Space Grotesk',sans-serif;letter-spacing:0;color:#c9e9d9}
+.antiMForm .githubIssuePick input[type="checkbox"]{width:17px;height:17px;min-width:17px;margin:3px 0 0;padding:0;accent-color:#a0ecc2;cursor:pointer}
+.githubIssuePick span{min-width:0;overflow-wrap:anywhere}
+.githubIssuePick strong{display:block;font-size:12px;line-height:1.5}
+.githubIssuePick a{display:inline-block;margin-top:5px;border-bottom:1px solid #547d70;color:#9ef4d1;font:10px 'DM Mono',monospace}
+.githubIssuePick a:focus-visible{outline:2px solid #a0ecc2;outline-offset:4px}
