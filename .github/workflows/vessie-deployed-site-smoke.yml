@@ -1,0 +1,68 @@
+name: vessie-deployed-site-smoke
+
+on:
+  pull_request:
+    paths:
+      - "apps/vessie-web/e2e/deployed-site.spec.mjs"
+      - "apps/vessie-web/playwright.deployed.config.mjs"
+      - ".github/workflows/vessie-deployed-site-smoke.yml"
+      - ".github/workflows/github-pages.yml"
+  workflow_run:
+    workflows: ["github-pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-pages-chromium:
+    # Do NOT claim a live deployment succeeded after a cancelled/failed Pages
+    # workflow or after a non-main/untrusted upstream workflow.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_DEPLOY_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+      EXPECTED_PAGES_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
+    steps:
+      - name: Checkout version containing the smoke test
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Vessie project dependencies
+        working-directory: apps/vessie-web
+        run: npm install --no-audit --no-fund
+      - name: Install pinned isolated Playwright runner
+        working-directory: apps/vessie-web
+        run: npm install --no-save --no-package-lock --no-audit --no-fund @playwright/test@1.56.1
+      - name: Install Chromium on CI host
+        working-directory: apps/vessie-web
+        run: npx playwright install --with-deps chromium
+      - name: Run read-only Chromium checks against actual public GitHub Pages
+        working-directory: apps/vessie-web
+        env:
+          CI: "true"
+        run: npx playwright test --config=playwright.deployed.config.mjs
+      - name: Archive failure evidence only
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vessie-live-site-browser-smoke-failures
+          path: |
+            apps/vessie-web/test-results
+            apps/vessie-web/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
