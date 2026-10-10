@@ -8,7 +8,7 @@ import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
 export default function CompletionDashboard({plan,priorities,links,onAttach,onClear,onPropose}:{
  plan:CompanyPlan;priorities:PrioritySet|null;links:CompletionLink[];
- onAttach:(link:CompletionLink)=>void;onClear:(id:string)=>void;
+ onAttach:(link:CompletionLink,ledger:string)=>void;onClear:(id:string)=>void;
  onPropose:(proposal:AntiMProposal)=>void;
 }){
  const dashboard=completionDashboard(plan,priorities,links);
@@ -26,7 +26,7 @@ export default function CompletionDashboard({plan,priorities,links,onAttach,onCl
    // never used to auto-assign contracts across tasks.
    const result=await inspectAntiMForCompany(plan,active,ledgerText);
    if(linked&&!window.confirm('Replace the previously inspected Anti-M journal for this task?'))return;
-   onAttach(result);
+   onAttach(result,ledgerText);
    setLedgerText('');
    setInfo('Anti-M hash chain replayed locally and scope matched. No Company PASS evidence, action grant or external DONE was added.');
   }catch(e){setError(e instanceof Error?e.message:'COMPLETION_INSPECTION_REFUSED')}
@@ -96,7 +96,7 @@ export default function CompletionDashboard({plan,priorities,links,onAttach,onCl
     }}>DETACH JOURNAL</button>}
    </div>
   </>}
-  <p className="smallNote">Journal statuses are kept in memory only, with the full chain checked at import time; they are not exported with the Company plan or the separate Priority JSON. Reloading clears them. To revisit an inspection, reimport the original complete Anti-M ledger.</p>
+  <p className="smallNote">Journal statuses are kept in memory unless you explicitly export a Portable Workspace Archive below. The archive includes full Anti-M journals for replay on restoration; standalone Company and Priority JSON files still exclude them.</p>
   {info&&<p className="smallNote" role="status">{info}</p>}
   {error&&<p className="error" role="alert">Completion dashboard refused: {error}. No DONE or authority transferred.</p>}
  </section>;
