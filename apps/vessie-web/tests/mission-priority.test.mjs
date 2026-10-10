@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCompanyPlan,addCompanyNode,recordCompanyEvidence,reviewCompanyEvidence} from '../src/company-mode.mjs';
+import {createCompanyPlan,addCompanyNode,recordActionReview,recordCompanyEvidence,reviewCompanyEvidence} from '../src/company-mode.mjs';
 import {createPriorityReviewSet,recordPriorityReview,clearPriorityReview,
  priorityProjection,importPriorityReviewSet,validatePriorityReviewSet} from '../src/mission-priority.mjs';
 import {proposeAntiMFromCompany} from '../src/company-anti-m-handoff.mjs';
@@ -54,16 +54,24 @@ test('rejects forged authority, extra fields, duplicate records, tampered scope 
  const modified=structuredClone(p);modified.nodes[1].check='New check';
  assert.throws(()=>validatePriorityReviewSet(modified,s),/NODE_CHANGED/);
 });
-test('review cannot make completed task current or resurrect previous local acceptance',()=>{
+test('priority review never changes the lifecycle, and locally accepted work leaves active queue',()=>{
  let p=plan();
- let s=recordPriorityReview(p,createPriorityReviewSet(p),'qa',strong);
+ const s=recordPriorityReview(p,createPriorityReviewSet(p),'qa',strong);
+ let v=priorityProjection(p,s);
+ assert.equal(v.ranked.length,1);
+ assert.equal(v.ranked[0].status,'DEPENDENCY_BLOCKED');
+ p=recordActionReview(p,'build','Founder');
+ p=recordCompanyEvidence(p,'build',{result:'PASS',method:'HUMAN_TEST',
+  reference:'https://github.com/example/project/issues/1',summary:'Self-reported build check'});
+ p=reviewCompanyEvidence(p,'build','Founder','ACCEPT');
  p=recordCompanyEvidence(p,'qa',{result:'PASS',method:'HUMAN_TEST',
-  reference:'https://github.com/example/project/issues/1',summary:'Self-reported smoke run'});
+  reference:'https://github.com/example/project/issues/2',summary:'Self-reported QA run'});
  p=reviewCompanyEvidence(p,'qa','Founder','ACCEPT');
- const projection=priorityProjection(p,s);
- assert.equal(projection.ranked.length,0);
- assert.equal(projection.locallyAccepted,0,'Blocked dependency means locally accepted self-report does not clear prerequisite');
- assert.equal(projection.unranked.length,2);
+ v=priorityProjection(p,s);
+ assert.equal(v.ranked.length,0,'locally accepted tasks should leave the active priority queue');
+ assert.equal(v.locallyAccepted,2);
+ assert.equal(v.unranked.length,1);
+ assert.equal(v.externalCompletionAttested,false,'local acceptance does not attest external done');
 });
 test('validation round trip, explicit clear, no silent edits to original set',()=>{
  const p=plan(),empty=createPriorityReviewSet(p);
