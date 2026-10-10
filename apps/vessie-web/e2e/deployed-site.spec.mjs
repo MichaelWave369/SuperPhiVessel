@@ -43,6 +43,13 @@ test('public deployed cockpit loads and its Company/Anti-M panels remain read-on
   }
  });
  page.on('pageerror',error=>jsErrors.push(error.message));
+ if(EXPECTED){
+  await expect.poll(async()=>{
+   await page.goto(SITE+'?revision-check='+encodeURIComponent(EXPECTED),
+    {waitUntil:'domcontentloaded',timeout:45000});
+   return page.locator('meta[name="spv-pages-build-sha"]').getAttribute('content');
+  },{timeout:120000,intervals:[1000,2000,4000,6000]}).toBe(EXPECTED);
+ }
  const response=await page.goto(SITE,{waitUntil:'domcontentloaded',timeout:45000});
  expect(response,'GitHub Pages must return an HTML response').not.toBeNull();
  expect(response.status()).toBe(200);
@@ -84,6 +91,9 @@ test('deployed HTML references real immutable app assets under its own Pages bas
  expect(contentType).toContain('text/html');
  const html=await response.text();
  expect(html).toMatch(/<div id="root"><\/div>/);
+ if(EXPECTED){
+  expect(html).toContain('<meta name="spv-pages-build-sha" content="'+EXPECTED+'">');
+ }
  const js=[...html.matchAll(/(?:src|href)="([^"]+\.js)"/g)].map(m=>m[1]);
  const css=[...html.matchAll(/(?:src|href)="([^"]+\.css)"/g)].map(m=>m[1]);
  expect(js.length,'Bundled JavaScript asset required').toBeGreaterThan(0);
