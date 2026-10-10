@@ -5,12 +5,14 @@ on:
     paths:
       - "apps/vessie-web/e2e/two-app-thinktank-roundtrip.spec.mjs"
       - "apps/vessie-web/playwright.two-app.config.mjs"
+      - "apps/vessie-web/playwright.acceptance.config.mjs"
       - ".github/workflows/vessie-thinktank-two-app-acceptance.yml"
   push:
     branches: [main]
     paths:
       - "apps/vessie-web/e2e/two-app-thinktank-roundtrip.spec.mjs"
       - "apps/vessie-web/playwright.two-app.config.mjs"
+      - "apps/vessie-web/playwright.acceptance.config.mjs"
       - ".github/workflows/vessie-thinktank-two-app-acceptance.yml"
   workflow_dispatch:
 
