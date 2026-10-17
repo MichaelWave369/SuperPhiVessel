@@ -137,3 +137,4 @@ export default function EvidenceGatePanel(){
     </div>
     {replayResult&&<p className="smallNote" role="status">{replayResult}</p>}
   </section>;
+}
