@@ -7,6 +7,7 @@ import PairingPanel from './PairingPanel';
 import CloudEvidencePanel from './CloudEvidencePanel';
 import ScoutHandoffPanel from './ScoutHandoffPanel';
 import AntiMPanel from './AntiMPanel';
+import EvidenceGatePanel from './EvidenceGatePanel';
 import CompanyModePanel from './CompanyModePanel';
 import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
@@ -202,6 +203,7 @@ function App() {
           </section>}
           <div style={{display:view==='anti-m'?'block':'none'}} aria-hidden={view!=='anti-m'}>
             <AntiMPanel handoffProposal={companyProposal} onHandoffConsumed={()=>setCompanyProposal(null)} />
+            <EvidenceGatePanel />
           </div>
           <div style={{display:view==='company'?'block':'none'}} aria-hidden={view!=='company'}>
             <CompanyModePanel onPropose={proposal=>{setCompanyProposal(proposal);setView('anti-m');}} />
