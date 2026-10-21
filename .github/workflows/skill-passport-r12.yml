@@ -1,0 +1,18 @@
+name: SPV R12 Signed Governance Ledger
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-governance-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify independently anchored signed events and terminal revocation
+        run: node --test interop/r12-governance.node-check.mjs
+      - name: Check read-only verifier syntax
+        run: node --check interop/r12-governance.mjs
