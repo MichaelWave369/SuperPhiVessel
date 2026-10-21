@@ -1,0 +1,20 @@
+name: SPV R10 Signed Skill Passport Verification
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-signed-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate offline operator-pinned Ed25519 signature gate
+        run: node --test interop/r10-signed-passport.node-check.mjs
+      - name: Syntax-check operator CLI and verifier
+        run: |
+          node --check interop/r10-cli.mjs
+          node --check interop/r10-signed-passport.mjs
