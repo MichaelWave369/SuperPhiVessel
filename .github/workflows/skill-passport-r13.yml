@@ -1,0 +1,21 @@
+name: SPV R13 Cross-Runtime Signed Witness
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-witness-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test public deterministic fixture, witness signatures and rollback refusals
+        run: node --test interop/r13-witness.node-check.mjs
+      - name: Verify Node fixture regeneration and standalone check CLI syntax
+        run: |
+          node interop/r13-fixture.mjs > /dev/null
+          node --check interop/r13-check.mjs
+          node --check interop/r13-witness.mjs
