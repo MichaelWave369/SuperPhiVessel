@@ -579,3 +579,20 @@ The React Vessie cockpit includes a **SCOUT HANDOFF** tab to review operator-pas
 ### SPV-SCOUT-02 optional paired Scout receipt read
 
 The **SCOUT HANDOFF** React tab can now read a previously qualified, redacted PhiBot Scout receipt from the existing optional local HTTPS pairing gateway. The operator must explicitly configure one local `scout-*` receipt directory at gateway startup. Default disabled; no model, tool, memory, routing or agent invocation. Pair under MODEL FABRIC, then perform one explicit read in SCOUT HANDOFF. Browser session remains in memory across tabs for at most 15 minutes. See [Windows operator guide](docs/SCOUT_PAIRED_READ_V0_1.md).
+
+
+## R9: Skill Passport offline compatibility reader
+
+SuperPhiVessel now includes a small **offline read-only** Node.js 20+ consumer for PhiLearn Skill Passport v1:
+
+    node interop/verify-passport.mjs path/to/skill-passport.json
+
+It is **not connected** to Vessie routing, local-console APIs, memory, agent identities, deployment gates or tools. No network calls occur. The command reads a locally supplied JSON file capped at 256,000 bytes, replays six simulated PhiLearn R6 actions, verifies R7 and R8 SHA-256 checksums, and outputs a JSON report.
+
+Pass statuses are explicitly REPLAY_PASS_UNTRUSTED; failing data returns REPLAY_FAIL_UNTRUSTED. In both cases authority = NONE and permissions = []. Checksums are not digital signatures and cannot prove model identity or that a claimed observation happened. A JSON author can fabricate and rehash synthetic traces. Imported passports **never grant capabilities or authority**.
+
+Conformance checks:
+
+    node --test interop/skill-passport-verifier.test.mjs
+
+This adapter establishes wire-protocol compatibility, **not** live interchange or any trust promotion. PhiLearn's interop/README.md documents the contract.
