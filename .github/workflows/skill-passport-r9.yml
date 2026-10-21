@@ -1,0 +1,20 @@
+name: SPV R9 Offline Skill Passport Consumer
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  passive-passport-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test standalone verifier conformance
+        run: node --test interop/skill-passport-verifier.test.mjs
+      - name: Syntax check CLI and verifier
+        run: |
+          node --check interop/verify-passport.mjs
+          node --check interop/skill-passport-verifier.mjs
