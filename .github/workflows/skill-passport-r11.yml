@@ -1,0 +1,20 @@
+name: SPV R11 Governed Inspection Enrollment
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspection-no-authority:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test signed-envelope binding, operator confirmation, lease and revocation
+        run: node --test interop/r11-enrollment.node-check.mjs
+      - name: Syntax check standalone operator CLI
+        run: |
+          node --check interop/r11-cli.mjs
+          node --check interop/r11-enrollment.mjs
