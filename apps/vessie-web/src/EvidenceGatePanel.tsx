@@ -3,6 +3,7 @@ import {EVIDENCE_GATE_CONTEXT_SCHEMA} from './evidence-gate.mjs';
 import type {EvidenceContext,EvidenceProposal} from './evidence-gate.mjs';
 import {CUSTODY_SCHEMA,createShadowReceipt,replayShadowReceipt} from './evidence-custody.mjs';
 import type {ShadowReceipt,CustodyVerdict} from './evidence-custody.mjs';
+import SmergeonShadowPanel from './SmergeonShadowPanel';
 
 const reportedOnly:EvidenceContext = {
   schema:EVIDENCE_GATE_CONTEXT_SCHEMA,
@@ -136,5 +137,6 @@ export default function EvidenceGatePanel(){
         onClick={()=>setImportText(JSON.stringify(receipt))}>COPY CURRENT RECEIPT INTO REPLAY FORM</button>}
     </div>
     {replayResult&&<p className="smallNote" role="status">{replayResult}</p>}
+    <SmergeonShadowPanel/>
   </section>;
 }
