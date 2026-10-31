@@ -6,10 +6,6 @@ Packages should declare an implementation status such as **LIVE**, **EXPERIMENTA
 
 Historical standalone packages must not be represented as integrated merely because they are present in this repository.
 
-## PhiServe operator draft adapter
-
-- [vessie-phiserve-draft-v0.1](vessie-phiserve-draft-v0.1/README.md) — **EXPERIMENTAL / OPERATOR-ONLY / NOT CANONICAL**: bearer-authenticated PhiServe GGUF text draft from an explicit local prompt, with redacted self-reported receipt; no authority, browser pairing or automatic model routing.
-
 ## Current extracted packages
 
 - `dlam-p1-v0.1` — local continuity, context composition, routing/model-swap, durability.

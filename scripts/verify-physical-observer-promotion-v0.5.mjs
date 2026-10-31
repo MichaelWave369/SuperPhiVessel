@@ -158,17 +158,6 @@ export function evaluatePhysicalObserverPromotionEvidence({
     candidateVersion: source.candidateVersion ?? null,
     candidateSha256: candidateSha,
     artifactId: qualification.artifactId ?? null,
-    screenshotEvidence: {
-      classification: "CURRENT_RUN_BYTES_VS_HISTORICAL_PIN",
-      priorEvidenceAvailable: false,
-      desktopExpectedSha256: qualification.desktopScreenshotSha256 ?? null,
-      desktopObservedSha256: digest(desktopBytes),
-      desktopMatchesHistoricalPin: digest(desktopBytes) === qualification.desktopScreenshotSha256,
-      mobileExpectedSha256: qualification.mobileScreenshotSha256 ?? null,
-      mobileObservedSha256: digest(mobileBytes),
-      mobileMatchesHistoricalPin: digest(mobileBytes) === qualification.mobileScreenshotSha256,
-      note: "Hash mismatch means new evidence needs review; do not update pins or promote automatically."
-    },
     canPromote: false,
     mayUpdateCanonicalManifest: false,
     mayDeployProduction: false,
