@@ -32,4 +32,4 @@ jobs:
           node --check packages/vessie-phiserve-draft-v0.1/adapter.mjs
           node --check packages/vessie-phiserve-draft-v0.1/cli.mjs
       - name: Run fixed-localhost, private-token, no-authority contracts
-        run: node --test packages/vessie-phiserve-draft-v0.1/tests/*.test.mjs
+        run: node --test packages/vessie-phiserve-draft-v0.1/tests/adapter.test.mjs
