@@ -18,6 +18,10 @@ Vessie explores how capable AI models, local compute, hosted inference, memory, 
 | **[GitHub Releases](https://github.com/MichaelWave369/SuperPhiVessel/releases)** | Frozen standalone runtime downloads and checksums |
 | **[Current release](https://github.com/MichaelWave369/SuperPhiVessel/releases/tag/v2.0-alpha.11.0.54.10)** | v2.0-alpha.11.0.54.10 — Service Models Handler Restoration |
 
+## PhiServe Model Desk (browser-side review, no execution)
+
+Vessie's existing [localhost console](packages/vessie-local-console/PHISERVE_MODEL_DESK_GUIDE.md) now supports human review of the operator-run PhiServe draft pair. It reads operator-selected text/receipt files, verifies local SHA-256 parity and lets a reviewer export a strictly redacted categorical assessment. It never loads a token, runs the model, changes the canonical runtime, or grants executor authority.
+
 ## PhiServe local operator drafting (experimental / NOT canonical)
 
 An [isolated, explicit operator-run PhiServe client](packages/vessie-phiserve-draft-v0.1/README.md) can request a bounded text-only draft from an already running local PhiServe GGUF daemon. The user supplies a local prompt file, private token file, registered model alias, and a single-run approval flag. It returns an **untrusted human-review draft** and a redacted hash receipt.
