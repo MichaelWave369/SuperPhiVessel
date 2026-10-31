@@ -1,6 +1,6 @@
 /** Explicitly approved local PhiServe drafting. No tools, URLs or memory. */
 import {createHash} from 'node:crypto';
-import {DRAFT_SCHEMA,MAX_DRAFT_BYTES} from '../../vessie-phiserve-draft-v0.1/adapter.mjs';
+import {DRAFT_SCHEMA,MAX_DRAFT_BYTES} from '../vessie-phiserve-draft-v0.1/adapter.mjs';
 export const PHI_GUI_SCHEMA='superphivessel.local-console.phiserve-draft.v0.1';
 export const PHI_GUI_CATALOG_SCHEMA='superphivessel.local-console.phiserve-catalog.v0.1';
 export const PHI_GUI_REQUEST_LIMIT=4096;
