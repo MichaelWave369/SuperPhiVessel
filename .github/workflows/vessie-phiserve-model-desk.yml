@@ -1,0 +1,40 @@
+name: Vessie PhiServe Model Desk CI
+
+on:
+  pull_request:
+    paths:
+      - 'packages/vessie-local-console/**'
+      - '.github/workflows/vessie-phiserve-model-desk.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/vessie-local-console/**'
+      - '.github/workflows/vessie-phiserve-model-desk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-desk:
+    name: File-only Model Desk / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser and console syntax
+        run: |
+          node --check packages/vessie-local-console/ui/model-desk.mjs
+          node --check packages/vessie-local-console/ui/model-desk-ui.mjs
+          node --check packages/vessie-local-console/ui/app.js
+          node --check packages/vessie-local-console/server.mjs
+      - name: Verify draft parity, redaction, refusal and no authority
+        run: node --test packages/vessie-local-console/tests/model-desk.test.mjs
+      - name: Recheck PhiServe operator draft adapter
+        run: node --test packages/vessie-phiserve-draft-v0.1/tests/adapter.test.mjs
