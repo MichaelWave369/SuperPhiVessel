@@ -42,6 +42,16 @@ This roadmap describes normalization work for the public repository. It is not a
 - [ ] Establish reproducible release bundles
 - [ ] Add migration/versioning policy for persistent Vessel state
 
+## PhiServe local inference adapter (operator-only first rung)
+
+- [x] Isolated Node 22 operator-only PhiServe client with fixed loopback and private token-file authentication.
+- [x] Explicit per-request approval, local text input, verified registered GGUF alias, bounded output and redacted receipt.
+- [x] Keep Vessie gateway R1/R2, canonical runtime, executor authorization and P1-C routing unchanged.
+- [x] Add simulated HTTP contract/security tests on Ubuntu and Windows.
+- [ ] Physically test against a running locally registered PhiServe GGUF with the operator's own machine.
+- [ ] Separately design reviewed model-draft import and human approval workflow; do not silently merge generated text into authority-bearing Vessie operations.
+- [ ] Independently qualify any real canonical routed client only after governance and evidence gates are satisfied.
+
 ## Non-goals
 
 The roadmap does not grant autonomous authority, automatic model installation, automatic paid routing, self-modification authority, or automatic evidence promotion.
