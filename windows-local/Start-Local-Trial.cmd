@@ -32,7 +32,7 @@ echo Starting local console on 127.0.0.1:8791 (manual trial enabled).
 echo Only prompts you specifically approve inside the browser can run.
 echo Close this window or press Ctrl+C to stop.
 echo.
-"%~dp0node.exe" "%~dp0server.mjs" --enable-local-trial
+"%~dp0node.exe" "%~dp0local-console\server.mjs" --enable-local-trial
 set "RESULT=%ERRORLEVEL%"
 echo.
 if not "%RESULT%"=="0" echo Console stopped or blocked with code %RESULT%.
