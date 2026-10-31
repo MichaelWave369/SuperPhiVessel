@@ -37,9 +37,13 @@ jobs:
           node --check packages/vessie-local-console/ui/model-desk-ui.mjs
           node --check packages/vessie-local-console/ui/app.js
           node --check packages/vessie-local-console/server.mjs
+          node --check packages/vessie-local-console/tests/hosted-phiserve-field.mjs
+          node --check packages/vessie-local-console/tests/hosted-acceptance-guard.test.mjs
       - name: Verify draft parity, redaction, refusal and no authority
         run: node --test packages/vessie-local-console/tests/model-desk.test.mjs
       - name: Test opt-in PhiServe GUI HTTP/security behavior
         run: node --test packages/vessie-local-console/tests/phi-gui-live.test.mjs
       - name: Recheck PhiServe operator draft adapter
         run: node --test packages/vessie-phiserve-draft-v0.1/tests/adapter.test.mjs
+      - name: Verify hosted inference workflow remains manual and cannot grant authority
+        run: node --test packages/vessie-local-console/tests/hosted-acceptance-guard.test.mjs
