@@ -164,8 +164,23 @@ jobs:
           from zipfile import ZipFile
           z=ZipFile('site/downloads/SuperPhiVessel-Local-Console-Windows.zip')
           names={n.replace('\\','/') for n in z.namelist() if not n.endswith('/')}
-          required={'node.exe','LICENSE.node.txt','START_HERE.txt','Start-Local-Vessie.cmd','Start-Local-Trial.cmd',
-                    'server.mjs','ollama-probe.mjs','trial-runner.mjs','ui/index.html','ui/style.css','ui/app.js','ui/review-evidence.mjs','ui/evidence-bench.mjs','ui/portable-bench.mjs','ui/trial-protocols.mjs','ui/protocol-cohorts.mjs','ui/human-review-guides.mjs'}
+          # Keep the public download allowlist aligned with the proven
+          # self-contained ZIP built by windows-local/build-portable.ps1.
+          # Extra/missing entries fail closed; no unreviewed payloads pass.
+          required={
+              'node.exe','LICENSE.node.txt','START_HERE.txt',
+              'Start-Local-Vessie.cmd','Start-Local-Trial.cmd','Start-PhiServe-Desk.cmd',
+              'local-console/server.mjs','local-console/trial-runner.mjs',
+              'local-console/ollama-probe.mjs','local-console/phi-gui-bridge.mjs',
+              'local-console/ui/index.html','local-console/ui/style.css',
+              'local-console/ui/app.js','local-console/ui/review-evidence.mjs',
+              'local-console/ui/evidence-bench.mjs','local-console/ui/portable-bench.mjs',
+              'local-console/ui/trial-protocols.mjs','local-console/ui/protocol-cohorts.mjs',
+              'local-console/ui/human-review-guides.mjs',
+              'local-console/ui/model-desk.mjs','local-console/ui/model-desk-ui.mjs',
+              'vessie-phiserve-draft-v0.1/adapter.mjs'
+          }
+          assert len(names) == len(required), 'PORTABLE_ARCHIVE_ENTRY_COUNT_MISMATCH'
           assert names == required, (names-required,required-names)
           assert z.testzip() is None
           print('windows-local-console-pages-download: PASS')
