@@ -8,6 +8,7 @@ export const SOURCE_DRAFT_SCHEMA = 'SUPERPHIVESSEL_PHISERVE_OPERATOR_DRAFT_V1';
 export const MAX_RECEIPT_BYTES = 16 * 1024;
 export const MAX_TEXT_BYTES = 100 * 1024;
 const shaPattern = /^[0-9a-f]{64}$/;
+const verifiedPairs = new WeakSet();
 const receiptKeys = [
   'schema','status','evidence_class','provider','model_alias','request_id',
   'observed_at','prompt_sha256','response_sha256','prompt_chars','response_chars',
@@ -95,7 +96,7 @@ export async function verifyPhiServeDraftPair({ receiptBytes, draftBytes, crypto
     throw new ModelDeskError('DRAFT_SHA256_MISMATCH');
   }
   const receiptHash = await sha256(receiptBytes,cryptoImpl);
-  return Object.freeze({
+  const verified = Object.freeze({
     source_schema:SOURCE_DRAFT_SCHEMA,
     model_alias:source.model_alias,
     source_request_id:source.request_id,
@@ -113,13 +114,16 @@ export async function verifyPhiServeDraftPair({ receiptBytes, draftBytes, crypto
     tool_execution_authorized:false,
     canonical_runtime_connected:false,
   });
+  verifiedPairs.add(verified);
+  return verified;
 }
 
 export function makePhiServeDeskReview(verified, {
   usefulness, completeness, verification,
   reviewedAt = new Date().toISOString(),
 } = {}) {
-  if (!verified || verified.status !== 'LOCAL_FILE_CONSISTENCY_MATCH_ONLY' ||
+  if (!verified || !verifiedPairs.has(verified) ||
+      verified.status !== 'LOCAL_FILE_CONSISTENCY_MATCH_ONLY' ||
       verified.content_trusted !== false ||
       verified.operator_authority_granted !== false ||
       verified.tool_execution_authorized !== false ||
