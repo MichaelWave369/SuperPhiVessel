@@ -1,0 +1,149 @@
+name: Vessie PhiServe Manual Hosted CPU Acceptance
+
+# NEVER runs on PR, push, schedule, or deployment. A human must opt in
+# to fetching public model weights and running CPU inference on GitHub.
+on:
+  workflow_dispatch:
+    inputs:
+      consent_external_model_download:
+        description: "Approve downloading a public Apache-2.0 ~105 MB GGUF and running one temporary cloud CPU inference test"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vessie-phiserve-manual-hosted-inference
+  cancel-in-progress: false
+
+jobs:
+  hosted-cpu:
+    if: inputs.consent_external_model_download == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Vessie (no persistent Git credentials)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned reviewed PhiServe
+        uses: actions/checkout@v4
+        with:
+          repository: MichaelWave369/PhiServe
+          ref: d4746e74cfcc72550c32e95a96f0056d07ce9adb
+          path: phiserve-source
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Compile pinned CPU-only llama.cpp in ephemeral runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet --depth 1 --branch b10921 \
+            https://github.com/ggml-org/llama.cpp.git "$RUNNER_TEMP/llama-src"
+          test "$(git -C "$RUNNER_TEMP/llama-src" rev-parse HEAD)" = \
+            "3f5e94d7c2ab2267fe39852051777fe30c1f49ef"
+          cmake -S "$RUNNER_TEMP/llama-src" -B "$RUNNER_TEMP/llama-build" \
+            -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=OFF -DLLAMA_CURL=OFF
+          cmake --build "$RUNNER_TEMP/llama-build" --target llama-server --parallel 4
+          test -x "$RUNNER_TEMP/llama-build/bin/llama-server"
+
+      - name: Download one public small GGUF onto temporary runner only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -e ./phiserve-source "huggingface_hub>=0.25,<2"
+          python - <<'PY'
+          from huggingface_hub import hf_hub_download
+          from pathlib import Path
+          import os
+          path = Path(hf_hub_download(
+              repo_id="bartowski/SmolLM2-135M-Instruct-GGUF",
+              filename="SmolLM2-135M-Instruct-Q4_K_M.gguf",
+              local_dir=os.path.join(os.environ["RUNNER_TEMP"], "models"),
+          ))
+          if not path.is_file() or not 50_000_000 < path.stat().st_size < 200_000_000:
+              raise RuntimeError("EXPECTED_SMALL_PUBLIC_GGUF_MISSING_OR_WRONG_SIZE")
+          print("Downloaded one public GGUF to ephemeral runner; bytes:", path.stat().st_size)
+          PY
+
+      - name: Run real PhiServe -> Vessie CPU smoke with negative security checks
+        shell: bash
+        env:
+          PHISERVE_HOSTED_ACCEPTANCE_APPROVED: YES
+        run: |
+          set -euo pipefail
+          TOKEN_FILE="$RUNNER_TEMP/phiserve-hosted-test-token"
+          VESSIE_PID=""
+          PHI_PID=""
+          cleanup() {
+            if [[ -n "$VESSIE_PID" ]]; then kill "$VESSIE_PID" 2>/dev/null || true; fi
+            if [[ -n "$PHI_PID" ]]; then
+              pkill -P "$PHI_PID" 2>/dev/null || true
+              kill "$PHI_PID" 2>/dev/null || true
+            fi
+            rm -f "$TOKEN_FILE"
+          }
+          trap cleanup EXIT
+
+          GGUF="$RUNNER_TEMP/models/SmolLM2-135M-Instruct-Q4_K_M.gguf"
+          phiserve models add cloud-smollm2-135m-q4 "$GGUF"
+          phiserve auth create --output "$TOKEN_FILE"
+          chmod 600 "$TOKEN_FILE"
+          phiserve daemon \
+            --llama-server "$RUNNER_TEMP/llama-build/bin/llama-server" \
+            --gpu-layers 0 --browser-origin "http://127.0.0.1:8791" \
+            --api-key-file "$TOKEN_FILE" \
+            --max-concurrent 1 --idle-seconds 0 \
+            > "$RUNNER_TEMP/phiserve.log" 2>&1 &
+          PHI_PID=$!
+
+          PHISERVE_TOKEN_FILE="$TOKEN_FILE" \
+            node packages/vessie-local-console/server.mjs --enable-phiserve-desk \
+            > "$RUNNER_TEMP/vessie-console.log" 2>&1 &
+          VESSIE_PID=$!
+
+          # Readiness is NOT evidence of model generation; that is checked below.
+          python - <<'PY'
+          import os, time, urllib.request
+          token = open(os.path.join(os.environ["RUNNER_TEMP"], "phiserve-hosted-test-token"),
+                       encoding="utf8").read().strip()
+          for _ in range(60):
+              try:
+                  req=urllib.request.Request("http://127.0.0.1:11435/api/tags",
+                     headers={"Authorization":"Bearer "+token})
+                  with urllib.request.urlopen(req,timeout=3) as response:
+                      assert response.status==200
+                  with urllib.request.urlopen("http://127.0.0.1:8791/",timeout=3) as response:
+                      assert response.status==200
+                  print("Both loopback servers are reachable; generation still pending.")
+                  break
+              except Exception:
+                  time.sleep(2)
+          else:
+              raise SystemExit("HOSTED_LOOPBACK_READINESS_FAILED")
+          PY
+
+          export PHISERVE_HOSTED_GGUF_SHA256
+          PHISERVE_HOSTED_GGUF_SHA256="$(sha256sum "$GGUF" | cut -d' ' -f1)"
+          export PHISERVE_HOSTED_ACCEPTANCE_REPORT="$RUNNER_TEMP/phi-hosted-result/acceptance.json"
+          node packages/vessie-local-console/tests/hosted-phiserve-field.mjs
+
+      - name: Upload only redacted, self-reported hosted CPU receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vessie-PhiServe-Hosted-CPU-Acceptance
+          path: \${{ runner.temp }}/phi-hosted-result/acceptance.json
+          if-no-files-found: ignore
+          retention-days: 7
