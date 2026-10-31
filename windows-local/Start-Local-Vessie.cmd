@@ -17,7 +17,7 @@ if not exist "%~dp0node.exe" (
   pause
   exit /b 2
 )
-"%~dp0node.exe" "%~dp0server.mjs"
+"%~dp0node.exe" "%~dp0local-console\server.mjs"
 set "RESULT=%ERRORLEVEL%"
 echo.
 if not "%RESULT%"=="0" echo Console stopped or blocked with code %RESULT%.

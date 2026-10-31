@@ -23,6 +23,29 @@ at http://127.0.0.1:11434. If Ollama is not installed or isn't running,
 you will see an unavailable/empty report. No model gets installed.
 Optional Ollama installer: https://ollama.com/download/windows
 
+OPTIONAL PHISERVE MODEL DESK (SEPARATE OPT-IN, NOT READ ONLY):
+- Start and authenticate PhiServe locally first. Keep its private token in
+  a user-owned file, not a page, source file, command-line arg or URL.
+- Stop the normal Vessie console before changing modes.
+- Double-click Start-PhiServe-Desk.cmd, type ENABLE, then provide the
+  PRIVATE TOKEN FILE PATH when prompted. The launcher never asks for
+  the actual secret token text.
+- In the PhiServe Model Desk click Discover local PhiServe models, select
+  a registered GGUF alias, write a prompt and check the one-shot approval.
+- Click Generate one approved draft. The model runs on this computer
+  only through the authenticated PhiServe service at 127.0.0.1:11435.
+- The answer is an UNTRUSTED text draft checked against its redacted
+  SHA-256 receipt. It cannot run tools, modify memory, approve routing,
+  access other agents, or release canonical Vessie runtime changes.
+- Up to six attempted approved drafts per hour, never concurrently.
+  If the service is busy, unauthorized or unavailable, it fails CLOSED.
+- The read-only launcher still cannot execute any model prompt.
+- The standard Ollama trial launcher remains a separate option.
+- The downloaded portable ZIP now keeps its Node source dependencies
+  under local-console/ and vessie-phiserve-draft-v0.1/.
+- See packages/vessie-local-console/PHISERVE_MODEL_DESK_GUIDE.md in
+  the source repository for security notes and operator field tests.
+
 OPTIONAL EXPERIMENTAL LOCAL INFERENCE (NOT READ ONLY):
 - Optional fixed comparison cards: after discovery, select a public
   Governance, Logic or Code protocol and click Load selected protocol.

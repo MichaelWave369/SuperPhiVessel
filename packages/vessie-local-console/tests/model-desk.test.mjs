@@ -130,7 +130,7 @@ test('MD11 review categories and timestamp are bounded',async()=>{
     {usefulness:'VERY_USEFUL',completeness:'UNSURE',verification:'NOT_CHECKED',reviewedAt:'tomorrow'},
   ])assert.throws(()=>makePhiServeDeskReview(verified,args));
 });
-test('MD12 browser view is file-only with safe textContent and allowlisted assets',()=>{
+test('MD12 browser view keeps file review safe; optional live calls stay same-origin',()=>{
   const root=fileURLToPath(new URL('../',import.meta.url));
   const ui=readFileSync(root+'ui/model-desk-ui.mjs','utf8');
   const app=readFileSync(root+'ui/app.js','utf8');
@@ -138,9 +138,12 @@ test('MD12 browser view is file-only with safe textContent and allowlisted asset
   assert.match(app,/import '\.\/model-desk-ui\.mjs'/);
   assert.match(server,/'\/model-desk\.mjs'/);
   assert.match(server,/'\/model-desk-ui\.mjs'/);
-  for(const bad of [/fetch\(/,/localStorage/,/sessionStorage/,/innerHTML\s*=/,/\beval\(/]){
+  for(const bad of [/localStorage/,/sessionStorage/,/innerHTML\s*=/,/\beval\(/]){
     assert.equal(bad.test(ui),false,String(bad));
   }
+  assert.match(ui,/localCall\('\/api\/phiserve-models'\)/);
+  assert.match(ui,/localCall\('\/api\/phiserve-draft'/);
+  assert.doesNotMatch(ui,/https?:\/\/[^'"]+\/api\/chat/);
   assert.match(ui,/\.textContent=pair\.draft_text/);
   assert.match(ui,/\.files\?\.\[0\]/);
 });
