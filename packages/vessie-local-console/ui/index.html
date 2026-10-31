@@ -115,6 +115,64 @@
         <p class="footnote">The receipt is shown in memory only. Exporting it is your explicit choice. No background jobs, history, automatic retries, training, model admission or learned routing are started.</p>
       </div>
     </section>
+    <section class="panel model-desk" id="phiserve-model-desk" aria-labelledby="model-desk-heading">
+      <div class="panel-top"><h2 id="model-desk-heading">Φ PhiServe Model Desk</h2><span class="tiny">OFFLINE FILE REVIEW · NO EXECUTION</span></div>
+      <p class="classification-note">Visual review for the <code>vessie-phiserve-draft-v0.1</code> operator CLI. Choose its two outputs yourself. The browser verifies the text file's SHA-256 against the receipt before showing it. It never contacts PhiServe, executes the draft, reads Vessie memory, or grants authority.</p>
+      <div class="desk-files">
+        <label class="trial-label" for="desk-receipt-file">PhiServe CLI redacted receipt (.json, max 16 KiB)
+          <input class="trial-field" id="desk-receipt-file" type="file" accept=".json,application/json"/>
+        </label>
+        <label class="trial-label" for="desk-draft-file">Corresponding draft text (.txt, max 100 KiB)
+          <input class="trial-field" id="desk-draft-file" type="file" accept=".txt,text/plain"/>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="desk-verify" type="button">Verify local SHA-256 and review →</button>
+        <button id="desk-clear" type="button" class="secondary">Clear Model Desk</button>
+      </div>
+      <div class="status" id="desk-status" role="status" aria-live="polite">No PhiServe files imported. Nothing is automatically scanned or uploaded.</div>
+      <div id="desk-verified" hidden>
+        <div class="desk-evidence">
+          <div><strong>Reported model alias</strong><span id="desk-model">—</span></div>
+          <div><strong>Matched draft SHA-256</strong><code id="desk-hash">—</code></div>
+        </div>
+        <h3>Untrusted model draft · human reading only</h3>
+        <pre class="trial-data desk-output" id="desk-draft-content">No draft verified.</pre>
+        <p class="footnote">Matching hashes only connect these two local files. They do not prove the model executed, authenticate its source, verify the answer, authorize Vessie tools, or release the canonical runtime. Draft content is displayed as literal text, never HTML or a command.</p>
+        <fieldset class="protocol-box">
+          <legend>Optional human assessment (self-report only)</legend>
+          <label class="trial-label" for="desk-usefulness">Usefulness of the answer</label>
+          <select class="trial-field" id="desk-usefulness">
+            <option value="">Select an assessment</option>
+            <option value="VERY_USEFUL">Very useful</option>
+            <option value="SOMEWHAT_USEFUL">Somewhat useful</option>
+            <option value="NOT_USEFUL">Not useful</option>
+            <option value="NOT_ASSESSED">Not assessed</option>
+          </select>
+          <label class="trial-label" for="desk-completeness">Did the answer appear complete?</label>
+          <select class="trial-field" id="desk-completeness">
+            <option value="">Select an assessment</option>
+            <option value="APPEARS_COMPLETE">Appears complete</option>
+            <option value="MAY_BE_INCOMPLETE">May be incomplete</option>
+            <option value="UNSURE">Unsure</option>
+          </select>
+          <label class="trial-label" for="desk-facts">Factual verification</label>
+          <select class="trial-field" id="desk-facts">
+            <option value="">Select what you checked</option>
+            <option value="NOT_CHECKED">Not independently checked</option>
+            <option value="OPERATOR_CHECKED_SUPPORTED">I checked and found supporting evidence</option>
+            <option value="OPERATOR_CHECKED_CONTRADICTED">I checked and found contradictory evidence</option>
+          </select>
+          <div class="actions">
+            <button id="desk-assess" type="button">Record my assessment</button>
+            <button id="desk-export-review" type="button" class="secondary" disabled>Export redacted review</button>
+          </div>
+          <p class="status" id="desk-review-status" aria-live="polite">No human assessment recorded.</p>
+          <p class="footnote">The review contains only allowlisted hashes, reported alias and categorical choices. No generated text, prompt, secret or automatic quality gate. Nothing is persisted unless you click Export.</p>
+        </fieldset>
+      </div>
+      <p class="footnote">Run the separate <code>packages/vessie-phiserve-draft-v0.1/cli.mjs</code> on this PC to generate files. This interface performs file verification/review only, including when the console is in read-only mode.</p>
+    </section>
     <section class="panel" aria-labelledby="bench-heading">
       <div class="panel-top"><h2 id="bench-heading">Local evidence bench</h2><span class="tiny" id="bench-count">0 observations in memory</span></div>
       <p class="classification-note">Compare redacted local trial timings with your own answer reviews. Nothing runs automatically. Files stay in this browser; no server upload, history, model rankings or BrainC approvals.</p>
