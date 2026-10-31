@@ -33,6 +33,9 @@ jobs:
           .\windows-local\build-portable.ps1 -OutputPath $zip
           if (-not (Test-Path -LiteralPath $zip -PathType Leaf)) { throw 'WINDOWS_LOCAL_ZIP_MISSING' }
           if ((Get-Item $zip).Length -gt 104857600) { throw 'WINDOWS_LOCAL_ZIP_TOO_LARGE' }
+          # Verify the exact same closed ZIP contents that Pages will publish.
+          python windows-local/verify-pages-zip.py $zip
+          if ($LASTEXITCODE -ne 0) { throw 'PAGES_PORTABLE_ARCHIVE_CONTRACT_FAILED' }
           $out=Join-Path $env:RUNNER_TEMP 'vessie-unpacked'
           Expand-Archive -LiteralPath $zip -DestinationPath $out -Force
           $exe=Join-Path $out 'node.exe'
