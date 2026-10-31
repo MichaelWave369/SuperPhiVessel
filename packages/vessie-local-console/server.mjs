@@ -6,6 +6,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { discoverOllama } from './ollama-probe.mjs';
 import {runLocalTrial} from './trial-runner.mjs';
 import {exactProtocolMatch} from './ui/trial-protocols.mjs';
+import {DraftError,readPrivatePhiServeToken,listPhiServeAliases,runPhiServeDraft}
+  from '../vessie-phiserve-draft-v0.1/adapter.mjs';
+import {parsePhiGuiBody,projectPhiGuiCatalog,projectPhiGuiDraft,PHI_GUI_RUNS_PER_HOUR}
+  from './phi-gui-bridge.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PORT = 8791;
@@ -90,9 +94,13 @@ async function readTrialBody(req) {
 
 export async function createLocalConsole({
   port=PORT,probe=discoverOllama,launchBrowser=null,
-  trialEnabled=false,trialRunner=runLocalTrial
+  trialEnabled=false,trialRunner=runLocalTrial,
+  phiServeEnabled=false,phiServeTokenFile=process.env.PHISERVE_TOKEN_FILE||'',
+  phiServeFetch=fetch,
 }={}) {
-  if(typeof trialEnabled!=='boolean')throw new Error('INVALID_TRIAL_MODE');
+  if(typeof trialEnabled!=='boolean' || typeof phiServeEnabled!=='boolean' ||
+    (trialEnabled && phiServeEnabled))throw new Error('INVALID_INFERENCE_MODE');
+  if(phiServeEnabled)readPrivatePhiServeToken(phiServeTokenFile);
   if(!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('INVALID_PORT');
   const token = randomBytes(32).toString('hex');
   const page = readFileSync(join(HERE,'ui','index.html'),'utf8');
@@ -101,6 +109,9 @@ export async function createLocalConsole({
   let inFlight=false;
   let trialBusy=false;
   let trialTimes=[];
+  let phiBusy=false;
+  let phiTimes=[];
+  let phiCatalogTimes=[];
   const server=createServer(async(req,res)=>{
     try {
       if(req.headers.host!==HOST+':'+server.address().port) return denied(res,'HOST_DENIED');
@@ -110,7 +121,60 @@ export async function createLocalConsole({
         return denied(res,'ORIGIN_DENIED');
       if(req.headers['sec-fetch-site'] && !['same-origin','none'].includes(req.headers['sec-fetch-site']))
         return denied(res,'CROSS_SITE_DENIED');
-      // The only state-changing API requires a separate operator startup mode
+      // PhiServe mode is a SEPARATE, explicit startup opt-in.
+      // This server stays on loopback; token file remains in the Node process.
+      if(req.url==='/api/phiserve-models' && req.method==='GET'){
+        if(!phiServeEnabled)return denied(res,'PHISERVE_GUI_DISABLED');
+        if(!constantEq(req.headers.authorization,'Bearer '+token))
+          return denied(res,'SESSION_DENIED');
+        const now=Date.now();
+        phiCatalogTimes=phiCatalogTimes.filter(t=>now-t<60_000);
+        if(phiBusy||phiCatalogTimes.length>=15)
+          return respond(res,429,{error:'PHISERVE_GUI_RATE_LIMIT',authority_granted:false});
+        phiCatalogTimes.push(now);
+        try{
+          const aliases=await listPhiServeAliases({
+            tokenFile:phiServeTokenFile,fetchImpl:phiServeFetch,
+          });
+          return respond(res,200,projectPhiGuiCatalog(aliases));
+        }catch{
+          return respond(res,503,{error:'PHISERVE_CATALOG_UNAVAILABLE',authority_granted:false});
+        }
+      }
+      if(req.url==='/api/phiserve-draft' && req.method==='POST'){
+        if(!phiServeEnabled)return denied(res,'PHISERVE_GUI_DISABLED');
+        if(req.headers.origin!=='http://'+HOST+':'+server.address().port)
+          return denied(res,'PHISERVE_GUI_ORIGIN_REQUIRED');
+        if(!constantEq(req.headers.authorization,'Bearer '+token))
+          return denied(res,'SESSION_DENIED');
+        const now=Date.now();
+        phiTimes=phiTimes.filter(t=>now-t<TRIAL_WINDOW_MS);
+        if(phiBusy||phiTimes.length>=PHI_GUI_RUNS_PER_HOUR)
+          return respond(res,429,{error:'PHISERVE_DRAFT_RATE_LIMIT',authority_granted:false});
+        let input;
+        try{input=await parsePhiGuiBody(req);}
+        catch{return respond(res,400,{error:'PHISERVE_DRAFT_REQUEST_INVALID',authority_granted:false});}
+        phiBusy=true;
+        phiTimes.push(now);
+        try{
+          const result=await runPhiServeDraft({
+            ...input,tokenFile:phiServeTokenFile,fetchImpl:phiServeFetch,
+          });
+          return respond(res,200,projectPhiGuiDraft(result,input));
+        }catch(error){
+          // No prompt, model output, private token, path, or upstream body.
+          const codes=new Set([
+            'LOCAL_PHI_HTTP_401','LOCAL_PHI_HTTP_403','LOCAL_PHI_HTTP_409',
+            'LOCAL_PHI_HTTP_429','LOCAL_PHI_HTTP_503',
+            'LOCAL_PHI_UNREACHABLE','MODEL_NOT_REGISTERED',
+            'TOKEN_FILE_UNAVAILABLE_OR_INSECURE','LOCAL_DRAFT_NOT_COMPLETED',
+          ]);
+          const reason=error instanceof DraftError&&codes.has(error.code)
+            ?error.code:'PHISERVE_DRAFT_FAILED';
+          return respond(res,503,{error:reason,authority_granted:false});
+        }finally{phiBusy=false;}
+      }
+      // The existing Ollama state-changing API requires a separate operator startup mode
       // AND an affirmative per-prompt decision. It is unavailable by default.
       if(req.url==='/api/local-trial' && req.method==='POST') {
         if(!trialEnabled)return denied(res,'LOCAL_TRIAL_DISABLED');
@@ -211,14 +275,18 @@ export async function createLocalConsole({
         readings.push(now);
         if(req.url==='/api/status') return respond(res,200,{
           schema:'superphivessel.local-console.status.v0.1',
-          mode:trialEnabled?'OPERATOR_LOCAL_TRIAL_OPT_IN':'LOCAL_READ_ONLY',
+          mode:phiServeEnabled?'PHISERVE_OPERATOR_DRAFT_OPT_IN':
+            (trialEnabled?'OPERATOR_LOCAL_TRIAL_OPT_IN':'LOCAL_READ_ONLY'),
           local_trial_enabled:trialEnabled,
+          phiserve_gui_enabled:phiServeEnabled,
+          phiserve_model_execution_requires_explicit_approval:true,
+          phiserve_max_drafts_per_hour:PHI_GUI_RUNS_PER_HOUR,
           per_prompt_operator_confirmation_required:true,
           trial_max_output_tokens:128,
           trial_max_requests_per_hour:MAX_LOCAL_TRIALS_PER_HOUR,
           model_inventory:'ON_DEMAND',
           cloud_connected:false,brainc_connected:false,
-          model_execution_enabled:trialEnabled,model_routing_approved:false,
+          model_execution_enabled:trialEnabled||phiServeEnabled,model_routing_approved:false,
           field_qualified:false,authority_granted:false
         });
         inFlight=true;
@@ -281,19 +349,24 @@ if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href){
   try{
     const {execFile} = await import('node:child_process');
     const allowedArgs=process.argv.slice(2);
-    if(allowedArgs.some(arg=>arg!=='--enable-local-trial'))
-      throw new Error('UNRECOGNIZED_STARTUP_ARGUMENT');
+    if(allowedArgs.some(arg=>!['--enable-local-trial','--enable-phiserve-desk'].includes(arg)) ||
+      new Set(allowedArgs).size!==allowedArgs.length || allowedArgs.length>1)
+      throw new Error('UNRECOGNIZED_OR_CONFLICTING_STARTUP_ARGUMENT');
     const enableTrial=allowedArgs.length===1&&allowedArgs[0]==='--enable-local-trial';
+    const enablePhi=allowedArgs.length===1&&allowedArgs[0]==='--enable-phiserve-desk';
     const {port}=await createLocalConsole({
-      trialEnabled:enableTrial,
+      trialEnabled:enableTrial,phiServeEnabled:enablePhi,
       launchBrowser:url=>{
         if(process.platform==='win32') execFile('cmd.exe',['/c','start','',url],{windowsHide:true},()=>{});
       }
     });
-    console.log('SUPERPHIVESSEL LOCAL CONSOLE · '+(enableTrial?'EXPLICIT LOCAL TRIAL MODE':'READ ONLY'));
+    console.log('SUPERPHIVESSEL LOCAL CONSOLE · '+
+      (enablePhi?'EXPLICIT PHISERVE MODEL DESK MODE':
+      enableTrial?'EXPLICIT LOCAL TRIAL MODE':'READ ONLY'));
     console.log(`Open http://${HOST}:${port}/ if your browser did not open.`);
     console.log('The server binds 127.0.0.1 only. Press Ctrl+C to stop.');
-    if(enableTrial) console.log('Local inference is enabled ONLY for human-confirmed, size-reported local models (max 128 output tokens; 6 trials/hour).');
+    if(enableTrial) console.log('Local Ollama inference requires one confirmation (max 128 output tokens; 6 trials/hour).');
+    else if(enablePhi) console.log('PhiServe drafting requires local authenticated PhiServe plus one explicit approval (max 256 output tokens; 6 drafts/hour).');
     else console.log('No inference is available in the default read-only mode.');
     console.log('No paid provider, private memory, auto routing, or learned routing authority.');
   }catch{
