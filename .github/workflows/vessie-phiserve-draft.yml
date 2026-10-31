@@ -1,0 +1,35 @@
+name: Vessie PhiServe Operator Draft CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/vessie-phiserve-draft-v0.1/**'
+      - '.github/workflows/vessie-phiserve-draft.yml'
+  pull_request:
+    paths:
+      - 'packages/vessie-phiserve-draft-v0.1/**'
+      - '.github/workflows/vessie-phiserve-draft.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-draft-adapter:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check isolated adapter syntax
+        run: |
+          node --check packages/vessie-phiserve-draft-v0.1/adapter.mjs
+          node --check packages/vessie-phiserve-draft-v0.1/cli.mjs
+      - name: Run fixed-localhost, private-token, no-authority contracts
+        run: node --test packages/vessie-phiserve-draft-v0.1/tests/adapter.test.mjs
