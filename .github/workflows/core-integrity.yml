@@ -40,7 +40,18 @@ jobs:
           if (-not (Test-Path $exe) -or -not (Test-Path $license)) { throw 'NODE_BINARY_OR_LICENSE_MISSING' }
           $version=& $exe --version
           if ($LASTEXITCODE -ne 0 -or $version -notmatch '^v22\.') { throw 'PORTABLE_NODE_RUNTIME_UNUSABLE' }
-          if (-not (Test-Path (Join-Path $out 'server.mjs'))) { throw 'LOCAL_SERVER_MISSING' }
+          $localServer=Join-Path $out 'local-console/server.mjs'
+          $phiBridge=Join-Path $out 'local-console/phi-gui-bridge.mjs'
+          $phiAdapter=Join-Path $out 'vessie-phiserve-draft-v0.1/adapter.mjs'
+          $deskUI=Join-Path $out 'local-console/ui/model-desk-ui.mjs'
+          $phiLauncher=Join-Path $out 'Start-PhiServe-Desk.cmd'
+          foreach ($file in @($localServer,$phiBridge,$phiAdapter,$deskUI,$phiLauncher)) {
+            if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw 'PORTABLE_PHI_DEPENDENCY_MISSING' }
+          }
+          & $exe --check $localServer
+          if ($LASTEXITCODE -ne 0) { throw 'LOCAL_SERVER_SYNTAX_INVALID' }
+          & $exe --check $phiBridge
+          if ($LASTEXITCODE -ne 0) { throw 'PHISERVE_BRIDGE_SYNTAX_INVALID' }
           Write-Host ('portable-windows-node-runtime: PASS ' + $version)
       - name: Verify local HTTP API regression suite on Windows
         run: node --test packages/vessie-local-console/tests/*.test.mjs
