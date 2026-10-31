@@ -116,8 +116,24 @@
       </div>
     </section>
     <section class="panel model-desk" id="phiserve-model-desk" aria-labelledby="model-desk-heading">
-      <div class="panel-top"><h2 id="model-desk-heading">Φ PhiServe Model Desk</h2><span class="tiny">OFFLINE FILE REVIEW · NO EXECUTION</span></div>
-      <p class="classification-note">Visual review for the <code>vessie-phiserve-draft-v0.1</code> operator CLI. Choose its two outputs yourself. The browser verifies the text file's SHA-256 against the receipt before showing it. It never contacts PhiServe, executes the draft, reads Vessie memory, or grants authority.</p>
+      <div class="panel-top"><h2 id="model-desk-heading">Φ PhiServe Model Desk</h2><span class="tiny">LOCAL · EXPLICIT APPROVAL · NO TOOL AUTHORITY</span></div>
+      <p class="classification-note">Two operator-controlled ways to review a draft: generate one through an explicitly enabled local PhiServe connection, or import the existing CLI's output files. Neither path authorizes tools, agent execution, routing or model promotion. Default console mode stays read-only.</p>
+      <fieldset class="protocol-box" id="desk-live-fields">
+        <legend>Optional live PhiServe draft · OFF unless separately enabled at console startup</legend>
+        <p class="classification-note">Start this local console using <code>--enable-phiserve-desk</code> and set <code>PHISERVE_TOKEN_FILE</code> in its local process. The browser never receives that token. Model aliases are discovered only when you click the button.</p>
+        <div class="actions"><button id="desk-live-discover" type="button" class="secondary">Discover local PhiServe models</button></div>
+        <label class="trial-label" for="desk-live-model">Registered local GGUF alias</label>
+        <select id="desk-live-model" class="trial-field" disabled><option value="">Discover models explicitly first</option></select>
+        <label class="trial-label" for="desk-live-prompt">One prompt (max 2,000 characters; do not include secrets)</label>
+        <textarea id="desk-live-prompt" class="trial-field" rows="4" maxlength="2000" placeholder="Draft a short explanation for me to review."></textarea>
+        <label class="trial-label" for="desk-live-limit">Maximum output tokens</label>
+        <select id="desk-live-limit" class="trial-field"><option value="64">64</option><option value="128">128</option><option value="256">256</option></select>
+        <label class="trial-confirm"><input id="desk-live-approve" type="checkbox"/> I approve sending this one prompt to the selected registered PhiServe model on this computer. The response is an untrusted draft, not a Vessie command or approval.</label>
+        <div class="actions"><button id="desk-live-run" type="button">Generate one approved draft →</button></div>
+        <p id="desk-live-status" class="status" role="status" aria-live="polite">Not connected. No inference occurs until you explicitly discover and approve a prompt.</p>
+        <p class="footnote">Up to six attempted drafts per hour, never concurrent, with no cloud fallback or automatic persistence. The local console checks the generated text against its redacted receipt before displaying the review panel.</p>
+      </fieldset>
+      <h3>Alternatively: import existing PhiServe CLI draft files</h3>
       <div class="desk-files">
         <label class="trial-label" for="desk-receipt-file">PhiServe CLI redacted receipt (.json, max 16 KiB)
           <input class="trial-field" id="desk-receipt-file" type="file" accept=".json,application/json"/>
@@ -171,7 +187,7 @@
           <p class="footnote">The review contains only allowlisted hashes, reported alias and categorical choices. No generated text, prompt, secret or automatic quality gate. Nothing is persisted unless you click Export.</p>
         </fieldset>
       </div>
-      <p class="footnote">Run the separate <code>packages/vessie-phiserve-draft-v0.1/cli.mjs</code> on this PC to generate files. This interface performs file verification/review only, including when the console is in read-only mode.</p>
+      <p class="footnote">In default read-only mode, only manual file import/review is available. Live drafting requires the separate startup flag, local token file and an explicit per-prompt approval. The standalone <code>packages/vessie-phiserve-draft-v0.1/cli.mjs</code> remains available for operator-only file generation.</p>
     </section>
     <section class="panel" aria-labelledby="bench-heading">
       <div class="panel-top"><h2 id="bench-heading">Local evidence bench</h2><span class="tiny" id="bench-count">0 observations in memory</span></div>
