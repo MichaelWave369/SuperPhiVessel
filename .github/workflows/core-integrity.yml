@@ -52,6 +52,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'LOCAL_SERVER_SYNTAX_INVALID' }
           & $exe --check $phiBridge
           if ($LASTEXITCODE -ne 0) { throw 'PHISERVE_BRIDGE_SYNTAX_INVALID' }
+          # Check the archive after extraction: importing the source entrypoint
+          # must resolve every relative ESM dependency without starting a server.
+          Push-Location $out
+          try {
+            & $exe --input-type=module -e "await import('./local-console/server.mjs'); console.log('PORTABLE_IMPORTS_PASS')"
+            if ($LASTEXITCODE -ne 0) { throw 'PORTABLE_ESM_DEPENDENCY_MISSING' }
+          } finally { Pop-Location }
           Write-Host ('portable-windows-node-runtime: PASS ' + $version)
       - name: Verify local HTTP API regression suite on Windows
         run: node --test packages/vessie-local-console/tests/*.test.mjs
