@@ -34,7 +34,7 @@ try {
     @{From=(Join-Path $PSScriptRoot 'START_HERE.txt');To='START_HERE.txt'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/server.mjs');To='local-console/server.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/trial-runner.mjs');To='local-console/trial-runner.mjs'},
-    @{From=(Join-Path $Root 'packages/vessie-local-console/ollama-probe.mjs');To='local-console/ollama-probe.mjs'},
+    @{From=(Join-Path $Root 'packages/vessie-gateway-v0.1/ollama-probe.mjs');To='local-console/ollama-probe.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/phi-gui-bridge.mjs');To='local-console/phi-gui-bridge.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-phiserve-draft-v0.1/adapter.mjs');To='vessie-phiserve-draft-v0.1/adapter.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/index.html');To='local-console/ui/index.html'},
