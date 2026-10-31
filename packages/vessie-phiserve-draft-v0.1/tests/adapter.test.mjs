@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { chmodSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
   DRAFT_SCHEMA, PHISERVE_ORIGIN, DraftError, readPrivatePhiServeToken,
@@ -210,8 +211,8 @@ test('P11 malformed, invalid content-type, or too many model catalog entries ref
 }));
 
 test('P12 invoking draft CLI without --approve-local-inference fails before reading any files', () => {
-  const program=new URL('../cli.mjs',import.meta.url);
-  const child=spawnSync(process.execPath,[program.pathname,'draft',
+  const program=fileURLToPath(new URL('../cli.mjs',import.meta.url));
+  const child=spawnSync(process.execPath,[program,'draft',
     '--model',MODEL,'--prompt-file','missing','--output-text','draft.txt',
     '--output-receipt','receipt.json'],{encoding:'utf8'});
   assert.equal(child.status,2);
