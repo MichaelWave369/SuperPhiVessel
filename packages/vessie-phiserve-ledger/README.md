@@ -15,6 +15,16 @@ Its ledger record also contains the public model alias, GGUF source and SHA-256,
 
 GitHub Actions artifacts expire; keeping this *redacted source JSON* in Git ensures the evidence remains reviewable. The run URL and artifact digest are traceability aids; the report remains runner self-report rather than independent hardware attestation.
 
+## Browser-only import (no local checkout required)
+
+After a successful manually approved hosted CPU acceptance workflow run, open **SuperPhiVessel → Actions → Vessie PhiServe Ledger Manual Import PR** in your browser. Choose Run workflow on main, enter the **source run ID**, and check **Approve downloading that redacted artifact and opening an add-only evidence PR**.
+
+The manual importer then checks the actual GitHub run and artifact metadata, fetches that run's `Vessie-PhiServe-Hosted-CPU-Acceptance` artifact, verifies that the source commit agrees with its redacted receipt, runs the same strict offline ledger validation, and opens a **new evidence PR** containing only the new receipt and derived ledger entry. A human still reviews and merges it. It will never trigger by push, PR, schedule, or completed-run event, and never auto-merges or promotes a model.
+
+This workflow uses the repository-scoped GitHub Actions token with write permission **only when manually dispatched**. GitHub repository settings may need **Allow GitHub Actions to create and approve pull requests** enabled for PR creation. If policy denies that action, nothing is merged and the operator can use the offline CLI workflow below. Do not increase permissions on the read-only ledger validation workflow.
+
+**First source run #41271827883 is already in the ledger.** Do not re-import it; duplicate run IDs are refused. On future hosted runs, the import button avoids installing Git, Node, or models on your Windows PC.
+
 ## Add future receipts, only after a real hosted run
 
 1. Manually launch Vessie PhiServe Manual Hosted CPU Acceptance in GitHub Actions, explicitly approving the public model download. This does not run automatically during PR CI.
@@ -41,7 +51,7 @@ node packages/vessie-phiserve-ledger/cli.mjs verify --root ledger/phiserve-accep
 node packages/vessie-phiserve-ledger/cli.mjs summary --root ledger/phiserve-acceptance
 ~~~
 
-CI runs these commands on Linux and Windows. On PRs, CI also compares the complete prior ledger and evidence bytes to main to block in-place rewriting. This is a repository governance guard, subject to administrator override and branch protection.
+CI runs these commands on Linux and Windows. The recommended online-only path is the manual GitHub importer above; the local CLI remains a reproducible offline option. On PRs, CI also compares the complete prior ledger and evidence bytes to main to block in-place rewriting. This is a repository governance guard, subject to administrator override and branch protection.
 
 ## Comparisons and interpretation
 
