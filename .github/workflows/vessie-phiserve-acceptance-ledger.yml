@@ -1,0 +1,67 @@
+name: Vessie PhiServe Acceptance Ledger CI
+
+on:
+  pull_request:
+    paths:
+      - 'ledger/phiserve-acceptance/**'
+      - 'packages/vessie-phiserve-ledger/**'
+      - '.github/workflows/vessie-phiserve-acceptance-ledger.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ledger/phiserve-acceptance/**'
+      - 'packages/vessie-phiserve-ledger/**'
+      - '.github/workflows/vessie-phiserve-acceptance-ledger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-ledger:
+    name: PhiServe ledger / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout repository without push credentials
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax and offline ledger tests
+        shell: bash
+        run: |
+          node --check packages/vessie-phiserve-ledger/ledger.mjs
+          node --check packages/vessie-phiserve-ledger/cli.mjs
+          node --test packages/vessie-phiserve-ledger/tests/ledger.test.mjs
+
+      - name: Validate retained receipts and print non-promoting summary
+        shell: bash
+        run: |
+          node packages/vessie-phiserve-ledger/cli.mjs verify --root ledger/phiserve-acceptance
+          node packages/vessie-phiserve-ledger/cli.mjs summary --root ledger/phiserve-acceptance
+
+      - name: Refuse deletion or alteration of already committed evidence
+        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          while IFS= read -r original; do
+            if [[ ! -f "$original" ]] ||
+               ! git show "origin/main:$original" | cmp -s - "$original"; then
+              echo "LEDGER_APPEND_ONLY_VIOLATION: $original"
+              exit 1
+            fi
+          done < <(git ls-tree -r --name-only origin/main -- \
+            ledger/phiserve-acceptance/entries \
+            ledger/phiserve-acceptance/evidence)
+          echo "LEDGER_HISTORIC_RECORDS_UNCHANGED"
