@@ -1,0 +1,4 @@
+# PhiServe acceptance evidence is byte-exact SHA-256 source data.
+# Never convert LF to CRLF or re-normalize retained source receipts.
+ledger/phiserve-acceptance/evidence/** -text
+ledger/phiserve-acceptance/entries/** -text

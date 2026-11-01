@@ -757,3 +757,7 @@ The witness private PEM is unencrypted and written with local filesystem mode 06
 Even a valid witness cannot independently establish that synthetic R6 model observations occurred, that timestamps are true, that human signers are institutionally independent, or that history is immutable. Retaining a minimum count catches rollback to shorter histories but does not by itself rule out different histories with the same number of events. A separately protected latest head hash is stronger. If a malicious actor controls both witness pins and protected checkpoint state, signatures cannot save the audit.
 
 All checks are entirely offline and read-only to the actual agent runtimes. Every report, including PASS, states authority NONE, permissions [], and actionAllowed false. No model access, network API, agent execution, skill installation, routing or permission changes.
+
+## Φ PhiServe hosted acceptance ledger
+
+A permanent, read-only-in-CI record of redacted real-model acceptance evidence is now tracked under [PhiServe Acceptance Ledger](packages/vessie-phiserve-ledger/README.md). It preserves GitHub-hosted CPU model/receipt hashes, strictly rejects privacy or authority escalations, and reports advisory model/latency drift without claiming to qualify Windows or GPU hardware. New entries require additive PR review.
