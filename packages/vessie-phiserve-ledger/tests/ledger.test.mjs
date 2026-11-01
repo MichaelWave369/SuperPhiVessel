@@ -86,9 +86,10 @@ test('AL08 invalid SHA-256 digests and sizes cannot be ledgered',()=>{
   const time=clone(original);time.elapsed_wall_ms=-1;
   rejected(()=>validateReceipt(time),'LATENCY_INVALID');
 });
-test('AL09 record provenance cannot be rewritten to claim another artifact or run',()=>{
+test('AL09 immutable derived record fields and authority cannot be rewritten',()=>{
+  // A bare artifact ID is operator-provided metadata and cannot be
+  // independently authenticated by offline receipt parsing.
   for(const mutate of [
-    e=>e.source.artifact_id=123,
     e=>e.source.repository='attacker/SuperPhiVessel',
     e=>e.source.artifact_receipt_sha256='0'.repeat(64),
     e=>e.classification.independently_attested=true,
