@@ -36,5 +36,5 @@ test('HC04 receipt artifact path resolves under runner temp and missing files fa
   assert.ok(wf.includes(expected),'Runner artifact path must not contain a backslash');
   assert.doesNotMatch(wf,/path:\s*\\\$\{\{\s*runner\.temp/);
   assert.match(wf,/if-no-files-found: error/);
-  assert.match(wf,/\n\s*if: success\(\)\n\s*uses: actions\/upload-artifact@v4/);
+  assert.match(wf,/\r?\n\s*if: success\(\)\r?\n\s*uses: actions\/upload-artifact@v4/);
 });
