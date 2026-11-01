@@ -30,3 +30,11 @@ test('HC03 acceptance refuses privilege and does not export raw text',()=>{
   assert.match(script,/await checkReadOnly/);
   assert.match(script,/MANUAL_DISPATCH_REQUIRED/);
 });
+
+test('HC04 receipt artifact path resolves under runner temp and missing files fail CI',()=>{
+  const expected='path: ' + '$' + '{{ runner.temp }}/phi-hosted-result/acceptance.json';
+  assert.ok(wf.includes(expected),'Runner artifact path must not contain a backslash');
+  assert.doesNotMatch(wf,/path:\s*\\\$\{\{\s*runner\.temp/);
+  assert.match(wf,/if-no-files-found: error/);
+  assert.match(wf,/\n\s*if: success\(\)\n\s*uses: actions\/upload-artifact@v4/);
+});
