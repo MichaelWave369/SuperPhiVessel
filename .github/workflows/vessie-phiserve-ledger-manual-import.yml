@@ -57,8 +57,8 @@ jobs:
             (.status == "completed") and
             (.conclusion == "success") and
             (.head_branch == "main") and
-            (.path | endswith("/.github/workflows/vessie-phiserve-hosted-cpu-acceptance.yml")) and
-            ((.inputs.consent_external_model_download | tostring) == "true") and
+            (.name == "Vessie PhiServe Manual Hosted CPU Acceptance") and
+            (.path == ".github/workflows/vessie-phiserve-hosted-cpu-acceptance.yml") and
             (.head_sha | test("^[0-9a-f]{40}$")) and
             (.created_at | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T"))
           ' "$RUNNER_TEMP/source-run.json" > /dev/null
