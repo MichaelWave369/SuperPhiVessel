@@ -1,0 +1,51 @@
+{
+  "schema": "VESSIE_PHISERVE_ACCEPTANCE_LEDGER_ENTRY_V1",
+  "record_id": "gha-41271827883",
+  "source": {
+    "kind": "GITHUB_ACTIONS_ARTIFACT_SELF_REPORTED",
+    "repository": "MichaelWave369/SuperPhiVessel",
+    "workflow_run_id": 41271827883,
+    "artifact_id": 13070145738,
+    "run_created_at": "2026-11-01T04:07:24Z",
+    "artifact_file": "acceptance.json",
+    "artifact_receipt_sha256": "ab3a9001d25e5fcb561c45f2fa2fbb01af5347ed1d214ceac016a0d4b88109c6",
+    "github_run_url": "https://github.com/MichaelWave369/SuperPhiVessel/actions/runs/41271827883"
+  },
+  "observation": {
+    "receipt_schema": "VESSIE_PHISERVE_HOSTED_CPU_ACCEPTANCE_V1",
+    "status": "HOSTED_CPU_PHI_VESSIE_ACCEPTANCE_PASSED",
+    "execution_context": "GITHUB_HOSTED_UBUNTU_CPU_RUNNER",
+    "model_alias": "cloud-smollm2-135m-q4",
+    "gguf_source": "bartowski/SmolLM2-135M-Instruct-GGUF",
+    "gguf_quantization": "Q4_K_M",
+    "gguf_sha256": "2e8040ceae7815abe0dcb3540b9995eaa1fa0d2ca9e797d0a635ae4433c68c2d",
+    "response_sha256": "502c59159bc10ecfc35051f74c21c0e436fbc7438f1e71942849021119724b6d",
+    "receipt_file_sha256": "7ed503c6b49ad950987df78a36997837fbe5bf3b603aed1e6c9936f3d98cc658",
+    "response_characters": 332,
+    "elapsed_wall_ms": 1196,
+    "checks": {
+      "session_authentication_required": true,
+      "model_catalog_authenticated": true,
+      "cross_origin_request_denied": true,
+      "missing_approval_denied": true,
+      "real_model_inference_response": true,
+      "model_reply_sha256_matched": true,
+      "human_review_redacted": true,
+      "read_only_mode_denied": true
+    },
+    "source_commit": "a92dd51fce9a1ce1d801519309b6dd258eddc81d"
+  },
+  "classification": {
+    "record_kind": "SELF_REPORTED_HOSTED_INTEGRATION_OBSERVATION",
+    "scope": "HOSTED_LINUX_CPU_ONLY",
+    "machine_verified": false,
+    "independently_attested": false,
+    "user_gpu_verified": false,
+    "browser_gui_click_verified": false,
+    "human_quality_reviewed": false,
+    "canonical_promotion_approved": false,
+    "model_routing_approved": false,
+    "agent_authority_granted": false,
+    "response_hash_equality_required": false
+  }
+}
