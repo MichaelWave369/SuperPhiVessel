@@ -1,0 +1,134 @@
+name: Vessie PhiServe Ledger Manual Import PR
+
+# Operator-approved metadata lookup and append-only PR. Never auto-ingests,
+# auto-merges, executes models, or promotes an observation into authority.
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful hosted PhiServe acceptance run ID in this repository"
+        required: true
+        type: string
+      approve_create_evidence_pr:
+        description: "Approve downloading that redacted artifact and opening an add-only evidence PR"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: vessie-phiserve-ledger-manual-import
+  cancel-in-progress: false
+
+jobs:
+  prepare-ledger-pr:
+    if: inputs.approve_create_evidence_pr == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - name: Checkout main for PR, no edits to historical evidence
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify successful same-repository manual hosted run metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$SOURCE_RUN_ID" =~ ^[1-9][0-9]{5,15}$ ]]; then
+            echo "LEDGER_INVALID_RUN_ID"; exit 1
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" \
+            > "$RUNNER_TEMP/source-run.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" '
+            (.repository.full_name == $repo) and
+            (.event == "workflow_dispatch") and
+            (.status == "completed") and
+            (.conclusion == "success") and
+            (.head_branch == "main") and
+            (.path | endswith("/.github/workflows/vessie-phiserve-hosted-cpu-acceptance.yml")) and
+            ((.inputs.consent_external_model_download | tostring) == "true") and
+            (.head_sha | test("^[0-9a-f]{40}$")) and
+            (.created_at | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T"))
+          ' "$RUNNER_TEMP/source-run.json" > /dev/null
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" \
+            > "$RUNNER_TEMP/source-artifacts.json"
+          jq -e '[.artifacts[] | select(
+            .name == "Vessie-PhiServe-Hosted-CPU-Acceptance" and
+            .expired == false and
+            .size_in_bytes > 0
+          )] | length == 1' "$RUNNER_TEMP/source-artifacts.json" > /dev/null
+          jq -r '.artifacts[] | select(.name == "Vessie-PhiServe-Hosted-CPU-Acceptance" and .expired == false) | .id' \
+            "$RUNNER_TEMP/source-artifacts.json" > "$RUNNER_TEMP/artifact-id"
+          echo "LEDGER_SOURCE_RUN_AND_ARTIFACT_METADATA_VALIDATED"
+
+      - name: Download only approved redacted evidence and check commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/evidence"
+          gh run download "$SOURCE_RUN_ID" -R "$GITHUB_REPOSITORY" \
+            -n Vessie-PhiServe-Hosted-CPU-Acceptance -D "$RUNNER_TEMP/evidence"
+          test -f "$RUNNER_TEMP/evidence/acceptance.json"
+          test ! -L "$RUNNER_TEMP/evidence/acceptance.json"
+          node --input-type=module - "$RUNNER_TEMP/source-run.json" \
+            "$RUNNER_TEMP/evidence/acceptance.json" <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const metadata=JSON.parse(readFileSync(process.argv[2],'utf8'));
+          const evidence=JSON.parse(readFileSync(process.argv[3],'utf8'));
+          if(evidence.source_commit!==metadata.head_sha){
+            console.error('LEDGER_RUN_COMMIT_VERSUS_RECEIPT_MISMATCH');
+            process.exitCode=1;
+          }
+          NODE
+          echo "LEDGER_SOURCE_COMMIT_MATCHED"
+
+      - name: Append and verify one redacted record without executing a model
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUN_CREATED="$(jq -r .created_at "$RUNNER_TEMP/source-run.json")"
+          ARTIFACT_ID="$(cat "$RUNNER_TEMP/artifact-id")"
+          node packages/vessie-phiserve-ledger/cli.mjs ingest \
+            --root ledger/phiserve-acceptance \
+            --receipt "$RUNNER_TEMP/evidence/acceptance.json" \
+            --run-id "$SOURCE_RUN_ID" \
+            --artifact-id "$ARTIFACT_ID" \
+            --run-created-at "$RUN_CREATED"
+          node packages/vessie-phiserve-ledger/cli.mjs verify --root ledger/phiserve-acceptance
+          node --test packages/vessie-phiserve-ledger/tests/ledger.test.mjs
+          echo "LEDGER_NEW_RECORD_VALIDATED_NO_AUTHORITY_GRANTED"
+
+      - name: Open add-only human-reviewed PR; never auto-merge
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="ledger/hosted-$SOURCE_RUN_ID"
+          RECORD="ledger/phiserve-acceptance/entries/gha-$SOURCE_RUN_ID.json"
+          PROOF="ledger/phiserve-acceptance/evidence/gha-$SOURCE_RUN_ID/acceptance.json"
+          test -f "$RECORD"
+          test -f "$PROOF"
+          git switch -c "$BRANCH"
+          git add -- "$RECORD" "$PROOF"
+          git diff --cached --quiet && { echo "LEDGER_NO_NEW_ENTRY"; exit 1; }
+          test "$(git diff --cached --name-only | wc -l)" -eq 2
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "ledger: append hosted PhiServe acceptance run $SOURCE_RUN_ID"
+          git push origin "$BRANCH"
+          gh pr create --repo "$GITHUB_REPOSITORY" \
+            --base main --head "$BRANCH" \
+            --title "Ledger: review hosted PhiServe acceptance #$SOURCE_RUN_ID" \
+            --body "Manually requested redacted evidence for hosted GitHub Actions run #$SOURCE_RUN_ID. Check its source artifact, model hash, receipt controls and permission flags. Never auto-merge or claim independent hardware verification. See packages/vessie-phiserve-ledger/README.md."
+          echo "LEDGER_PR_OPENED_HUMAN_REVIEW_REQUIRED"
