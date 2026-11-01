@@ -181,3 +181,30 @@ test('AL17 the ledger does not turn any observation into autonomous permission',
   assert.equal(committed.classification.machine_verified,false);
   assert.equal(committed.classification.human_quality_reviewed,false);
 });
+
+test('AL18 browser-only evidence importer never runs automatically or merges a PR',()=>{
+  const wf=readFileSync(new URL('../../../.github/workflows/vessie-phiserve-ledger-manual-import.yml',import.meta.url),'utf8');
+  assert.match(wf,/^\s*workflow_dispatch:\s*$/m);
+  for(const trigger of [/^\s*pull_request:/m,/^\s*push:/m,/^\s*schedule:/m,/^\s*workflow_run:/m]){
+    assert.doesNotMatch(wf,trigger);
+  }
+  assert.match(wf,/approve_create_evidence_pr:/);
+  assert.match(wf,/default: false/);
+  assert.match(wf,/if: inputs\.approve_create_evidence_pr == true/);
+  assert.match(wf,/gh pr create /);
+  assert.doesNotMatch(wf,/gh pr merge|git push origin main|--auto-merge/);
+  assert.match(wf,/LEDGER_PR_OPENED_HUMAN_REVIEW_REQUIRED/);
+});
+test('AL19 browser importer validates real GitHub run fields and accepts only bounded redacted evidence',()=>{
+  const wf=readFileSync(new URL('../../../.github/workflows/vessie-phiserve-ledger-manual-import.yml',import.meta.url),'utf8');
+  assert.match(wf,/\.repository\.full_name == \$repo/);
+  assert.match(wf,/\.event == "workflow_dispatch"/);
+  assert.match(wf,/\.conclusion == "success"/);
+  assert.match(wf,/\.path == "\.github\/workflows\/vessie-phiserve-hosted-cpu-acceptance\.yml"/);
+  assert.match(wf,/\.head_branch == "main"/);
+  assert.match(wf,/Vessie-PhiServe-Hosted-CPU-Acceptance/);
+  assert.match(wf,/evidence\.source_commit!==metadata\.head_sha/);
+  assert.match(wf,/node packages\/vessie-phiserve-ledger\/cli\.mjs ingest/);
+  assert.match(wf,/test "\$\(git diff --cached --name-only \| wc -l\)" -eq 2/);
+  assert.doesNotMatch(wf,/--llama-server|--approve-local-inference|cloud inference/i);
+});
