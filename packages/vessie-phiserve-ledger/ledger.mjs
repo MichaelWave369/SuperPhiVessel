@@ -247,6 +247,16 @@ export function summary(entries){
     const middle=durations[Math.floor(durations.length/2)];
     const median=durations.length%2?middle:(durations[durations.length/2-1]+middle)/2;
     const responses=new Set(items.map(x=>x.observation.response_sha256)).size;
+    // R1 timings are not controlled benchmarks. A large shift after three
+    // similar historical runs is an *advisory review signal*, not a CI fail.
+    if(items.length>=4){
+      const prior=items.slice(0,-1).map(x=>x.observation.elapsed_wall_ms).sort((a,b)=>a-b);
+      const n=prior.length,reference=n%2?prior[Math.floor(n/2)]:
+        (prior[n/2-1]+prior[n/2])/2;
+      const latest=last.observation.elapsed_wall_ms;
+      if(reference>0 && latest>=reference*3 && latest-reference>=1000)
+        alerts.push({record_id:last.record_id,kind:'LATENCY_VARIATION_REVIEW_REQUIRED'});
+    }
     // Unfixed random seed / prompt fingerprint in R1. Variation is
     // NOT categorized as quality regression or failed equivalence.
     return {
