@@ -6,12 +6,14 @@ on:
       - 'ledger/phiserve-acceptance/**'
       - 'packages/vessie-phiserve-ledger/**'
       - '.github/workflows/vessie-phiserve-acceptance-ledger.yml'
+      - '.github/workflows/vessie-phiserve-ledger-manual-import.yml'
   push:
     branches: [main]
     paths:
       - 'ledger/phiserve-acceptance/**'
       - 'packages/vessie-phiserve-ledger/**'
       - '.github/workflows/vessie-phiserve-acceptance-ledger.yml'
+      - '.github/workflows/vessie-phiserve-ledger-manual-import.yml'
   workflow_dispatch:
 
 permissions:

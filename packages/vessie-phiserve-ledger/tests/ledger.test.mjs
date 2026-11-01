@@ -188,6 +188,7 @@ test('AL18 browser-only evidence importer never runs automatically or merges a P
   for(const trigger of [/^\s*pull_request:/m,/^\s*push:/m,/^\s*schedule:/m,/^\s*workflow_run:/m]){
     assert.doesNotMatch(wf,trigger);
   }
+  assert.match(wf,/permissions:\s*\n\s*actions: read\s*\n\s*contents: write\s*\n\s*pull-requests: write/);
   assert.match(wf,/approve_create_evidence_pr:/);
   assert.match(wf,/default: false/);
   assert.match(wf,/if: inputs\.approve_create_evidence_pr == true/);
