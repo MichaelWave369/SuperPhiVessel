@@ -8,6 +8,8 @@ This is an on-demand GitHub Actions experiment, not a permanently hosted model, 
 2. Click Run workflow, choose main, and check the option approving a public Apache-2.0 model download and a temporary CPU test.
 3. Follow the resulting GitHub Actions job. After a green run, download the Vessie-PhiServe-Hosted-CPU-Acceptance artifact and inspect its redacted acceptance.json report.
 
+The first manually triggered hosted run on October 31, 2026 **passed actual CPU inference and SHA-256 checks**, but the workflow's artifact uploader had an escaped path and did not publish the JSON report. The follow-up fix requires the acceptance artifact to exist for the workflow to pass. Once merged, start a **new** manual run to collect the evidence; a previous run's missing artifact cannot be recovered from the temporary runner.
+
 No downloads or installations happen on your Windows PC. The workflow does not run on pushes, pull requests, schedules, or deployments. It needs an intentional Run workflow click and approval checkbox.
 
 ## What the temporary GitHub runner does

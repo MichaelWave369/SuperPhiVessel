@@ -140,10 +140,10 @@ jobs:
           node packages/vessie-local-console/tests/hosted-phiserve-field.mjs
 
       - name: Upload only redacted, self-reported hosted CPU receipt
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Vessie-PhiServe-Hosted-CPU-Acceptance
-          path: \${{ runner.temp }}/phi-hosted-result/acceptance.json
-          if-no-files-found: ignore
+          path: ${{ runner.temp }}/phi-hosted-result/acceptance.json
+          if-no-files-found: error
           retention-days: 7
