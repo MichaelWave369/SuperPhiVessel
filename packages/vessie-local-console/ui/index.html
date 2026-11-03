@@ -8,6 +8,7 @@
 <title>Vessie · Local Model Console</title>
 <link rel="stylesheet" href="/style.css">
 <script type="module" src="/app.js"></script>
+<script type="module" src="/council-review-ui.mjs"></script>
 </head>
 <body>
 <div class="shell">
@@ -188,6 +189,25 @@
         </fieldset>
       </div>
       <p class="footnote">In default read-only mode, only manual file import/review is available. Live drafting requires the separate startup flag, local token file and an explicit per-prompt approval. The standalone <code>packages/vessie-phiserve-draft-v0.1/cli.mjs</code> remains available for operator-only file generation.</p>
+    </section>
+    <section class="panel" aria-labelledby="council-e1-heading">
+      <div class="panel-top"><h2 id="council-e1-heading">Research Council · Vessie governance review</h2><span class="tiny">FILE ONLY · AUTHORITY NONE</span></div>
+      <p class="classification-note">Manually inspect a public synthetic NBGPocketMesh E1 Council receipt. Strict SHA-256 and role checks verify internal consistency, not origin, source independence, scientific truth, or approval.</p>
+      <label class="trial-label" for="council-e1-file">Select one public synthetic E1 JSON (up to 64 KiB, never uploaded)</label>
+      <input id="council-e1-file" type="file" accept=".json,application/json" class="trial-field">
+      <div class="actions">
+        <button type="button" id="council-e1-inspect">Inspect selected Council receipt</button>
+        <button type="button" id="council-e1-clear" class="secondary">Clear review</button>
+      </div>
+      <p id="council-e1-status" class="status" role="status" aria-live="polite">No imported Council receipt. No source or scientific evidence authenticated.</p>
+      <div id="council-e1-preview" hidden>
+        <h3>HELD · untrusted synthetic research review</h3>
+        <p>Case: <code id="council-e1-case"></code></p>
+        <p id="council-e1-witness"></p>
+        <ul id="council-e1-seats" aria-label="Declared Council participants"></ul>
+        <p>Exchange hash: <code id="council-e1-hash"></code></p>
+        <p class="footnote">The three participants are descriptive roles, not connected local models. No Vessie tool, memory, model routing, research verdict, PhiKernel permission, release, or deployment is approved by this inspection.</p>
+      </div>
     </section>
     <section class="panel" aria-labelledby="bench-heading">
       <div class="panel-top"><h2 id="bench-heading">Local evidence bench</h2><span class="tiny" id="bench-count">0 observations in memory</span></div>
