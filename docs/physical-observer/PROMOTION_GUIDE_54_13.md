@@ -52,8 +52,19 @@ assistant is **not** a substitute for an operator release decision.
 ## CI preflight
 
 The preflight workflow regenerates the exact candidate from the pinned canonical
-base and downloads the exact past Chromium run artifact. It verifies the candidate,
-build receipt, desktop screenshot and mobile screenshot SHA-256 values.
+base. The original Chromium run `37730175204` and artifact `11529263628` remain
+the **historical source of the dossier's immutable screenshot hashes**, but the
+artifact itself expired under normal GitHub Actions retention. Rather than
+blindly swapping evidence or suppressing a failure, preflight now runs the
+same pinned NBG/Playwright Chromium qualification pipeline in a dependent
+job, downloads only that **same workflow run's** output, and verifies both
+screenshots against the **unchanged historical SHA-256 pins**.
+
+If newer browser rendering produces different PNG bytes, preflight must
+**fail and preserve the HOLD**. Updating screenshot pins would require
+a separately reviewed evidence-dossier change, not an automatic migration
+to a newer run. The original candidate SHA, builder receipt, operator pending
+state, independent executor governance and release hold are also verified.
 
 The static promotion dossier always remains:
 
