@@ -24,6 +24,8 @@ REQUIRED = frozenset({
     "local-console/ui/app.js",
     "local-console/ui/review-evidence.mjs",
     "local-console/ui/evidence-bench.mjs",
+    "local-console/ui/council-review.mjs",
+    "local-console/ui/council-review-ui.mjs",
     "local-console/ui/portable-bench.mjs",
     "local-console/ui/trial-protocols.mjs",
     "local-console/ui/protocol-cohorts.mjs",

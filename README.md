@@ -18,6 +18,10 @@ Vessie explores how capable AI models, local compute, hosted inference, memory, 
 | **[GitHub Releases](https://github.com/MichaelWave369/SuperPhiVessel/releases)** | Frozen standalone runtime downloads and checksums |
 | **[Current release](https://github.com/MichaelWave369/SuperPhiVessel/releases/tag/v2.0-alpha.11.0.54.10)** | v2.0-alpha.11.0.54.10 — Service Models Handler Restoration |
 
+## NBG Research Council E1 · Offline Vessie review (proposed integration)
+
+The separate **Research Council** panel in Vessie's portable localhost console accepts an operator-selected, public-synthetic NBGPocketMesh E1 JSON receipt and performs strict Web Crypto SHA-256/role checks in the browser. The review is **HELD_UNTRUSTED_REVIEW_ONLY**, never approval or scientific verification. The panel does not contact models, use Vessie memory, write back to ThinkTank/PocketBrain, or grant action authority. Details: [Council E1 review guide](packages/vessie-local-console/COUNCIL_E1_REVIEW_GUIDE.md).
+
 ## PhiServe Model Desk (operator-approved GUI inference, opt-in)
 
 The existing localhost console can now **discover and request one live PhiServe draft** using a separate `--enable-phiserve-desk` startup switch and an operator-controlled private bearer-token file. The browser never sees the PhiServe token. Each run requires a selected registered GGUF, prompt and separate per-request approval, then checks the draft against a redacted hash receipt before human review. The default console remains read-only, existing Ollama trials are separate, and Vessie's tool and routing authority is unchanged. [Operator guide](packages/vessie-local-console/PHISERVE_MODEL_DESK_GUIDE.md).

@@ -1,0 +1,48 @@
+name: Vessie Research Council E1-C contract
+
+on:
+  pull_request:
+    paths:
+      - 'packages/vessie-local-console/ui/council-review.mjs'
+      - 'packages/vessie-local-console/ui/council-review-ui.mjs'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/council-review.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
+      - '.github/workflows/council-e1-vessie.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/vessie-local-console/ui/council-review.mjs'
+      - 'packages/vessie-local-console/ui/council-review-ui.mjs'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/council-review.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
+      - '.github/workflows/council-e1-vessie.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  council-e1-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate strict browser-only receipt modules
+        run: |
+          node --check packages/vessie-local-console/ui/council-review.mjs
+          node --check packages/vessie-local-console/ui/council-review-ui.mjs
+          node --check packages/vessie-local-console/server.mjs
+      - name: Run Council E1-C evidence and no-authority tests
+        run: node --test packages/vessie-local-console/tests/council-review.test.mjs
+      - name: Regression-test existing evidence bench contract
+        run: node --test packages/vessie-local-console/tests/evidence-bench.test.mjs
