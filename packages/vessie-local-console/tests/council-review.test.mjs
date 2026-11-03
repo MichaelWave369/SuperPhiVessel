@@ -159,12 +159,14 @@ test('E1-C14 console and portable packager expose exact new files',()=>{
   const html=readFileSync(new URL('ui/index.html',here),'utf8');
   const server=readFileSync(new URL('server.mjs',here),'utf8');
   const pack=readFileSync(new URL('../../windows-local/build-portable.ps1',here),'utf8');
+  const verifier=readFileSync(new URL('../../windows-local/verify-pages-zip.py',here),'utf8');
   const script=readFileSync(new URL('ui/council-review-ui.mjs',here),'utf8');
   assert.match(html,/id="council-e1-file"/);
   assert.match(html,/src="\/council-review-ui\.mjs"/);
   for(const name of ['council-review.mjs','council-review-ui.mjs']){
     assert.ok(server.includes("'/"+name+"'"));
     assert.ok(pack.includes("local-console/ui/"+name));
+    assert.ok(verifier.includes("local-console/ui/"+name));
   }
   assert.doesNotMatch(script,/\bfetch\s*\(|\blocalStorage\b|\bindexedDB\b|\beval\s*\(/);
 });
