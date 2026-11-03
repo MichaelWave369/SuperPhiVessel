@@ -9,6 +9,7 @@ on:
       - 'packages/vessie-local-console/server.mjs'
       - 'packages/vessie-local-console/tests/council-review.test.mjs'
       - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
       - '.github/workflows/council-e1-vessie.yml'
   push:
     branches: [main]
@@ -19,6 +20,7 @@ on:
       - 'packages/vessie-local-console/server.mjs'
       - 'packages/vessie-local-console/tests/council-review.test.mjs'
       - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
       - '.github/workflows/council-e1-vessie.yml'
 
 permissions:
