@@ -130,6 +130,18 @@ test("unsupported/missing per-record timestamps and message roles never fabricat
   const invalid=fixture();invalid.memory.records[0].status="PROPOSED";
   await assert.rejects(convertCanonical(sealed(invalid),webcrypto.subtle),/non-active memory record/);
 });
+test("workbench presents the canonical option only after source inspection and approval",()=>{
+  const html=readFileSync(new URL("../site/sovereignty/index.html",import.meta.url),"utf8");
+  const ui=readFileSync(new URL("../site/sovereignty/workbench.js",import.meta.url),"utf8");
+  assert.match(html,/id="canonicalButton" type="button" disabled/);
+  assert.match(html,/Memory horizons, pinned flags, grants, attachments/);
+  assert.match(ui,/convertCanonical\(sourceText\)/);
+  assert.match(ui,/canonicalButton\.disabled = busy \|\| !source \|\| !consentInput\.checked/);
+  assert.match(ui,/inspectedFile !== source/);
+  assert.match(ui,/Canonical text extraction refused/);
+  assert.doesNotMatch(ui,/\bfetch\s*\(|\bWebSocket\s*\(|\bXMLHttpRequest\b|\blocalStorage\b|\bindexedDB\b/);
+});
+
 test("outer seal is still required even if a historical chain is empty",async()=>{
   const unsealed=fixture();
   await assert.rejects(inspectCanonical(JSON.stringify(unsealed),webcrypto.subtle),/cryptographic SHA-256 seal required/);
