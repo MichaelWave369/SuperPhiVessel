@@ -1,10 +1,12 @@
 import { inspectShape, sha256, convert } from "./portable-web.mjs";
+import { convertCanonical } from "./canonical-v1.mjs";
 
 const sourceInput = document.getElementById("sourceFile");
 const mappingInput = document.getElementById("mappingFile");
 const consentInput = document.getElementById("consent");
 const inspectButton = document.getElementById("inspectButton");
 const convertButton = document.getElementById("convertButton");
+const canonicalButton = document.getElementById("canonicalButton");
 const report = document.getElementById("inspection");
 const shapeReport = document.getElementById("shapeReport");
 const hashDisplay = document.getElementById("sourceHash");
@@ -41,6 +43,8 @@ function updateButtons() {
   inspectButton.disabled = busy || !source || source.size > 2_000_000;
   convertButton.disabled = busy || !source || !mapping || !consentInput.checked ||
     inspectedFile !== source || source.size > 2_000_000 || mapping.size > 100_000;
+  canonicalButton.disabled = busy || !source || !consentInput.checked ||
+    inspectedFile !== source || source.size > 2_000_000;
 }
 sourceInput.addEventListener("change", () => {
   consentInput.checked = false;
@@ -114,5 +118,38 @@ convertButton.addEventListener("click", async () => {
     updateButtons();
   }
 });
+
+canonicalButton.addEventListener("click", async () => {
+  if (busy || !consentInput.checked) return;
+  const file = sourceInput.files?.[0];
+  if (!file || inspectedFile !== file || file.size > 2_000_000) return;
+  busy = true;
+  clearDownload();
+  updateButtons();
+  setStatus("Verifying canonical SHA-256 seal, historical custody and exact v1 source schema in browser memory…");
+  try {
+    const sourceText = await file.text();
+    const converted = await convertCanonical(sourceText);
+    if (sourceInput.files?.[0] !== file || !consentInput.checked) {
+      throw new Error("Selected file or consent changed during conversion");
+    }
+    const blob = new Blob([converted.archive], {type: "application/x-ndjson"});
+    objectUrl = URL.createObjectURL(blob);
+    downloadLink.href = objectUrl;
+    downloadLink.hidden = false;
+    const counts = Object.entries(converted.kinds).filter(([, n]) => n > 0).map(([kind, n]) => kind + ": " + n);
+    convertedCount.textContent = converted.record_count + " records prepared (" +
+      (counts.join(", ") || "empty") + "). Text extraction only; verified outer SHA-256 seal. " +
+      converted.warning;
+    conversionResult.hidden = false;
+    setStatus("Canonical text archive ready. This is not a full-fidelity identity, metadata or authority restoration.");
+  } catch (error) {
+    setStatus("Canonical text extraction refused: " + error.message, true);
+  } finally {
+    busy = false;
+    updateButtons();
+  }
+});
+
 window.addEventListener("pagehide", clearDownload);
 updateButtons();
