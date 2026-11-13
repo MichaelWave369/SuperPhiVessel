@@ -1,0 +1,62 @@
+{
+  "schema": "spv.sovereignty.staging.v0.1",
+  "exported_at": "2026-11-13T19:00:00Z",
+  "records": [
+    {
+      "kind": "conversation",
+      "id": "conv-demo-001",
+      "title": "Imaginary garden",
+      "text": "A pretend conversation about cultivating a garden in a fictional town.",
+      "parent_id": null,
+      "created_at": "2026-11-01T12:00:00Z",
+      "updated_at": "2026-11-02T12:30:00Z",
+      "provenance": {
+        "source": "synthetic_fixture",
+        "source_id": "synthetic-no-user-data",
+        "status": "DECLARED_UNVERIFIED"
+      }
+    },
+    {
+      "kind": "message",
+      "id": "msg-demo-001",
+      "title": "First idea",
+      "text": "Could our imaginary garden use rainwater?",
+      "parent_id": "conv-demo-001",
+      "created_at": "2026-11-01T12:00:00Z",
+      "updated_at": "2026-11-02T12:30:00Z",
+      "provenance": {
+        "source": "synthetic_fixture",
+        "source_id": "synthetic-no-user-data",
+        "status": "DECLARED_UNVERIFIED"
+      }
+    },
+    {
+      "kind": "memory",
+      "id": "mem-demo-001",
+      "title": "Synthetic preference",
+      "text": "Fictional subject prefers native plants and evening walks. This is not a real user.",
+      "parent_id": null,
+      "created_at": "2026-11-01T12:00:00Z",
+      "updated_at": "2026-11-02T12:30:00Z",
+      "provenance": {
+        "source": "synthetic_fixture",
+        "source_id": "synthetic-no-user-data",
+        "status": "DECLARED_UNVERIFIED"
+      }
+    },
+    {
+      "kind": "work_object",
+      "id": "work-demo-001",
+      "title": "Sample project",
+      "text": "Build a fictional community garden planning checklist.",
+      "parent_id": null,
+      "created_at": "2026-11-01T12:00:00Z",
+      "updated_at": "2026-11-02T12:30:00Z",
+      "provenance": {
+        "source": "synthetic_fixture",
+        "source_id": "synthetic-no-user-data",
+        "status": "DECLARED_UNVERIFIED"
+      }
+    }
+  ]
+}
