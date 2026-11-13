@@ -183,7 +183,7 @@ test("R4 readiness UX distinguishes the two operator paths and explains pilot si
   assert.match(html,/I am authorized to export this selected file/);
   assert.doesNotMatch(html,/does not automatically understand the canonical Portable Vessel Bundle/);
   assert.match(ui,/Selected file is.*above the 2 MB pilot limit/);
-  assert.match(ui,/No file contents were read/);
+  assert.match(ui,/no file contents were read/i);
   assert.match(ui,/Canonical Bundle v1 extraction does not require a mapping/);
   assert.match(ui,/inspectedFile !== source/);
   assert.match(ui,/consentInput.checked/);
