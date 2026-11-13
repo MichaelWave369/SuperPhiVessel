@@ -69,3 +69,41 @@ export function assessProviderIndependence({
     ])
   });
 }
+
+
+// R6: prepare an operator-directed prompt COPY into an already guarded local
+// form. The result is only a UI plan. It does not select a model, execute,
+// contact a provider, authorize a request, or persist prompt text.
+export const HANDOFF_SCHEMA='spv.sovereignty.manual-prompt-stage.v0.1';
+export function planManualPromptStage({assessment,prompt}={}){
+  if(!assessment || assessment.schema!==PROVIDER_REHEARSAL_SCHEMA ||
+     assessment.status!=='REVIEW_ONLY_NOT_A_MODEL_ROUTE' ||
+     !PROVIDER_CHOICES.includes(assessment.selected_provider) ||
+     assessment.inference_performed!==false || assessment.auto_fallback!==false ||
+     assessment.canonical_runtime_connected!==false ||
+     assessment.identity_and_authority!=='NONE'){
+    throw new TypeError('UNTRUSTED_PROVIDER_ASSESSMENT');
+  }
+  const response=(status,reason,target=null)=>Object.freeze({
+    schema:HANDOFF_SCHEMA,status,reason,target_input_id:target,
+    prompt_included:false,model_selected:false,
+    provider_switched:false,inference_performed:false,
+    network_request_performed:false,auto_fallback:false,
+    authorization_granted:false,canonical_runtime_connected:false,
+    requires_manual_model_selection:true,
+    requires_fresh_per_prompt_approval:true
+  });
+  if(typeof prompt!=='string' || !prompt.trim() || prompt.length>2000 ||
+     /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(prompt)){
+    return response('REFUSED','PROMPT_INVALID');
+  }
+  if(assessment.selected_provider==='OLLAMA_LOCAL' &&
+     assessment.draft_status==='EXPLICIT_ONE_SHOT_APPROVAL_REQUIRED'){
+    return response('READY_TO_STAGE','OLLAMA_EDITOR_ONLY','trial-prompt');
+  }
+  if(assessment.selected_provider==='PHISERVE_LOCAL' &&
+     assessment.draft_status==='SEPARATE_DISCOVERY_REQUIRED'){
+    return response('READY_TO_STAGE','PHISERVE_EDITOR_ONLY','desk-live-prompt');
+  }
+  return response('HELD','PROVIDER_OR_STARTUP_NOT_READY');
+}
