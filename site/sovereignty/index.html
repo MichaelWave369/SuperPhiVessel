@@ -57,6 +57,8 @@
           <div class="step-head"><span>03</span><h3>Approve, then convert</h3></div>
           <label class="consent"><input type="checkbox" id="consent"> <span>I reviewed this source and mapping, understand that selected free text may contain private information, and want a local plaintext export.</span></label>
           <button id="convertButton" type="button" disabled>Prepare portable JSONL</button>
+          <button id="canonicalButton" type="button" disabled>Extract text from verified Vessie Bundle v1</button>
+          <p class="help">Canonical route: only SHA-256-sealed PV-BUNDLE-0.1 exports from the audited 2.0-alpha.11.0.54.12 runtime. A separate mapping file is not required. Memory horizons, pinned flags, grants, attachments, proposals, and historical receipts are NOT carried into the text archive.</p>
           <p class="help">Preparing does not download automatically. Review the record counts, then choose the explicit Download link. Downloaded copies cannot be revoked from the original app.</p>
           <div id="conversionResult" class="result-panel" hidden>
             <h4>Portable archive prepared</h4>
