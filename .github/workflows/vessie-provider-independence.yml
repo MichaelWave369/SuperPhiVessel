@@ -1,0 +1,42 @@
+name: Vessie Sovereignty R5 provider independence rehearsal
+on:
+  pull_request:
+    paths:
+      - 'packages/vessie-local-console/ui/provider-independence.mjs'
+      - 'packages/vessie-local-console/ui/app.js'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/provider-independence.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'docs/SOVEREIGNTY_R5_PROVIDER_INDEPENDENCE.md'
+      - '.github/workflows/vessie-provider-independence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/vessie-local-console/ui/provider-independence.mjs'
+      - 'packages/vessie-local-console/ui/app.js'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/provider-independence.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'docs/SOVEREIGNTY_R5_PROVIDER_INDEPENDENCE.md'
+      - '.github/workflows/vessie-provider-independence.yml'
+permissions:
+  contents: read
+jobs:
+  offline-provider-absence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check packages/vessie-local-console/ui/provider-independence.mjs
+          node --check packages/vessie-local-console/ui/app.js
+          node --check packages/vessie-local-console/server.mjs
+      - name: Offline provider absence and existing server regressions
+        run: |
+          node --test packages/vessie-local-console/tests/provider-independence.test.mjs packages/vessie-local-console/tests/server.test.mjs

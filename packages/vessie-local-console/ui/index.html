@@ -33,6 +33,19 @@
       <div class="empty" id="empty">Nothing has been probed yet. Your installed Ollama models will appear here after you request a scan.</div>
       <div id="models" class="models" hidden></div>
     </section>
+    <section class="panel" aria-labelledby="provider-rehearsal-heading">
+      <div class="panel-top"><h2 id="provider-rehearsal-heading">Sovereignty · Provider Independence</h2><span class="tiny">READ-ONLY REHEARSAL · NO ROUTE CHANGE</span></div>
+      <p class="classification-note">Choose a local provider for an evidence-only rehearsal. The selector NEVER switches a model, runs a prompt, calls PhiServe, or changes canonical Vessie. A missing provider means visible degradation, not automatic cloud fallback.</p>
+      <label class="trial-label" for="provider-rehearsal-choice">Operator's provider preference (planning only)</label>
+      <select class="trial-field" id="provider-rehearsal-choice">
+        <option value="NONE">No inference · read-only</option>
+        <option value="OLLAMA_LOCAL">Ollama · local weight-size reported</option>
+        <option value="PHISERVE_LOCAL">PhiServe · separately approved local GGUF</option>
+      </select>
+      <p class="status" role="status" aria-live="polite" id="provider-rehearsal-status">No inference selected. No provider check performed.</p>
+      <ul id="provider-rehearsal-capabilities" aria-label="Capability degradation report"></ul>
+      <p class="footnote">Ollama status comes only from the existing explicit inventory scan. PhiServe status here is never inferred from Ollama: use its separate Model Desk, token file and explicit per-prompt approval. Portable records need the separate offline reader. No action authority, memory restoration or hosted BrainC connection is created.</p>
+    </section>
     <section class="panel" aria-labelledby="trial-heading">
       <div class="panel-top"><h2 id="trial-heading">One-shot local inference trial</h2><span class="tiny">OFF by default</span></div>
       <p id="trial-help" class="classification-note">To run a single local model with explicit approval, stop the read-only console and launch <code>Start-Local-Trial.cmd</code>. No cloud references are eligible.</p>
