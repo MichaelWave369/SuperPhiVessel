@@ -19,9 +19,9 @@
   </header>
   <main class="workbench-shell">
     <section class="workbench-hero">
-      <div class="eyebrow">SOVEREIGNTY R3 · R2 EXPERIMENTAL WORKBENCH</div>
+      <div class="eyebrow">SOVEREIGNTY R3 · R3 CANONICAL TEXT EXPORT PILOT</div>
       <h1>Your records.<br><span class="accent">Your way out.</span></h1>
-      <p class="lede">Inspect the structure of a JSON file you choose, approve a reviewed field mapping, and export ordinary portable JSONL. Your selected files are processed locally in this browser session. Nothing is sent to Vessie, an AI model, or a remote API.</p>
+      <p class="lede">Verify a supported Vessie Vessel Bundle v1 and extract bounded text records, or map another JSON source explicitly to portable JSONL. Files you select are processed in this browser session only; the workbench does not send their contents to Vessie, an AI model, or a remote API.</p>
       <div class="truth-grid">
         <div><small>PRIVACY</small><strong>Local file selection</strong><span>No upload requests or network calls from this workbench</span></div>
         <div><small>PROVENANCE</small><strong>Declared · unverified</strong><span>SHA-256 detects changes, not who made the data</span></div>
@@ -31,7 +31,7 @@
     <section class="workbench-section" aria-labelledby="use-title">
       <div class="eyebrow">LOCAL CONVERSION</div>
       <h2 id="use-title">Bring your own export.</h2>
-      <p class="intro">This tool does not automatically understand the canonical Portable Vessel Bundle. Only proceed when you've reviewed the source JSON and know which fields belong to you. Do not upload private files to GitHub or paste their contents into an issue.</p>
+      <p class="intro">Two separate local routes: an audited, SHA-256-sealed PV-BUNDLE-0.1 from Vessie 2.0-alpha.11.0.54.12 can use canonical extraction without a mapping; other JSON requires a mapping you review. Both paths are text-only, capped at 2 MB and 500 records. Never upload private bundles to GitHub.</p>
       <div class="steps">
         <article class="step">
           <div class="step-head"><span>01</span><h3>Select a JSON file</h3></div>
@@ -47,15 +47,15 @@
           </div>
         </article>
         <article class="step">
-          <div class="step-head"><span>02</span><h3>Bring a reviewed mapping</h3></div>
+          <div class="step-head"><span>02</span><h3>For other JSON: bring a mapping</h3></div>
           <label for="mappingFile">Mapping JSON, up to 100 KB</label>
           <input id="mappingFile" type="file" accept=".json,application/json">
-          <p class="help">The mapping chooses exact collections and fields. Its source_sha256 must match Step 01. No automatic field inference, credentials, authority grants, or missing timestamps.</p>
+          <p class="help">Only the general JSON route needs a reviewed mapping. Its source_sha256 must match Step 01. Verified canonical Vessie Bundle v1 extraction does not need a mapping. Neither path imports credentials, grants or permissions.</p>
           <p><a href="https://github.com/MichaelWave369/SuperPhiVessel/blob/main/docs/SOVEREIGNTY_R3_OPERATOR_MAP_R1.md">Read the R1 mapping guide and synthetic example</a></p>
         </article>
         <article class="step">
           <div class="step-head"><span>03</span><h3>Approve, then convert</h3></div>
-          <label class="consent"><input type="checkbox" id="consent"> <span>I reviewed this source and mapping, understand that selected free text may contain private information, and want a local plaintext export.</span></label>
+          <label class="consent"><input type="checkbox" id="consent"> <span>I am authorized to export this selected file, have reviewed any mapping I supplied, understand its text can contain private information, and approve preparing a local plaintext text-only archive without identity or authority transfer.</span></label>
           <button id="convertButton" type="button" disabled>Prepare portable JSONL</button>
           <button id="canonicalButton" type="button" disabled>Extract text from verified Vessie Bundle v1</button>
           <p class="help">Canonical route: only SHA-256-sealed PV-BUNDLE-0.1 exports from the audited 2.0-alpha.11.0.54.12 runtime. A separate mapping file is not required. Memory horizons, pinned flags, grants, attachments, proposals, and historical receipts are NOT carried into the text archive.</p>
@@ -78,7 +78,7 @@
         <div><h3>No identity or permission import</h3><p>Record text cannot restore an identity, authorize execution, load a model, or grant access to another service.</p></div>
         <div><h3>No confidentiality guarantee after download</h3><p>JSONL is plaintext, not encrypted. Store it on a protected device and review mapped text before sharing it.</p></div>
       </div>
-      <div class="actions"><a class="button" href="https://github.com/MichaelWave369/SuperPhiVessel/issues/91">See remaining portability acceptance gates</a><a class="button" href="../atlas/">Return to Vessie's Mode Atlas</a></div>
+      <div class="actions"><a class="button" href="https://github.com/MichaelWave369/SuperPhiVessel/blob/main/docs/SOVEREIGNTY_R3_FIELD_ACCEPTANCE_R4.md">Windows and mobile acceptance checklist</a><a class="button" href="https://github.com/MichaelWave369/SuperPhiVessel/issues/91">See remaining portability acceptance gates</a><a class="button" href="../atlas/">Return to Vessie's Mode Atlas</a></div>
     </section>
   </main>
   <footer><span>Super Φ.Vessel · Operator-only browser workbench</span><span>Local conversion ≠ canonical runtime integration</span></footer>

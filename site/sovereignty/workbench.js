@@ -49,13 +49,26 @@ function updateButtons() {
 sourceInput.addEventListener("change", () => {
   consentInput.checked = false;
   resetInspection();
-  setStatus(sourceInput.files?.length ? "Source selected. Inspect its local structure before mapping." : "No source selected.");
+  const selected = sourceInput.files?.[0];
+  if (!selected) {
+    setStatus("No source selected.");
+  } else if (selected.size > 2_000_000) {
+    // File metadata only. No private contents read from oversized sources.
+    setStatus("Selected file is " + selected.size + " bytes, above the 2 MB pilot limit. Inspection and extraction are disabled; no file contents were read.", true);
+  } else {
+    setStatus("Source selected. Inspect its structure, then choose verified canonical extraction or a separately reviewed JSON mapping.");
+  }
 });
 mappingInput.addEventListener("change", () => {
   consentInput.checked = false;
   clearDownload();
   updateButtons();
-  setStatus(mappingInput.files?.length ? "Mapping selected. Review the files, then explicitly approve conversion." : "No mapping selected.");
+  const selectedMap = mappingInput.files?.[0];
+  if (selectedMap?.size > 100_000) {
+    setStatus("Selected mapping exceeds the 100 KB limit; the general JSON conversion is disabled. Canonical Bundle v1 extraction does not require a mapping.", true);
+  } else {
+    setStatus(selectedMap ? "Mapping selected for general JSON. Review it and explicitly approve conversion; canonical Bundle v1 extraction needs no mapping." : "No mapping selected. Canonical Bundle v1 extraction remains available after source inspection and approval.");
+  }
 });
 consentInput.addEventListener("change", () => {
   clearDownload();
@@ -79,7 +92,7 @@ inspectButton.addEventListener("click", async () => {
     hashDisplay.textContent = digest;
     report.hidden = false;
     inspectedFile = file;
-    setStatus("Inspection completed locally. Review field names and create a mapping pinned to this exact SHA-256.");
+    setStatus("Inspection completed locally. Review field names. For an audited Vessie Bundle v1, approve and use canonical extraction; otherwise supply a reviewed mapping pinned to this SHA-256.");
   } catch (error) {
     setStatus("Inspection refused: " + error.message, true);
   } finally {
