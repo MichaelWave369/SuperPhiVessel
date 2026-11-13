@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Offline-only local JSON record mapping to portable text; no upload, no model call, no memory access.">
+  <title>Vessie · Your Records Workbench</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./workbench.css">
+  <script type="module" src="./workbench.js"></script>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="../"><span class="mark">Φ</span><span>SUPER Φ.VESSEL</span></a>
+    <nav aria-label="Workbench navigation"><a href="../">Home</a><a href="../atlas/">Mode Atlas</a><a href="../manual/">Manual</a></nav>
+  </header>
+  <main class="workbench-shell">
+    <section class="workbench-hero">
+      <div class="eyebrow">SOVEREIGNTY R3 · R2 EXPERIMENTAL WORKBENCH</div>
+      <h1>Your records.<br><span class="accent">Your way out.</span></h1>
+      <p class="lede">Inspect the structure of a JSON file you choose, approve a reviewed field mapping, and export ordinary portable JSONL. Your selected files are processed locally in this browser session. Nothing is sent to Vessie, an AI model, or a remote API.</p>
+      <div class="truth-grid">
+        <div><small>PRIVACY</small><strong>Local file selection</strong><span>No upload requests or network calls from this workbench</span></div>
+        <div><small>PROVENANCE</small><strong>Declared · unverified</strong><span>SHA-256 detects changes, not who made the data</span></div>
+        <div><small>RUNTIME</small><strong>Isolated research tool</strong><span>Not connected to canonical Vessie memory or providers</span></div>
+      </div>
+    </section>
+    <section class="workbench-section" aria-labelledby="use-title">
+      <div class="eyebrow">LOCAL CONVERSION</div>
+      <h2 id="use-title">Bring your own export.</h2>
+      <p class="intro">This tool does not automatically understand the canonical Portable Vessel Bundle. Only proceed when you've reviewed the source JSON and know which fields belong to you. Do not upload private files to GitHub or paste their contents into an issue.</p>
+      <div class="steps">
+        <article class="step">
+          <div class="step-head"><span>01</span><h3>Select a JSON file</h3></div>
+          <label for="sourceFile">Source JSON, up to 2 MB</label>
+          <input id="sourceFile" type="file" accept=".json,application/json" aria-describedby="sourceHelp">
+          <p id="sourceHelp" class="help">We never access browser storage or choose a file for you. The browser receives the file's text only after you select Inspect or Convert.</p>
+          <button id="inspectButton" type="button" disabled>Inspect file structure</button>
+          <div id="inspection" class="result-panel" hidden>
+            <h4>Structure report · local only</h4>
+            <p>These names and counts can themselves be private. No source values are displayed.</p>
+            <p>Source SHA-256: <code id="sourceHash"></code></p>
+            <pre id="shapeReport" aria-label="JSON structure report"></pre>
+          </div>
+        </article>
+        <article class="step">
+          <div class="step-head"><span>02</span><h3>Bring a reviewed mapping</h3></div>
+          <label for="mappingFile">Mapping JSON, up to 100 KB</label>
+          <input id="mappingFile" type="file" accept=".json,application/json">
+          <p class="help">The mapping chooses exact collections and fields. Its source_sha256 must match Step 01. No automatic field inference, credentials, authority grants, or missing timestamps.</p>
+          <p><a href="https://github.com/MichaelWave369/SuperPhiVessel/blob/main/docs/SOVEREIGNTY_R3_OPERATOR_MAP_R1.md">Read the R1 mapping guide and synthetic example</a></p>
+        </article>
+        <article class="step">
+          <div class="step-head"><span>03</span><h3>Approve, then convert</h3></div>
+          <label class="consent"><input type="checkbox" id="consent"> <span>I reviewed this source and mapping, understand that selected free text may contain private information, and want a local plaintext export.</span></label>
+          <button id="convertButton" type="button" disabled>Prepare portable JSONL</button>
+          <p class="help">Preparing does not download automatically. Review the record counts, then choose the explicit Download link. Downloaded copies cannot be revoked from the original app.</p>
+          <div id="conversionResult" class="result-panel" hidden>
+            <h4>Portable archive prepared</h4>
+            <p id="convertedCount"></p>
+            <a id="downloadLink" class="button primary" download="vessie-portable-records.jsonl" hidden>Download JSONL to your device</a>
+            <p>Every record is declared unverified and carries no runtime authority. You can verify the file later using the standalone <a href="https://github.com/MichaelWave369/SuperPhiVessel/blob/main/tools/sovereignty-r3/reader.mjs">reader.mjs</a>.</p>
+          </div>
+        </article>
+      </div>
+      <p class="status-line" role="status" aria-live="polite" id="statusMessage">No files selected. This page reads nothing until you choose files and an action.</p>
+    </section>
+    <section class="workbench-section" aria-labelledby="limits-title">
+      <div class="eyebrow">BOUNDARIES BEFORE CONVENIENCE</div>
+      <h2 id="limits-title">What this does not do.</h2>
+      <div class="limits-grid">
+        <div><h3>No automatic memory extraction</h3><p>It does not discover Vessie's localStorage, IndexedDB, PV-MEM database or browser sessions. A source file must come from an operator-controlled export.</p></div>
+        <div><h3>No identity or permission import</h3><p>Record text cannot restore an identity, authorize execution, load a model, or grant access to another service.</p></div>
+        <div><h3>No confidentiality guarantee after download</h3><p>JSONL is plaintext, not encrypted. Store it on a protected device and review mapped text before sharing it.</p></div>
+      </div>
+      <div class="actions"><a class="button" href="https://github.com/MichaelWave369/SuperPhiVessel/issues/91">See remaining portability acceptance gates</a><a class="button" href="../atlas/">Return to Vessie's Mode Atlas</a></div>
+    </section>
+  </main>
+  <footer><span>Super Φ.Vessel · Operator-only browser workbench</span><span>Local conversion ≠ canonical runtime integration</span></footer>
+</body>
+</html>
