@@ -1,0 +1,39 @@
+name: Sovereignty R3 canonical bundle text extraction
+on:
+  pull_request:
+    paths:
+      - 'site/sovereignty/**'
+      - 'tools/sovereignty-r3/**'
+      - 'tests/sovereignty-r3-*.test.mjs'
+      - 'docs/SOVEREIGNTY_R3_CANONICAL_BUNDLE_R3.md'
+      - 'runtime/MANIFEST.json'
+      - 'runtime/Super_PhiVessel_v2.0-alpha.11.0.54.12_BudgetGenius_Outcome_Handoff.html'
+      - '.github/workflows/sovereignty-r3-canonical.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/sovereignty/**'
+      - 'tools/sovereignty-r3/**'
+      - 'tests/sovereignty-r3-*.test.mjs'
+      - 'docs/SOVEREIGNTY_R3_CANONICAL_BUNDLE_R3.md'
+      - 'runtime/MANIFEST.json'
+      - 'runtime/Super_PhiVessel_v2.0-alpha.11.0.54.12_BudgetGenius_Outcome_Handoff.html'
+      - '.github/workflows/sovereignty-r3-canonical.yml'
+permissions:
+  contents: read
+jobs:
+  canonical-text:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check site/sovereignty/canonical-v1.mjs
+          node --check site/sovereignty/workbench.js
+      - name: SHA-sealed canonical v1 audit and R0/R1/R2 regression suites
+        run: |
+          node --test tests/sovereignty-r3-canonical-v1.test.mjs tests/sovereignty-r3-browser-workbench.test.mjs tests/sovereignty-r3-operator-map.test.mjs tests/sovereignty-r3-portable.test.mjs
