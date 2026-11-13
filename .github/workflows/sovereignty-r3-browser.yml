@@ -1,0 +1,44 @@
+name: Sovereignty R3 browser workbench R2
+on:
+  pull_request:
+    paths:
+      - 'site/sovereignty/**'
+      - 'site/index.html'
+      - 'site/atlas/index.html'
+      - 'tools/sovereignty-r3/**'
+      - 'tests/sovereignty-r3-browser-workbench.test.mjs'
+      - 'tests/sovereignty-r3-operator-map.test.mjs'
+      - 'tests/sovereignty-r3-portable.test.mjs'
+      - 'tests/fixtures/sovereignty-r3-operator-source.synthetic.json'
+      - 'docs/SOVEREIGNTY_R3_BROWSER_WORKBENCH_R2.md'
+      - '.github/workflows/sovereignty-r3-browser.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/sovereignty/**'
+      - 'site/index.html'
+      - 'site/atlas/index.html'
+      - 'tools/sovereignty-r3/**'
+      - 'tests/sovereignty-r3-browser-workbench.test.mjs'
+      - 'tests/sovereignty-r3-operator-map.test.mjs'
+      - 'tests/sovereignty-r3-portable.test.mjs'
+      - 'tests/fixtures/sovereignty-r3-operator-source.synthetic.json'
+      - 'docs/SOVEREIGNTY_R3_BROWSER_WORKBENCH_R2.md'
+      - '.github/workflows/sovereignty-r3-browser.yml'
+permissions:
+  contents: read
+jobs:
+  browser-workbench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks for standalone browser modules
+        run: |
+          node --check site/sovereignty/portable-web.mjs
+          node --check site/sovereignty/workbench.js
+      - name: Browser-to-Node byte parity and adversarial compatibility
+        run: node --test tests/sovereignty-r3-browser-workbench.test.mjs tests/sovereignty-r3-operator-map.test.mjs tests/sovereignty-r3-portable.test.mjs
