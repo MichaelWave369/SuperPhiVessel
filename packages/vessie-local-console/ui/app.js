@@ -1,5 +1,6 @@
 import {makeHumanReview} from './review-evidence.mjs';
 import './model-desk-ui.mjs';
+import {assessProviderIndependence} from './provider-independence.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
@@ -174,6 +175,31 @@ function showTiming(receipt) {
 let exportedReceipt = null;
 let localModels = [];
 let trialModeEnabled = false;
+let phiServeModeEnabled = false;
+let providerProbeStatus = 'NOT_SCANNED';
+let providerSnapshot = [];
+const providerChoice = document.getElementById('provider-rehearsal-choice');
+const providerStatus = document.getElementById('provider-rehearsal-status');
+const providerCapabilities = document.getElementById('provider-rehearsal-capabilities');
+function renderProviderIndependence() {
+  // Presentation-only. Does not affect trial buttons, model selection or routing.
+  const report=assessProviderIndependence({
+    selected:providerChoice.value,probeStatus:providerProbeStatus,
+    ollamaModels:providerSnapshot,localTrialEnabled:trialModeEnabled,
+    phiServeEnabled:phiServeModeEnabled
+  });
+  providerStatus.textContent=report.draft_status.replaceAll('_',' ') +
+    ' · ' + report.explanation + ' Local weight-size reports: ' +
+    report.reported_local_ollama_weights + '. This is NOT proof of successful execution.';
+  providerCapabilities.replaceChildren();
+  for(const capability of report.capabilities) {
+    const li=document.createElement('li');
+    li.textContent=capability.name+': '+capability.status.replaceAll('_',' ');
+    providerCapabilities.append(li);
+  }
+}
+providerChoice.addEventListener('change',renderProviderIndependence);
+renderProviderIndependence();
 
 
 function bytes(size) {
@@ -244,6 +270,9 @@ async function scan() {
        data.authority_granted!==false ||data.can_execute!==false ||
        !Array.isArray(data.models)||data.models.length>256)throw new Error('INVALID_READONLY_CONTRACT');
     const models=data.models.filter(item=>item && typeof item.name==='string' && item.name.length<=128);
+    providerProbeStatus=['AVAILABLE','UNAVAILABLE'].includes(data.probe_status)
+      ? data.probe_status:'ERROR';
+    providerSnapshot=models;
     render(models);
     try {
       const statusResp=await fetch('/api/status',{
@@ -256,7 +285,10 @@ async function scan() {
       trialModeEnabled=runtime.schema==='superphivessel.local-console.status.v0.1' &&
         runtime.local_trial_enabled===true &&
         runtime.per_prompt_operator_confirmation_required===true;
-    } catch {trialModeEnabled=false;}
+      phiServeModeEnabled=runtime.schema==='superphivessel.local-console.status.v0.1' &&
+        runtime.phiserve_gui_enabled===true &&
+        runtime.per_prompt_operator_confirmation_required===true;
+    } catch {trialModeEnabled=false;phiServeModeEnabled=false;}
     trialControls.hidden=!trialModeEnabled;
     document.getElementById('mode-badge').textContent=trialModeEnabled
       ? 'MANUAL LOCAL TRIAL · LOCALHOST':'READ-ONLY · LOCALHOST';
@@ -266,11 +298,15 @@ async function scan() {
     status.textContent=data.probe_status==='AVAILABLE'
       ? `Local Ollama responded. ${models.length} models discovered, no routing approval granted.`
       : 'Ollama not available on 127.0.0.1:11434. The local dashboard remains usable.';
+    renderProviderIndependence();
   } catch {
     status.textContent='The local read-only check failed or was refused. Check whether Ollama is running. No change was made.';
     modelsRoot.replaceChildren();modelsRoot.hidden=true;empty.hidden=false;
     empty.textContent='No verified local model inventory available.';
     localModels=[];trialModel.replaceChildren();trialControls.hidden=true;
+    providerProbeStatus='ERROR';providerSnapshot=[];
+    trialModeEnabled=false;phiServeModeEnabled=false;
+    renderProviderIndependence();
     count.textContent='Not available';
     breakdown.textContent='Classification unavailable. No local or cloud execution attempted.';
   } finally {button.disabled=false;}
