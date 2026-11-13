@@ -108,6 +108,32 @@ test("corrupted source, wrong runtime and FNV-only fallback are denied",async()=
   const old=fixture();old.bundleHashAlgorithm="FNV1A32_FALLBACK";
   await assert.rejects(inspectCanonical(JSON.stringify(old),webcrypto.subtle),/cryptographic SHA-256 seal required/);
 });
+test("valid sealed history-only receipt custody remains excluded from portable text",async()=>{
+  const fnv=value=>{
+    let h=2166136261;for(const c of String(value||"")){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}
+    return ("00000000"+(h>>>0).toString(16)).slice(-8);
+  };
+  const b=fixture();
+  const source={receiptType:"ActionGrant",id:"synthetic_grant",apiKey:"SYNTHETIC_HISTORY_SECRET_SHOULD_NEVER_EXPORT"};
+  const sourceHash=fnv(JSON.stringify(source));
+  const payload={index:0,prev:"GENESIS",sourceHash,type:"ActionGrant",id:"synthetic_grant"};
+  b.historicalReceipts=[{
+    chainIndex:0,prevPortableHash:"GENESIS",portableHash:fnv(JSON.stringify(payload)),
+    sourceHash,originalReceiptType:"ActionGrant",originalId:"synthetic_grant",
+    authorityBearingOriginal:true,authority:"HISTORICAL_RECORD_ONLY",
+    executionAuthority:"NONE",grantAuthority:"NONE",leaseAuthority:"NONE",
+    reactivationForbidden:true,source
+  }];
+  const result=await inspectCanonical(sealed(b),webcrypto.subtle);
+  assert.equal(result.historicalReceiptsExcluded,1);
+  const output=await convertCanonical(sealed(b),webcrypto.subtle);
+  assert.equal(verify(output.archive).records.length,5);
+  assert.ok(!output.archive.includes("SYNTHETIC_HISTORY_SECRET_SHOULD_NEVER_EXPORT"));
+  const changed=fixture();
+  changed.historicalReceipts=[{...b.historicalReceipts[0],portableHash:"00000000"}];
+  await assert.rejects(inspectCanonical(sealed(changed),webcrypto.subtle),/historical chain mismatch/);
+});
+
 test("strongly resealed false authority and unexpected receipt fields still fail boundary gate",async()=>{
   const altered=fixture();altered.manifest.authorityTravels=true;
   await assert.rejects(inspectCanonical(sealed(altered),webcrypto.subtle),/manifest policy mismatch/);
