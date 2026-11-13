@@ -1,0 +1,37 @@
+name: Vessie Mode Atlas checks
+on:
+  pull_request:
+    paths:
+      - 'site/atlas/**'
+      - 'site/index.html'
+      - 'site/manual/index.html'
+      - 'site/manual/manual.js'
+      - 'runtime/MANIFEST.json'
+      - 'tests/vessie-atlas.test.mjs'
+      - '.github/workflows/vessie-atlas.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/atlas/**'
+      - 'site/index.html'
+      - 'site/manual/index.html'
+      - 'site/manual/manual.js'
+      - 'runtime/MANIFEST.json'
+      - 'tests/vessie-atlas.test.mjs'
+      - '.github/workflows/vessie-atlas.yml'
+permissions:
+  contents: read
+jobs:
+  atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and curated capability contract
+        run: |
+          node --check site/atlas/data.mjs
+          node --check site/atlas/atlas.js
+          node --test tests/vessie-atlas.test.mjs
