@@ -1,6 +1,6 @@
 import {makeHumanReview} from './review-evidence.mjs';
 import './model-desk-ui.mjs';
-import {assessProviderIndependence} from './provider-independence.mjs';
+import {assessProviderIndependence,planManualPromptStage} from './provider-independence.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
@@ -181,13 +181,22 @@ let providerSnapshot = [];
 const providerChoice = document.getElementById('provider-rehearsal-choice');
 const providerStatus = document.getElementById('provider-rehearsal-status');
 const providerCapabilities = document.getElementById('provider-rehearsal-capabilities');
-function renderProviderIndependence() {
-  // Presentation-only. Does not affect trial buttons, model selection or routing.
-  const report=assessProviderIndependence({
+const handoffPrompt=document.getElementById('provider-handoff-prompt');
+const handoffStage=document.getElementById('provider-handoff-stage');
+const handoffStatus=document.getElementById('provider-handoff-status');
+const modeReadButton=document.getElementById('provider-handoff-check-mode');
+function currentProviderAssessment() {
+  return assessProviderIndependence({
     selected:providerChoice.value,probeStatus:providerProbeStatus,
     ollamaModels:providerSnapshot,localTrialEnabled:trialModeEnabled,
     phiServeEnabled:phiServeModeEnabled
   });
+}
+function renderProviderIndependence() {
+  // The provider selector does not itself change model, permissions or routes.
+  const report=currentProviderAssessment();
+  const plan=planManualPromptStage({assessment:report,prompt:handoffPrompt.value});
+  handoffStage.disabled=plan.status!=='READY_TO_STAGE';
   providerStatus.textContent=report.draft_status.replaceAll('_',' ') +
     ' · ' + report.explanation + ' Local weight-size reports: ' +
     report.reported_local_ollama_weights + '. This is NOT proof of successful execution.';
@@ -198,8 +207,107 @@ function renderProviderIndependence() {
     providerCapabilities.append(li);
   }
 }
-providerChoice.addEventListener('change',renderProviderIndependence);
+providerChoice.addEventListener('change',()=>{
+  handoffStatus.textContent='Provider choice changed. No model is selected or approved.';
+  renderProviderIndependence();
+});
+handoffPrompt.addEventListener('input',renderProviderIndependence);
 renderProviderIndependence();
+
+function updateConsoleModePresentation() {
+  trialControls.hidden=!trialModeEnabled;
+  document.getElementById('mode-badge').textContent=trialModeEnabled
+    ? 'MANUAL LOCAL TRIAL · LOCALHOST'
+    : phiServeModeEnabled ? 'PHISERVE MODEL DESK · LOCALHOST' : 'READ-ONLY · LOCALHOST';
+  trialHelp.textContent=trialModeEnabled
+    ? 'Local inference enabled by your startup choice. One confirmed prompt at a time, only for reported local weight files. No cloud, auto-routing or history.'
+    : 'Local trial is off. To run a single approved prompt, close this window and launch Start-Local-Trial.cmd. No cloud references are eligible.';
+}
+async function readConsoleStartupMode() {
+  // Existing authenticated, read-only loopback status API. No provider discovery.
+  const response=await fetch('/api/status',{
+    method:'GET',mode:'same-origin',cache:'no-store',redirect:'error',
+    credentials:'omit',headers:{Authorization:'Bearer '+session},
+    signal:AbortSignal.timeout(5000)
+  });
+  if(!response.ok)throw new Error('LOCAL_STATUS_UNAVAILABLE');
+  const runtime=await response.json();
+  if(runtime?.schema!=='superphivessel.local-console.status.v0.1' ||
+     runtime.authority_granted!==false ||runtime.model_routing_approved!==false ||
+     runtime.cloud_connected!==false ||runtime.brainc_connected!==false ||
+     runtime.per_prompt_operator_confirmation_required!==true ||
+     typeof runtime.local_trial_enabled!=='boolean' ||
+     typeof runtime.phiserve_gui_enabled!=='boolean' ||
+     (runtime.local_trial_enabled && runtime.phiserve_gui_enabled)){
+    throw new Error('INVALID_LOCAL_STATUS_CONTRACT');
+  }
+  trialModeEnabled=runtime.local_trial_enabled;
+  phiServeModeEnabled=runtime.phiserve_gui_enabled;
+  updateConsoleModePresentation();
+  renderProviderIndependence();
+}
+modeReadButton.addEventListener('click',async()=>{
+  modeReadButton.disabled=true;
+  handoffStatus.textContent='Reading this localhost console startup mode only. No model probe or inference.';
+  try{
+    await readConsoleStartupMode();
+    handoffStatus.textContent='Startup mode checked. Model discovery and each inference approval remain separate.';
+  }catch{
+    trialModeEnabled=false;phiServeModeEnabled=false;
+    updateConsoleModePresentation();renderProviderIndependence();
+    handoffStatus.textContent='Startup mode unavailable or invalid. Prompt staging remains held. No fallback.';
+  }finally{modeReadButton.disabled=false;}
+});
+
+handoffStage.addEventListener('click',()=>{
+  // A deliberate browser-only COPY. Does not call any model/backend endpoint.
+  const plan=planManualPromptStage({
+    assessment:currentProviderAssessment(),prompt:handoffPrompt.value
+  });
+  if(plan.status!=='READY_TO_STAGE'){
+    handoffStatus.textContent='Staging held: '+plan.reason+'. No prompt sent.';
+    renderProviderIndependence();return;
+  }
+  if(plan.target_input_id==='trial-prompt'){
+    if(!trialModeEnabled||trialControls.hidden||trialRun.disabled){
+      handoffStatus.textContent='Ollama editor unavailable or busy. No prompt staged.';
+      return;
+    }
+    resetHumanReview();
+    trialModel.value=''; // No inherited model choice.
+    trialProtocol.value='';loadedProtocolId=null; // Not a fixed test protocol.
+    trialProtocolInfo.textContent='Custom prompt staged. No protocol label or verification implied.';
+    trialPrompt.value=handoffPrompt.value;
+    trialApprove.checked=false;
+    exportedReceipt=null;trialExport.disabled=true;
+    trialOutput.textContent='No response for this staged prompt.';
+    trialReceipt.textContent='No receipt available.';
+    trialTiming.textContent='No timing observation available.';
+    trialStatus.textContent='Text staged locally. Choose a reported local model, check per-prompt approval, then confirm separately. Nothing ran.';
+    trialPrompt.focus();
+  }else if(plan.target_input_id==='desk-live-prompt'){
+    const dest=document.getElementById('desk-live-prompt');
+    const select=document.getElementById('desk-live-model');
+    const approval=document.getElementById('desk-live-approve');
+    if(!phiServeModeEnabled || !dest || dest.disabled || !select || !approval){
+      handoffStatus.textContent='PhiServe editor unavailable or busy. No prompt staged.';
+      return;
+    }
+    select.value=''; // Explicit new model choice required.
+    approval.checked=false;
+    dest.value=handoffPrompt.value;
+    dest.dispatchEvent(new Event('change')); // Clear prior model-desk review.
+    document.getElementById('desk-live-status').textContent=
+      'Text staged locally. Discover PhiServe models, select a GGUF, and approve each prompt separately. Nothing ran.';
+    dest.focus();
+  }else{
+    handoffStatus.textContent='Unknown staging destination refused.';return;
+  }
+  // Do not echo sensitive prompt text into status or receipts.
+  handoffPrompt.value='';
+  handoffStatus.textContent='Prompt copied into the selected local editor. No provider switch, network request, execution or authorization occurred.';
+  renderProviderIndependence();
+});
 
 
 function bytes(size) {
@@ -256,6 +364,9 @@ function render(items) {
 }
 async function scan() {
   button.disabled=true;
+  // Clear previous inventory during a new check; never stage from stale evidence.
+  providerProbeStatus='NOT_SCANNED';providerSnapshot=[];
+  renderProviderIndependence();
   status.textContent='Checking local Ollama (read only)…';
   try {
     const response=await fetch('/api/models',{
@@ -274,27 +385,11 @@ async function scan() {
       ? data.probe_status:'ERROR';
     providerSnapshot=models;
     render(models);
-    try {
-      const statusResp=await fetch('/api/status',{
-        method:'GET',mode:'same-origin',cache:'no-store',redirect:'error',
-        credentials:'omit',headers:{Authorization:'Bearer '+session},
-        signal:AbortSignal.timeout(5000)
-      });
-      if(!statusResp.ok) throw new Error('STATUS_UNAVAILABLE');
-      const runtime=await statusResp.json();
-      trialModeEnabled=runtime.schema==='superphivessel.local-console.status.v0.1' &&
-        runtime.local_trial_enabled===true &&
-        runtime.per_prompt_operator_confirmation_required===true;
-      phiServeModeEnabled=runtime.schema==='superphivessel.local-console.status.v0.1' &&
-        runtime.phiserve_gui_enabled===true &&
-        runtime.per_prompt_operator_confirmation_required===true;
-    } catch {trialModeEnabled=false;phiServeModeEnabled=false;}
-    trialControls.hidden=!trialModeEnabled;
-    document.getElementById('mode-badge').textContent=trialModeEnabled
-      ? 'MANUAL LOCAL TRIAL · LOCALHOST':'READ-ONLY · LOCALHOST';
-    trialHelp.textContent=trialModeEnabled
-      ? 'Local inference enabled by your startup choice. One confirmed prompt at a time, only for reported local weight files. No cloud, auto-routing or history.'
-      : 'Local trial is off. To run a single approved prompt, close this window and launch Start-Local-Trial.cmd. No cloud references are eligible.';
+    try { await readConsoleStartupMode(); }
+    catch {
+      trialModeEnabled=false;phiServeModeEnabled=false;
+      updateConsoleModePresentation();
+    }
     status.textContent=data.probe_status==='AVAILABLE'
       ? `Local Ollama responded. ${models.length} models discovered, no routing approval granted.`
       : 'Ollama not available on 127.0.0.1:11434. The local dashboard remains usable.';
@@ -306,7 +401,7 @@ async function scan() {
     localModels=[];trialModel.replaceChildren();trialControls.hidden=true;
     providerProbeStatus='ERROR';providerSnapshot=[];
     trialModeEnabled=false;phiServeModeEnabled=false;
-    renderProviderIndependence();
+    updateConsoleModePresentation();renderProviderIndependence();
     count.textContent='Not available';
     breakdown.textContent='Classification unavailable. No local or cloud execution attempted.';
   } finally {button.disabled=false;}

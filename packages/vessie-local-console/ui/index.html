@@ -44,7 +44,14 @@
       </select>
       <p class="status" role="status" aria-live="polite" id="provider-rehearsal-status">No inference selected. No provider check performed.</p>
       <ul id="provider-rehearsal-capabilities" aria-label="Capability degradation report"></ul>
-      <p class="footnote">Ollama status comes only from the existing explicit inventory scan. PhiServe status here is never inferred from Ollama: use its separate Model Desk, token file and explicit per-prompt approval. Portable records need the separate offline reader. No action authority, memory restoration or hosted BrainC connection is created.</p>
+      <h3>R6 · Manual prompt staging</h3>
+      <p class="classification-note">This only copies text into an existing local editor after a separate, deliberate click. It never sends the prompt, chooses a model, auto-runs inference, or transfers permission. Both existing editors still require manual model choice and fresh approval.</p>
+      <div class="actions"><button type="button" class="secondary" id="provider-handoff-check-mode">Read local console startup mode</button></div>
+      <label class="trial-label" for="provider-handoff-prompt">Optional prompt to stage (max 2,000 characters; do not include secrets)</label>
+      <textarea class="trial-field" id="provider-handoff-prompt" rows="3" maxlength="2000" placeholder="Prepare a short local-only question."></textarea>
+      <div class="actions"><button type="button" id="provider-handoff-stage" disabled>Copy prompt into selected local editor</button></div>
+      <p class="status" role="status" aria-live="polite" id="provider-handoff-status">No prompt staged. Check the startup mode and select a provider; Ollama additionally requires a fresh local model inventory scan.</p>
+      <p class="footnote">Ollama status comes only from an explicit inventory scan. PhiServe status here is never inferred from Ollama: use its separate Model Desk, token file and explicit per-prompt approval. The startup-mode button makes only an authenticated read to this local console. Portable records need the separate offline reader. No action authority, memory restoration or hosted BrainC connection is created.</p>
     </section>
     <section class="panel" aria-labelledby="trial-heading">
       <div class="panel-top"><h2 id="trial-heading">One-shot local inference trial</h2><span class="tiny">OFF by default</span></div>
