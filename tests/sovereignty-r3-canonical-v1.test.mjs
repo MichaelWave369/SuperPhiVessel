@@ -172,3 +172,23 @@ test("outer seal is still required even if a historical chain is empty",async()=
   const unsealed=fixture();
   await assert.rejects(inspectCanonical(JSON.stringify(unsealed),webcrypto.subtle),/cryptographic SHA-256 seal required/);
 });
+
+test("R4 readiness UX distinguishes the two operator paths and explains pilot size limits", () => {
+  const html=readFileSync(new URL("../site/sovereignty/index.html",import.meta.url),"utf8");
+  const ui=readFileSync(new URL("../site/sovereignty/workbench.js",import.meta.url),"utf8");
+  const guide=readFileSync(new URL("../docs/SOVEREIGNTY_R3_FIELD_ACCEPTANCE_R4.md",import.meta.url),"utf8");
+  assert.match(html,/CANONICAL TEXT EXPORT PILOT/);
+  assert.match(html,/canonical extraction without a mapping/);
+  assert.match(html,/For other JSON: bring a mapping/);
+  assert.match(html,/I am authorized to export this selected file/);
+  assert.doesNotMatch(html,/does not automatically understand the canonical Portable Vessel Bundle/);
+  assert.match(ui,/Selected file is.*above the 2 MB pilot limit/);
+  assert.match(ui,/No file contents were read/);
+  assert.match(ui,/Canonical Bundle v1 extraction does not require a mapping/);
+  assert.match(ui,/inspectedFile !== source/);
+  assert.match(ui,/consentInput.checked/);
+  assert.doesNotMatch(ui,/\bfetch\s*\(|\bXMLHttpRequest\b|\bWebSocket\b|\blocalStorage\b|\bindexedDB\b/i);
+  assert.match(guide,/Never attach.*private.*bundle/i);
+  assert.match(guide,/2 MB/);
+  assert.match(guide,/500 records/);
+});
