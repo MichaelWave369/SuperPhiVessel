@@ -5,7 +5,7 @@ import {sha256, convert} from "./portable-web.mjs";
 
 export const CANONICAL_SCHEMA = "phivessel.bundle.v1";
 export const CANONICAL_VERSION = "PV-BUNDLE-0.1";
-export const AUDITED_RUNTIME = "v2.0-alpha.11.0.54.12";
+export const AUDITED_RUNTIME = "2.0-alpha.11.0.54.12";
 export const AUDITED_BLOB = "c9dc18eb76be9883d18014de129c07cf78c5a498";
 const MAX_BYTES = 2_000_000;
 const MAX_ITEMS = 500;
