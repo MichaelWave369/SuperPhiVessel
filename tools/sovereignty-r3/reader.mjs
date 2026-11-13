@@ -2,6 +2,8 @@
 // Independent, read-only consumer. Copy this file outside SuperPhiVessel to inspect portable records.
 import { readFileSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const FORMAT = "spv.sovereignty.records.v0.1";
 const ALLOWED = new Set(["memory", "conversation", "message", "work_object"]);
@@ -64,7 +66,7 @@ function main(argv) {
     process.stdout.write("Wrote read-only Markdown copy to supplied destination; existing files are never replaced.\n");
   }
 }
-if (process.argv[1] && import.meta.url === new URL("file://" + process.argv[1]).href) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try { main(process.argv.slice(2)); } catch (error) { process.stderr.write("Portable reader refused: " + error.message + "\n"); process.exitCode = 1; }
 }
 export { parseFile, renderMarkdown };
