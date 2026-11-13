@@ -1,0 +1,34 @@
+name: Sovereignty R3 operator mapping R1
+on:
+  pull_request:
+    paths:
+      - 'tools/sovereignty-r3/**'
+      - 'docs/SOVEREIGNTY_R3_OPERATOR_MAP_R1.md'
+      - 'tests/sovereignty-r3-operator-map.test.mjs'
+      - 'tests/fixtures/sovereignty-r3-operator-source.synthetic.json'
+      - '.github/workflows/sovereignty-r3-operator-map.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/sovereignty-r3/**'
+      - 'docs/SOVEREIGNTY_R3_OPERATOR_MAP_R1.md'
+      - 'tests/sovereignty-r3-operator-map.test.mjs'
+      - 'tests/fixtures/sovereignty-r3-operator-source.synthetic.json'
+      - '.github/workflows/sovereignty-r3-operator-map.yml'
+permissions:
+  contents: read
+jobs:
+  operator-mapping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline module syntax
+        run: |
+          node --check tools/sovereignty-r3/operator-map.mjs
+          node --check tools/sovereignty-r3/operator-map-cli.mjs
+      - name: Mapping contract, adversarial cases and R0 compatibility
+        run: node --test tests/sovereignty-r3-operator-map.test.mjs tests/sovereignty-r3-portable.test.mjs
