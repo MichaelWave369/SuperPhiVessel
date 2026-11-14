@@ -429,6 +429,7 @@ trialRun.addEventListener('click',async()=>{
   if(!trialModeEnabled||trialOutcomeUnknown)return;
   const model=trialModel.value;
   const prompt=trialPrompt.value;
+  const expectedTokens=Number(trialLimit.value); // Snapshot before any await.
   if(!localModels.some(x=>x.name===model)){
     trialStatus.textContent='Choose a verified local-size model from the dropdown.';return;
   }
@@ -472,7 +473,7 @@ trialRun.addEventListener('click',async()=>{
     const data=await response.json();
     // Independent browser hash check: consistency only, not GPU/model attestation.
     const verified=await verifyOllamaTrialResponse({
-      result:data,expectedModel:model,expectedTokens:Number(trialLimit.value)
+      result:data,expectedModel:model,expectedTokens
     });
     trialOutput.textContent=verified.response_text || '(Model returned an empty response)';
     exportedReceipt=verified.receipt;
