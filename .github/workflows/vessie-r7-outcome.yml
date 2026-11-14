@@ -1,0 +1,46 @@
+name: Sovereignty R7 local one-shot integrity
+on:
+  pull_request:
+    paths:
+      - 'packages/vessie-local-console/ui/local-outcome.mjs'
+      - 'packages/vessie-local-console/ui/app.js'
+      - 'packages/vessie-local-console/ui/model-desk-ui.mjs'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/local-outcome.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
+      - 'docs/SOVEREIGNTY_R7_ONE_SHOT_OUTCOME.md'
+      - '.github/workflows/vessie-r7-outcome.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/vessie-local-console/ui/local-outcome.mjs'
+      - 'packages/vessie-local-console/ui/app.js'
+      - 'packages/vessie-local-console/ui/model-desk-ui.mjs'
+      - 'packages/vessie-local-console/ui/index.html'
+      - 'packages/vessie-local-console/server.mjs'
+      - 'packages/vessie-local-console/tests/local-outcome.test.mjs'
+      - 'windows-local/build-portable.ps1'
+      - 'windows-local/verify-pages-zip.py'
+      - 'docs/SOVEREIGNTY_R7_ONE_SHOT_OUTCOME.md'
+      - '.github/workflows/vessie-r7-outcome.yml'
+permissions:
+  contents: read
+jobs:
+  local-outcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Script syntax
+        run: |
+          node --check packages/vessie-local-console/ui/local-outcome.mjs
+          node --check packages/vessie-local-console/ui/app.js
+          node --check packages/vessie-local-console/ui/model-desk-ui.mjs
+      - name: Offline outcome, provider absence, and existing server security tests
+        run: |
+          node --test packages/vessie-local-console/tests/local-outcome.test.mjs packages/vessie-local-console/tests/provider-independence.test.mjs packages/vessie-local-console/tests/server.test.mjs packages/vessie-local-console/tests/phi-gui-live.test.mjs
