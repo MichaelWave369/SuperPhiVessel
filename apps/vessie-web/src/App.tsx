@@ -6,12 +6,13 @@ import { inspectReceipt } from './inspector.mjs';
 import PairingPanel from './PairingPanel';
 import CloudEvidencePanel from './CloudEvidencePanel';
 import ScoutHandoffPanel from './ScoutHandoffPanel';
+import BrowsallaxPanel from './BrowsallaxPanel';
 import AntiMPanel from './AntiMPanel';
 import EvidenceGatePanel from './EvidenceGatePanel';
 import CompanyModePanel from './CompanyModePanel';
 import type {AntiMProposal} from './company-anti-m-handoff.mjs';
 
-type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m' | 'company';
+type View = 'overview' | 'atlas' | 'routing' | 'models' | 'evidence' | 'cloud' | 'scout' | 'anti-m' | 'company' | 'browser';
 type Inspection = ReturnType<typeof inspectReceipt>;
 const PAGES = [
   ['overview','OVERVIEW','01'],
@@ -23,6 +24,7 @@ const PAGES = [
   ['scout','SCOUT HANDOFF','07'],
   ['anti-m','ANTI-M / FINISH','08'],
   ['company','COMPANY MODE','09'],
+  ['browser','BROWSER TASKS','10'],
 ] as const;
 const MODELS = [
   ...catalog.local_candidates.map((x)=>({
@@ -92,7 +94,7 @@ function App() {
         </a>
         <div className="headright">
           <span className="statusDot" aria-hidden="true"/>
-          <span>COCKPIT PREVIEW · OPTIONAL LOCAL READ-ONLY PAIRING</span>
+          <span>COCKPIT PREVIEW · MANUAL GOVERNED BROWSER TASKS</span>
           <a href="https://superphivessel.netlify.app/" target="_blank" rel="noopener noreferrer">LAUNCH CLASSIC ↗</a>
         </div>
       </header>
@@ -111,7 +113,7 @@ function App() {
             <small>Legacy production baseline, preserved byte-for-byte.</small>
             <div className="rule"/>
             <strong>CAPABILITY ≠ AUTHORITY</strong>
-            <small>The UI cannot grant permissions or execute tools. Optional discovery is read-only.</small>
+            <small>No grants originate here. Explicit browser tasks require Browsallax Desktop policy.</small>
           </div>
         </aside>
         <main className="main">
@@ -122,7 +124,7 @@ function App() {
             <div className="metricGrid">
               <div className="metric"><b>{roster.entries.length}</b><span>Genius identities</span></div>
               <div className="metric"><b>{categories.length}</b><span>Specialist categories</span></div>
-              <div className="metric"><b>0</b><span>Models started by this UI</span></div>
+              <div className="metric"><b>0</b><span>Direct model API calls</span></div>
               <div className="metric"><b>0</b><span>Authority grants</span></div>
             </div>
             <div className="sectionHead"><h2>System surfaces</h2><span>STATUS IS EVIDENCE-BOUNDED</span></div>
@@ -195,6 +197,7 @@ function App() {
             <p className="lede">Read the actual FieldCloudWorker status from GitHub, compare with the associated run and inspect a metadata-only projection. None of this starts a model or grants action authority.</p>
             <CloudEvidencePanel />
           </section>}
+          {view==='browser'&&<BrowsallaxPanel />}
           {view==='scout'&&<section>
             <div className="eyebrow">LOCAL SCOUT / HUMAN IMPORT / NO LIVE AUTHORITY</div>
             <h1>Scout <em>Handoff.</em></h1>
@@ -229,7 +232,7 @@ function App() {
           </section>}
         </main>
       </div>
-      <footer className="footer"><span>SUPER Φ.VESSEL / VESSIE WEB v0.1 · REVIEW-ONLY</span><span>OPTIONAL READ-ONLY LOCAL DISCOVERY · NO MODEL EXECUTION · LEDGER ABOVE EGO</span></footer>
+      <footer className="footer"><span>SUPER Φ.VESSEL / VESSIE WEB v0.1 · RESEARCH + REVIEW</span><span>MANUAL BROWSALLAX TASKS · HUMAN-GOVERNED · LEDGER ABOVE EGO</span></footer>
     </div>
   );
 }
