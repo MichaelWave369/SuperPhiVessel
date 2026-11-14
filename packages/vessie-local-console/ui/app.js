@@ -1,6 +1,7 @@
 import {makeHumanReview} from './review-evidence.mjs';
 import './model-desk-ui.mjs';
 import {assessProviderIndependence,planManualPromptStage} from './provider-independence.mjs';
+import {verifyOllamaTrialResponse} from './local-outcome.mjs';
 import {MAX_BENCH_ENTRIES,addBenchEvidence,buildBenchSummary} from './evidence-bench.mjs';
 import {BUNDLE_SCHEMA,MAX_BUNDLE_BYTES,exportPortableBench,importPortableBench} from './portable-bench.mjs';
 import {TRIAL_PROTOCOLS,getTrialProtocol,exactProtocolMatch} from './trial-protocols.mjs';
@@ -55,6 +56,9 @@ const trialApprove = document.getElementById('trial-approve');
 const trialRun = document.getElementById('trial-run');
 const trialExport = document.getElementById('trial-export');
 const trialStatus = document.getElementById('trial-status');
+const trialUnknownRecovery = document.getElementById('trial-unknown-recovery');
+const trialUnknownAck = document.getElementById('trial-unknown-ack');
+let trialOutcomeUnknown = false;
 const trialOutput = document.getElementById('trial-output');
 const trialReceipt = document.getElementById('trial-receipt');
 const trialTiming = document.getElementById('trial-timing');
@@ -289,7 +293,9 @@ handoffStage.addEventListener('click',()=>{
     const dest=document.getElementById('desk-live-prompt');
     const select=document.getElementById('desk-live-model');
     const approval=document.getElementById('desk-live-approve');
-    if(!phiServeModeEnabled || !dest || dest.disabled || !select || !approval){
+    const runButton=document.getElementById('desk-live-run');
+    if(!phiServeModeEnabled || !dest || dest.disabled || !select || !approval ||
+       !runButton || runButton.disabled){
       handoffStatus.textContent='PhiServe editor unavailable or busy. No prompt staged.';
       return;
     }
@@ -420,7 +426,7 @@ function jsonForTrial(model,prompt){
   return JSON.stringify(payload);
 }
 trialRun.addEventListener('click',async()=>{
-  if(!trialModeEnabled)return;
+  if(!trialModeEnabled||trialOutcomeUnknown)return;
   const model=trialModel.value;
   const prompt=trialPrompt.value;
   if(!localModels.some(x=>x.name===model)){
@@ -452,41 +458,62 @@ trialRun.addEventListener('click',async()=>{
   trialReceipt.textContent='No receipt available.';
   trialTiming.textContent='Timing measurement in progress.';
   trialStatus.textContent='Local one-shot trial started. This may load model weights or use CPU/GPU resources. No automatic retry.';
+  let requestMayHaveBeenSent=false;
   try{
+    const requestBody=jsonForTrial(model,prompt);
+    // A browser/network failure after this point cannot prove whether inference began.
+    requestMayHaveBeenSent=true;
     const response=await fetch('/api/local-trial',{
       method:'POST',mode:'same-origin',cache:'no-store',redirect:'error',credentials:'omit',
       headers:{'content-type':'application/json',Authorization:'Bearer '+session},
-      body:jsonForTrial(model,prompt),signal:AbortSignal.timeout(95000)
+      body:requestBody,signal:AbortSignal.timeout(95000)
     });
     if(!response.ok)throw new Error('TRIAL_REFUSED_OR_UNAVAILABLE');
     const data=await response.json();
-    if(data.schema!=='superphivessel.local-console.trial.result.v0.1'||
-       data.authority_granted!==false||data.model_routing_approved!==false||
-       data.can_schedule!==false||typeof data.response!=='string'||
-       data.response.length>6000||data.receipt?.model!==model||
-       data.receipt?.private_prompt_included!==false||
-       data.receipt?.generated_text_included!==false||
-       data.receipt?.authority_granted!==false)
-      throw new Error('TRIAL_CONTRACT_INVALID');
-    trialOutput.textContent=data.response || '(Model returned an empty response)';
-    exportedReceipt=data.receipt;
-    lastPerformanceReceipt=data.receipt;
-    activeHumanGuide=guideForCompletedTrial(data.receipt);
+    // Independent browser hash check: consistency only, not GPU/model attestation.
+    const verified=await verifyOllamaTrialResponse({
+      result:data,expectedModel:model,expectedTokens:Number(trialLimit.value)
+    });
+    trialOutput.textContent=verified.response_text || '(Model returned an empty response)';
+    exportedReceipt=verified.receipt;
+    lastPerformanceReceipt=verified.receipt;
+    activeHumanGuide=guideForCompletedTrial(verified.receipt);
     protocolHumanReference.hidden=activeHumanGuide===null;
     syncBenchButtons();
     reviewPanel.hidden=false;
     reviewStatus.textContent='Answer available for your optional human review. Nothing is rated automatically.';
-    trialReceipt.textContent=JSON.stringify(data.receipt,null,2);
-    showTiming(data.receipt);
+    trialReceipt.textContent=JSON.stringify(verified.receipt,null,2);
+    showTiming(verified.receipt);
     trialExport.disabled=false;
-    trialStatus.textContent='One local model trial completed. Receipt visible; no routing authority granted.';
+    trialStatus.textContent='SHA-256-consistent local text returned. This is not independent model attestation or routing approval.';
   }catch{
-    trialOutput.textContent='No verified model response available.';
+    if(requestMayHaveBeenSent){
+      trialOutcomeUnknown=true;
+      trialUnknownRecovery.hidden=false;
+    }
+    trialOutput.textContent='No SHA-256-verified model response available.';
     resetHumanReview();
     trialReceipt.textContent='No receipt available.';
     trialTiming.textContent='No verified timing observation available.';
-    trialStatus.textContent='Trial blocked or unavailable. Restarted models are not assumed. You may rescan before another attempt.';
-  }finally{trialRun.disabled=false;}
+    trialStatus.textContent=requestMayHaveBeenSent
+      ?'OUTCOME UNKNOWN: the one-shot request may have executed. No auto retry, cloud fallback, or response admitted. Acknowledge and reset before a fresh attempt.'
+      :'Local request preparation refused. No model request was attempted.';
+  }finally{trialRun.disabled=trialOutcomeUnknown;}
+});
+trialUnknownAck.addEventListener('click',()=>{
+  if(!trialOutcomeUnknown)return;
+  trialOutcomeUnknown=false;
+  trialUnknownRecovery.hidden=true;
+  providerProbeStatus='NOT_SCANNED';providerSnapshot=[];
+  localModels=[];render([]);
+  trialPrompt.value='';
+  trialProtocol.value='';loadedProtocolId=null;trialApprove.checked=false;
+  trialRun.disabled=false;trialExport.disabled=true;exportedReceipt=null;
+  trialReceipt.textContent='No receipt available.';
+  trialOutput.textContent='Previous unknown-outcome request cleared without assuming success or failure.';
+  trialTiming.textContent='No verified timing observation available.';
+  trialStatus.textContent='Unknown outcome acknowledged. Scan Ollama again, select a model and explicitly approve a new one-shot request. No automatic retry.';
+  renderProviderIndependence();
 });
 trialExport.addEventListener('click',()=>{
   if(!exportedReceipt)return;
