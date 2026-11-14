@@ -38,6 +38,9 @@ if(root){
   const liveApprove=document.getElementById('desk-live-approve');
   const liveRun=document.getElementById('desk-live-run');
   const liveStatus=document.getElementById('desk-live-status');
+  const unknownRecovery=document.getElementById('desk-unknown-recovery');
+  const unknownAck=document.getElementById('desk-unknown-ack');
+  let draftOutcomeUnknown=false;
   const textInput=document.getElementById('desk-draft-file');
   const verify=document.getElementById('desk-verify');
   const clear=document.getElementById('desk-clear');
@@ -77,7 +80,7 @@ if(root){
     busy=mode;
     verify.disabled=mode;
     liveDiscover.disabled=mode;
-    liveRun.disabled=mode;
+    liveRun.disabled=mode||draftOutcomeUnknown;
     liveModel.disabled=mode||liveModel.options.length<=1;
     livePrompt.disabled=mode;
     liveLimit.disabled=mode;
@@ -119,7 +122,7 @@ if(root){
     }finally{liveBusy(false);}
   });
   liveRun.addEventListener('click',async()=>{
-    if(busy)return;
+    if(busy||draftOutcomeUnknown)return;
     reset('Preparing explicit local PhiServe draft...');
     const selected=liveModel.value;
     const prompt=livePrompt.value;
@@ -129,9 +132,18 @@ if(root){
       liveStatus.textContent='Select a registered model, enter a short prompt and check the per-request approval box.';
       return;
     }
+    // PhiServe matches the Ollama native confirmation boundary.
+    if(!window.confirm('Send this ONE approved prompt to local PhiServe alias "'+
+       selected+'"? No automatic cloud or other-model fallback is authorized.')){
+      liveApprove.checked=false;
+      liveStatus.textContent='Local PhiServe draft canceled. One-shot approval cleared.';
+      return;
+    }
     liveBusy(true);
     liveStatus.textContent='Running one approved PhiServe draft. No other provider will be contacted.';
+    let requestMayHaveBeenSent=false;
     try{
+      requestMayHaveBeenSent=true;
       const response=await localCall('/api/phiserve-draft',{
         body:{model:selected,prompt,max_output_tokens:tokens,approve_once:true},
       });
@@ -153,14 +165,30 @@ if(root){
       displayVerified(pair,'Local PhiServe draft returned. SHA-256 consistent with its redacted receipt. Text remains untrusted; no Vessie action authorized.');
       liveStatus.textContent='One local draft completed. Review the untrusted text below. An explicit new approval is required for another prompt.';
     }catch(error){
-      reset('Local inference did not produce a verifiable completed draft.');
-      liveStatus.textContent='DRAFT REFUSED: '+
-        (/^[A-Z0-9_]{1,72}$/.test(error?.message)?error.message:'INCOMPLETE_OR_UNVERIFIED')+
-        '. No fallback, model routing, or tool execution.';
+      reset('No verifiable completed draft received. This is NOT proof the model did not run.');
+      if(requestMayHaveBeenSent){
+        draftOutcomeUnknown=true;
+        unknownRecovery.hidden=false;
+      }
+      const safeReason=/^[A-Z0-9_]{1,72}$/.test(error?.message)
+        ?error.message:'INCOMPLETE_OR_UNVERIFIED';
+      liveStatus.textContent=requestMayHaveBeenSent
+        ?'OUTCOME UNKNOWN ('+safeReason+'): this draft may have executed. No auto retry, provider change, or model authority. Acknowledge and reset first.'
+        :'PhiServe request not sent. No approval or model action.';
     }finally{
       liveApprove.checked=false;
       liveBusy(false);
     }
+  });
+  unknownAck.addEventListener('click',()=>{
+    if(!draftOutcomeUnknown||busy)return;
+    draftOutcomeUnknown=false;
+    unknownRecovery.hidden=true;
+    liveModel.replaceChildren();liveModel.add(new Option('Discover models explicitly first',''));
+    livePrompt.value='';liveApprove.checked=false;
+    liveBusy(false);
+    reset('Previous unknown draft cleared. No model execution outcome was inferred.');
+    liveStatus.textContent='Outcome uncertainty acknowledged. Rediscover GGUF aliases, select a model and explicitly approve a NEW draft. No automatic retry.';
   });
   receiptInput.addEventListener('change',()=>reset('Files changed. Verify the pair explicitly.'));
   textInput.addEventListener('change',()=>reset('Files changed. Verify the pair explicitly.'));

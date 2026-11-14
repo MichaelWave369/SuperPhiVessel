@@ -673,7 +673,9 @@ test('L41 reviewer guidance requires explicit reveal and is reset per trial with
     assert.match(page,/id="protocol-human-reference-content"[^>]*hidden/);
     assert.ok(page.includes('id="protocol-human-reveal"'));
     assert.ok(js.includes("protocolHumanReveal.addEventListener('click'"));
-    assert.ok(js.includes('activeHumanGuide=guideForCompletedTrial(data.receipt)'));
+    assert.ok(js.includes('activeHumanGuide=guideForCompletedTrial(verified.receipt)'));
+    assert.ok(js.includes('verifyOllamaTrialResponse({'));
+    assert.ok(js.includes('lastPerformanceReceipt=verified.receipt'));
     assert.ok(js.includes('resetProtocolHumanGuide();'));
     assert.ok(js.includes("protocolHumanChecks.replaceChildren();"));
     assert.ok(!js.includes('innerHTML'));
