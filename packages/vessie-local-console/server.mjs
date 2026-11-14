@@ -25,6 +25,7 @@ const STATIC = new Map([
   ['/review-evidence.mjs', { file: join(HERE, 'ui', 'review-evidence.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/model-desk.mjs', { file: join(HERE, 'ui', 'model-desk.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/provider-independence.mjs', { file: join(HERE, 'ui', 'provider-independence.mjs'), type:'text/javascript; charset=utf-8' }],
+  ['/local-outcome.mjs', { file: join(HERE, 'ui', 'local-outcome.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/model-desk-ui.mjs', { file: join(HERE, 'ui', 'model-desk-ui.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/evidence-bench.mjs', { file: join(HERE, 'ui', 'evidence-bench.mjs'), type:'text/javascript; charset=utf-8' }],
   ['/council-review.mjs', { file: join(HERE, 'ui', 'council-review.mjs'), type:'text/javascript; charset=utf-8' }],
