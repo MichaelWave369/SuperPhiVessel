@@ -50,7 +50,8 @@ try {
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/human-review-guides.mjs');To='local-console/ui/human-review-guides.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/model-desk.mjs');To='local-console/ui/model-desk.mjs'},
     @{From=(Join-Path $Root 'packages/vessie-local-console/ui/model-desk-ui.mjs');To='local-console/ui/model-desk-ui.mjs'},
-    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/provider-independence.mjs');To='local-console/ui/provider-independence.mjs'}
+    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/provider-independence.mjs');To='local-console/ui/provider-independence.mjs'},
+    @{From=(Join-Path $Root 'packages/vessie-local-console/ui/local-outcome.mjs');To='local-console/ui/local-outcome.mjs'}
   )
   foreach ($entry in $Map) {
     if (-not (Test-Path -LiteralPath $entry.From -PathType Leaf)) { throw 'ALLOWLIST_INPUT_MISSING' }
@@ -91,6 +92,7 @@ try {
       'local-console/ui/protocol-cohorts.mjs','local-console/ui/human-review-guides.mjs',
       'local-console/ui/model-desk.mjs','local-console/ui/model-desk-ui.mjs',
       'local-console/ui/provider-independence.mjs',
+      'local-console/ui/local-outcome.mjs',
       'vessie-phiserve-draft-v0.1/adapter.mjs'
     ) | Sort-Object
     if ((Compare-Object $names $expected).Count -ne 0) { throw 'ARCHIVE_ALLOWLIST_MISMATCH' }
