@@ -54,7 +54,7 @@ test('manual start and inspection work through a synthetic trusted bridge withou
   await expect(page.getByText('READY', { exact: true })).toBeVisible();
   await page.getByLabel(/I am requesting this public research task/).check();
   await page.getByRole('button', { name: /START GOVERNED TASK/ }).click();
-  await expect(page.getByRole('status')).toContainText('SUBMITTED');
+  await expect(page.getByRole('status')).toContainText('QUEUED');
   const beforeRefresh = await page.evaluate(() => window.__browsallaxCalls);
   expect(beforeRefresh).toEqual([
     'manifest',
