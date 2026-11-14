@@ -4,7 +4,8 @@ import {
   BROWSER_INTENT_VERSION,
   normalizeExplicitBrowserIntent,
   dispatchExplicitBrowserIntent,
-  inspectExplicitBrowserTask
+  inspectExplicitBrowserTask,
+  controlExplicitBrowserTask
 } from './browser-intent.mjs';
 
 const manifest = Object.freeze({
@@ -178,4 +179,59 @@ test('bad task IDs and mismatched lookup identity fail closed', async () => {
     operator: { getTask: async () => ({ ok: true, task: { ...task, id: 'wrong' } }) }
   });
   assert.equal(mismatched.reason, 'BROWSALLAX_TASK_LOOKUP_UNCONFIRMED');
+});
+
+
+test('human-triggered resume stays in the owned Browsallax task lane', async () => {
+  let calls = 0;
+  const result = await controlExplicitBrowserTask(task.id, 'RESUME', {
+    operator: {
+      resumeTask: async (id) => {
+        calls += 1;
+        assert.equal(id, task.id);
+        return { ok: true, task: { ...task, status: 'RUNNING' } };
+      }
+    }
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.ok, true);
+  assert.equal(result.disposition, 'RUNNING');
+});
+
+test('human-triggered cancel uses bounded reason and never calls resume', async () => {
+  let calls = 0;
+  const result = await controlExplicitBrowserTask(task.id, 'CANCEL', {
+    operator: {
+      resumeTask: () => { throw new Error('MUST_NOT_RESUME'); },
+      cancelTask: async (id, reason) => {
+        calls += 1;
+        assert.equal(id, task.id);
+        assert.equal(reason, 'VESSIE_EXPLICIT_CANCELLED');
+        return { ok: true, task: { ...task, status: 'CANCELLED' } };
+      }
+    }
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.disposition, 'CANCELLED');
+});
+
+test('task control rejects invalid actions and does not automatically retry ambiguous IPC', async () => {
+  let calls = 0;
+  const operator = {
+    resumeTask: async () => {
+      calls += 1;
+      throw new Error('TRANSIENT_UNKNOWN');
+    }
+  };
+  assert.equal(
+    (await controlExplicitBrowserTask(task.id, 'GRANT', { operator })).reason,
+    'BROWSALLAX_CONTROL_ACTION_NOT_ALLOWED'
+  );
+  assert.equal(
+    (await controlExplicitBrowserTask('../bad', 'RESUME', { operator })).reason,
+    'BROWSALLAX_TASK_ID_INVALID'
+  );
+  const outcome = await controlExplicitBrowserTask(task.id, 'RESUME', { operator });
+  assert.equal(outcome.reason, 'BROWSALLAX_CONTROL_OUTCOME_UNKNOWN_NO_RETRY');
+  assert.equal(calls, 1);
 });
