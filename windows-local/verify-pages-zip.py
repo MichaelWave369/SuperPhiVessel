@@ -33,6 +33,7 @@ REQUIRED = frozenset({
     "local-console/ui/model-desk.mjs",
     "local-console/ui/model-desk-ui.mjs",
     "local-console/ui/provider-independence.mjs",
+    "local-console/ui/local-outcome.mjs",
     "vessie-phiserve-draft-v0.1/adapter.mjs",
 })
 
