@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   chromium-company-completion:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout source
@@ -32,6 +32,7 @@ jobs:
       - name: Install pinned real-browser test runner without changing app dependencies
         working-directory: apps/vessie-web
         run: npm install --no-save --no-package-lock --no-audit --no-fund @playwright/test@1.56.1
+      # Playwright 1.56.1 does not support Ubuntu 26.04 yet; keep a compatible pinned runner.
       - name: Install Chromium and system dependencies
         working-directory: apps/vessie-web
         run: npx playwright install --with-deps chromium

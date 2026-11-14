@@ -167,3 +167,40 @@ export async function inspectExplicitBrowserTask(taskId, options = {}) {
     return hold('BROWSALLAX_TASK_LOOKUP_FAILED');
   }
 }
+
+
+// Task control remains a direct, explicit human UI action. The native bridge
+// checks caller ownership, and native policy still enforces interactive grants.
+export async function controlExplicitBrowserTask(taskId, action, options = {}) {
+  if (typeof taskId !== 'string' || !/^[a-z0-9-]{1,128}$/i.test(taskId)) {
+    return hold('BROWSALLAX_TASK_ID_INVALID');
+  }
+  if (action !== 'RESUME' && action !== 'CANCEL') {
+    return hold('BROWSALLAX_CONTROL_ACTION_NOT_ALLOWED');
+  }
+  const operator = options.operator ?? globalThis.browsallaxOperator;
+  const method = action === 'RESUME' ? 'resumeTask' : 'cancelTask';
+  if (typeof operator?.[method] !== 'function') {
+    return hold('BROWSALLAX_DESKTOP_BRIDGE_UNAVAILABLE');
+  }
+  try {
+    const response = action === 'CANCEL'
+      ? await operator.cancelTask(taskId, 'VESSIE_EXPLICIT_CANCELLED')
+      : await operator.resumeTask(taskId);
+    const task = boundedTask(response?.task);
+    if (response?.ok !== true || task?.taskId !== taskId || task.status === 'UNKNOWN') {
+      return hold('BROWSALLAX_CONTROL_UNCONFIRMED_NO_RETRY');
+    }
+    return {
+      ok: true,
+      disposition: task.status,
+      route: 'BROWSALLAX_TRUSTED_PAGE',
+      version: BROWSER_INTENT_VERSION,
+      taskId,
+      task,
+      authority: 'BROWSALLAX_POLICY_ENFORCED'
+    };
+  } catch {
+    return hold('BROWSALLAX_CONTROL_OUTCOME_UNKNOWN_NO_RETRY');
+  }
+}

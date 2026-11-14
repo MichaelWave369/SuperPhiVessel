@@ -21,6 +21,7 @@ It exports:
 - normalizeExplicitBrowserIntent(input): bounded, explicit HTTP(S) URL + goal validation. Rejects URL-embedded credentials and non-web schemes.
 - dispatchExplicitBrowserIntent(input, { operator? }): checks the trusted page manifest then dispatches **one** startTask request. There are no provider calls, automatic retries, or fallback into normal Vessie completion.
 - inspectExplicitBrowserTask(taskId, { operator? }): reads one already-owned task through getTask, returning a small status and selected redacted provenance fields.
+- controlExplicitBrowserTask(taskId, action, { operator? }): allows explicit, user-triggered RESUME or CANCEL on an already-owned task. Browsallax Desktop still enforces permissions; uncertain control outcomes are not retried.
 
 Illustrative caller code for the future integrated trusted Vessie page:
 
@@ -42,6 +43,8 @@ if (result.ok) {
 ~~~
 
 The snippet is **not currently imported by the canonical hosted runtime**. It is an integration contract, not a claim of live production behavior.
+
+The modular React Vessie cockpit now imports this adapter for an explicit Browser Tasks panel (R1). That is **not** the frozen canonical Netlify chat runtime; see [React R1 operator notes](../../docs/VESSIE_BROWSALLAX_REACT_R1.md).
 
 ## R0 handling
 
