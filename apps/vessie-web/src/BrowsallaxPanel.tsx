@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import {
   dispatchExplicitBrowserIntent,
   inspectExplicitBrowserTask,
@@ -81,7 +81,7 @@ export default function BrowsallaxPanel() {
     }
   };
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!confirmed || busy || taskId || uncertain || inFlight.current) return;
     await operate(() => dispatchExplicitBrowserIntent({
