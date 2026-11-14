@@ -1,0 +1,29 @@
+name: Vessie Browsallax Explicit Intent R0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/browsallax-intent-v0.1/**'
+      - '.github/workflows/vessie-browsallax-intent.yml'
+  pull_request:
+    paths:
+      - 'packages/browsallax-intent-v0.1/**'
+      - '.github/workflows/vessie-browsallax-intent.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-intent-contract:
+    name: Provider-independent browser intent contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check packages/browsallax-intent-v0.1/browser-intent.mjs
+      - name: Contract and adversarial tests
+        run: node --test packages/browsallax-intent-v0.1/browser-intent.test.mjs
