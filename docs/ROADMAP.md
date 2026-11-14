@@ -33,6 +33,7 @@ This roadmap describes normalization work for the public repository. It is not a
 - [ ] Rebuild current Netlify deployment from canonical source
 - [ ] Document Browsallax trust boundary
 - [x] Extract a provider-independent Browsallax explicit browser-intent adapter (PV-BROWSER-INTENT-0.1, synthetic tests only; not canonical-wired)
+- [x] Add a manual modular React Browser Tasks panel with exact-path Browsallax Desktop trust (synthetic tests; Windows field acceptance pending)
 - [ ] Wire explicit browser intent into the canonical Vessie runtime before normal provider completion, then complete live Browsallax Desktop acceptance
 - [ ] Document PhiOS bridge contract
 - [ ] Publish deployment/environment templates without secrets
